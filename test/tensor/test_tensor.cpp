@@ -54,4 +54,77 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 	BOOST_CHECK_NE(  a7.data() , nullptr);
 }
 
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types)
+{
+	using namespace boost::numeric;
+
+	auto a2 = ublas::tensor<value>{ublas::extents{1}};
+	BOOST_CHECK_EQUAL(  a2.size() , 1 );
+	BOOST_CHECK( !a2.empty() );
+	BOOST_CHECK_NE(  a2.data() , nullptr);
+
+	auto a3 = ublas::tensor<value>{ublas::extents{2}};
+	BOOST_CHECK_EQUAL(  a3.size() , 2 );
+	BOOST_CHECK( !a3.empty() );
+	BOOST_CHECK_NE(  a3.data() , nullptr);
+
+	auto a4 = ublas::tensor<value>{ublas::extents{1,2}};
+	BOOST_CHECK_EQUAL(  a4.size() , 2 );
+	BOOST_CHECK( !a4.empty() );
+	BOOST_CHECK_NE(  a4.data() , nullptr);
+
+	auto a5 = ublas::tensor<value>{ublas::extents{2,1}};
+	BOOST_CHECK_EQUAL(  a5.size() , 2 );
+	BOOST_CHECK( !a5.empty() );
+	BOOST_CHECK_NE(  a5.data() , nullptr);
+
+	auto a6 = ublas::tensor<value>{ublas::extents{4,3,2}};
+	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
+	BOOST_CHECK( !a6.empty() );
+	BOOST_CHECK_NE(  a6.data() , nullptr);
+
+	auto a7 = ublas::tensor<value>{ublas::extents{4,1,2}};
+	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
+	BOOST_CHECK( !a7.empty() );
+	BOOST_CHECK_NE(  a7.data() , nullptr);
+}
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_layout, value,  test_types)
+{
+	using namespace boost::numeric;
+
+	auto a2 = ublas::tensor<value>{ublas::extents{1}, ublas::layout{1}};
+	BOOST_CHECK_EQUAL(  a2.size() , 1 );
+	BOOST_CHECK( !a2.empty() );
+	BOOST_CHECK_NE(  a2.data() , nullptr);
+
+	auto a3 = ublas::tensor<value>{ublas::extents{2}, ublas::layout{1}};
+	BOOST_CHECK_EQUAL(  a3.size() , 2 );
+	BOOST_CHECK( !a3.empty() );
+	BOOST_CHECK_NE(  a3.data() , nullptr);
+
+	auto a4 = ublas::tensor<value>{ublas::extents{1,2}, ublas::layout{1,2}};
+	BOOST_CHECK_EQUAL(  a4.size() , 2 );
+	BOOST_CHECK( !a4.empty() );
+	BOOST_CHECK_NE(  a4.data() , nullptr);
+
+	auto a5 = ublas::tensor<value>{ublas::extents{2,1}, ublas::layout{2,1}};
+	BOOST_CHECK_EQUAL(  a5.size() , 2 );
+	BOOST_CHECK( !a5.empty() );
+	BOOST_CHECK_NE(  a5.data() , nullptr);
+
+	auto a6 = ublas::tensor<value>{ublas::extents{4,3,2}, ublas::layout{3,2,1}};
+	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
+	BOOST_CHECK( !a6.empty() );
+	BOOST_CHECK_NE(  a6.data() , nullptr);
+
+	auto a7 = ublas::tensor<value>{ublas::extents{4,1,2}, ublas::layout{1,2,3}};
+	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
+	BOOST_CHECK( !a7.empty() );
+	BOOST_CHECK_NE(  a7.data() , nullptr);
+}
+
 BOOST_AUTO_TEST_SUITE_END();
