@@ -24,10 +24,10 @@
 
 namespace boost { namespace numeric { namespace ublas {
 
-template<class __int_type, class __allocator_type = std::allocator<__int_type>>
+template<class __int_type>
 class basic_extents
 {
-	using base_type = std::vector<__int_type, __allocator_type>;
+	using base_type = std::vector<__int_type>;
 	static_assert( std::numeric_limits<typename base_type::value_type>::is_integer, "Static error in basic_layout: type must be of type integer.");
 	static_assert(!std::numeric_limits<typename base_type::value_type>::is_signed,  "Static error in basic_layout: type must be of type unsigned integer.");
 
@@ -40,7 +40,7 @@ public:
 	using const_iterator = typename base_type::const_iterator;
 
 	constexpr explicit basic_extents()
-	    : _base()
+		: _base{}
 	{
 	}
 
@@ -200,8 +200,8 @@ public:
 
 	bool valid() const
 	{
-		return std::none_of(_base.begin(), _base.end(),
-		                    [](const_reference a){ return a == value_type(0); });
+		return this->size() > 1 && std::none_of(_base.begin(), _base.end(),
+																						[](const_reference a){ return a == value_type(0); });
 	}
 
 	size_type product() const
@@ -213,18 +213,16 @@ public:
 	}
 
 
-	static basic_extents squeeze(basic_extents const& b)
+	basic_extents squeeze() const
 	{
-		assert(b.size() >= 2);
-		assert(b.is_valid());
-
-		if(b.size() == 3)
-			return b;
+		if(this->empty() || this->size() == 2)
+			return *this;
 
 		basic_extents newb;
 		auto not_equal_one = [](const_reference a){ return a != 1;};
-		std::remove_copy_if(b.begin(), b.end(), std::insert_iterator<basic_extents>(newb,newb.begin()),not_equal_one);
+		std::remove_copy_if(this->_base.begin(), this->_base.end(), std::insert_iterator<base_type>(newb._base,newb._base.begin()),not_equal_one);
 		return newb;
+
 	}
 
 	void clear()

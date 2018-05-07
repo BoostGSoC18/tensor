@@ -22,27 +22,35 @@
 
 #include <cassert>
 
+#include <boost/numeric/ublas/functional.hpp>
+
 namespace boost { namespace numeric { namespace ublas {
 
-template<class T, class A>
+using first_order = column_major;
+using last_order = row_major;
+
+template<class T>
 class basic_extents;
 
-template<class T, class A>
-class basic_layout;
-
-template<class __int_type, class __allocator_type = std::allocator<__int_type>>
+template<class __int_type, class __layout>
 class basic_strides
 {
-	using base_type = std::vector<__int_type, __allocator_type>;
-	static_assert( std::numeric_limits<typename base_type::value_type>::is_integer, "Static error in basic_layout: type must be of type integer.");
-	static_assert(!std::numeric_limits<typename base_type::value_type>::is_signed,  "Static error in basic_layout: type must be of type unsigned integer.");
+	using base_type = std::vector<__int_type>;
+
+	static_assert( std::numeric_limits<typename base_type::value_type>::is_integer,
+								 "Static error in boost::numeric::ublas::basic_strides: type must be of type integer.");
+	static_assert(!std::numeric_limits<typename base_type::value_type>::is_signed,
+								"Static error in boost::numeric::ublas::basic_strides: type must be of type unsigned integer.");
+	static_assert(std::is_same<__layout,first_order>::value || std::is_same<__layout,last_order>::value,
+								"Static error in boost::numeric::ublas::basic_strides: layout type must either first or last order");
 
 public:
+
+	using layout_type = __layout;
 	using value_type = typename base_type::value_type;
 	using reference = typename base_type::reference;
 	using const_reference = typename base_type::const_reference;
 	using size_type = typename base_type::size_type;
-	//using pointer = typename base_type::pointer;
 	using const_pointer = typename base_type::const_pointer;
 	using const_iterator = typename base_type::const_iterator;
 
@@ -52,36 +60,39 @@ public:
 	{
 	}
 
-	template <class T1, class T2, class A1, class A2>
-	basic_strides(basic_extents<T1,A1> const& s, basic_layout<T2,A2> const& l)
-	    : _base(s.size(),1)
+	template <class T>
+	basic_strides(basic_extents<T> const& s)
+			: _base(s.size(),1)
 	{
-		if(s.size() != l.size())
-			throw std::runtime_error("Error in basic_strides::basic_strides() : shape.size() != layout.size()");
+		if(!s.valid())
+			throw std::runtime_error("Error in boost::numeric::ublas::basic_strides() : shape is not valid.");
 
-		if(!s.valid() || !l.valid())
-			throw std::runtime_error("Error in basic_strides::basic_strides() : shape or layout not valid");
-
-
-		if(s.is_vector() || s.is_scalar()){
-			_base[0] = 1;
-			_base[1] = 1;
+		if(s.is_vector() || s.is_scalar())
 			return;
+
+		if(this->size() < 2)
+			throw std::runtime_error("Error in boost::numeric::ublas::basic_strides() : size of strides must be greater or equal 2.");
+
+
+		if constexpr (std::is_same<layout_type,first_order>::value){
+			auto k = 1ul, kend = this->size();
+			for(; k < kend; ++k)
+				_base[k] = _base[k-1] * s[k-1];
 		}
-
-		const size_t end = s.size();
-
-		_base[l[0]-1] = 1u;
-
-		for(size_t r = 1; r < end; ++r)
-		{
-			const size_t pr   = l[r]-1;
-			const size_t pr_1 = l[r-1]-1;
-			_base[pr] = _base[pr_1] * s[pr_1];
+		else {
+			auto k = this->size()-2, kend = 0ul;
+			for(; k > kend; --k)
+				_base[k] = _base[k+1] * s[k+1];
+			_base[0] = _base[1] * s[1];
 		}
 	}
 
-	basic_strides(basic_strides const& l )
+	template<class other_layout>
+	basic_strides(basic_strides<value_type,other_layout> const& l)
+			: _base(l._base)
+	{}
+
+	basic_strides(basic_strides const& l)
 	    : _base(l._base)
 	{}
 
@@ -89,12 +100,10 @@ public:
 	    : _base(std::move(l._base))
 	{}
 
-	// todo: muss nachher weg
 	basic_strides(base_type const& l )
 	    : _base(l)
 	{}
 
-	// todo: muss nachher weg
 	basic_strides(base_type && l )
 			: _base(std::move(l))
 	{}
@@ -161,8 +170,8 @@ protected:
 	base_type _base;
 };
 
-
-using strides = basic_strides<std::size_t>;
+template<class layout_type>
+using strides = basic_strides<std::size_t, layout_type>;
 
 }}}
 

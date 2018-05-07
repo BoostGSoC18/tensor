@@ -22,7 +22,6 @@
 
 #include <boost/numeric/ublas/tensor/extents.hpp>
 #include <boost/numeric/ublas/tensor/strides.hpp>
-#include <boost/numeric/ublas/tensor/layout.hpp>
 
 //#include <boost/numeric/ublas/vector_expression.hpp>
 //#include <boost/numeric/ublas/detail/vector_assign.hpp>
@@ -51,7 +50,7 @@
 
 namespace boost { namespace numeric { namespace ublas {
 
-template<class T, class A>
+template<class T, class F, class A>
 class tensor;
 
 
@@ -239,12 +238,12 @@ public:
 		* @tparam T type of the objects stored in the tensor (like int, double, complex,...)
 		* @tparam A The type of the storage array of the tensor. Default is \c unbounded_array<T>. \c <bounded_array<T> and \c std::vector<T> can also be used
 		*/
-template<class T, class A = unbounded_array<T,std::allocator<T>> >
+template<class T, class F = first_order, class A = unbounded_array<T,std::allocator<T>> >
 class tensor:
-		public tensor_container<tensor<T, A> >
+		public tensor_container<tensor<T, F, A> >
 {
 
-	typedef tensor<T, A> self_type;
+	typedef tensor<T, F, A> self_type;
 public:
 #ifdef BOOST_UBLAS_ENABLE_PROXY_SHORTCUTS
 	using tensor_container<self_type>::operator ();
@@ -258,10 +257,15 @@ public:
 	typedef T *pointer;
 	typedef const T *const_pointer;
 	typedef A array_type;
+	typedef F layout_type;
 //	typedef const tensor_reference<const self_type> const_closure_type;
 //	typedef tensor_reference<self_type> closure_type;
 	typedef self_type tensor_temporary_type;
 	typedef dense_tag storage_category;
+
+	// Reverse iterator
+//	typedef reverse_iterator_base<const_iterator> const_reverse_iterator;
+//	typedef reverse_iterator_base<iterator> reverse_iterator;
 
 	/** @brief Standard constructor of the tensor template class
 	 *
@@ -269,11 +273,10 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	constexpr tensor ()
-		: tensor_container<self_type>{}
-		, extents_{}
-		, layout_{}
-		, strides_{}
-		, data_{}
+		: tensor_container<self_type>()
+		, extents_()
+		, strides_()
+		, data_()
 	{
 	}
 
@@ -283,18 +286,18 @@ public:
 	 * Layout or storage format is automatically set to first-order.
 	 * By default, its elements are initialized to 0.
 	 *
-	 * @code tensor A{{4,2,3}}; @endcode
+	 * @code tensor A{4,2,3}; @endcode
 	 *
 	 * @param l initializer list for setting the dimension extents of the tensor
 	 */
 	explicit BOOST_UBLAS_INLINE
 	tensor (std::initializer_list<size_type> l)
-		: tensor_container<self_type>{}
-		, extents_{std::move(l)}
-		, layout_{layout::first_order(l.size())}
-		, strides_{extents_,layout_}
-		, data_{extents_.product()}
-	{}
+		: tensor_container<self_type>()
+		, extents_(std::move(l))
+		, strides_(extents_)
+		, data_(extents_.product())
+	{
+	}
 
 
 	/** @brief Constructor of the tensor template class
@@ -308,57 +311,48 @@ public:
 		*/
 	explicit BOOST_UBLAS_INLINE
 	tensor (extents const& e)
-		: tensor_container<self_type>{}
-		, extents_{e}
-		, layout_{layout::first_order(e.size())}
-		, strides_{extents_,layout_}
-		, data_{extents_.product()}
+		: tensor_container<self_type>()
+		, extents_ (e)
+		, strides_ (extents_)
+		, data_    (extents_.product())
 	{}
+
 
 	/** @brief Constructor of the tensor template class
-		*
-		* Layout or storage format is automatically set to first-order.
-		* By default, its elements are initialized to 0.
-		*
-		* @code tensor A{ extents{4,2,3}, layout{1,2,3} }; @endcode
-		*
-		* @param e initial tensor dimension extents
-		*/
-	explicit BOOST_UBLAS_INLINE
-	tensor (extents const& e, layout const& l)
-		: tensor_container<self_type>{}
-		, extents_{e}
-		, layout_{l}
-		, strides_{extents_,layout_}
-		, data_{extents_.product()}
-	{}
-
-
-	/** @brief Constructor of a tensor by copying from another container
+	 *
+	 *  @code tensor A{extents{4,2,3},vector}; @endcode
 	 *
 	 *  @param e initial tensor dimension extents
 	 *  @param data container of \c array_type
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (extents const& e, const array_type &data)
-		: tensor_container<self_type>{}
-		, extents_ {e}
-		, layout_  {layout::first_order(e.size())}
-		, strides_ {extents_,layout_}
-		, data_    {data}
+		: tensor_container<self_type>()
+		, extents_ (e)
+		, strides_ (extents_)
+		, data_    (data)
+	{
+		if(this->extents_.product() != this->data_.size())
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor: size of provided data and specified extents do not match.");
+	}
+
+
+
+	/** @brief Constructor of the tensor template class
+	 *
+	 *  @param e initial tensor dimension extents
+	 *  @param i container of \c array_type
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (extents const& e, const value_type &i)
+		: tensor_container<self_type> ()
+		, extents_ (e)
+		, strides_ (extents_)
+		, data_    (extents_.product(), i)
 	{}
 
 
 #if 0
-	/// \brief Constructor of a tensor with a predefined size and a unique initial value
-	/// \param size of the tensor
-	/// \param init value to assign to each element of the tensor
-	BOOST_UBLAS_INLINE
-	tensor (size_type size, const value_type &init):
-		tensor_container<self_type> (),
-		data_ (size, init)
-	{}
-
 	/// \brief Copy-constructor of a tensor
 	/// \param v is the tensor to be duplicated
 	BOOST_UBLAS_INLINE
@@ -422,7 +416,7 @@ public:
 	pointer data () {
 		return this->data_.end();
 	}
-#if 0
+
 
 	// --------------
 	// Element access
@@ -432,23 +426,59 @@ public:
 	/// Return a const reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
 	/// \param i index of the element
 	BOOST_UBLAS_INLINE
-	const_reference operator () (size_type i) const {
-		return data () [i];
+	const_reference operator [] (size_type i) const {
+		return this->data_[i];
 	}
 
 	/// \brief Return a reference to the element \f$i\f$
 	/// Return a reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
 	/// \param i index of the element
 	BOOST_UBLAS_INLINE
-	reference operator () (size_type i) {
-		return data () [i];
+	reference operator [] (size_type i)
+	{
+		return this->data_[i];
 	}
 
+
 	/// \brief Return a const reference to the element \f$i\f$
+	/// Return a const reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
+	/// \param i index of the element
+
+	template<class ... size_types>
+	BOOST_UBLAS_INLINE
+	const_reference at (size_type i, size_types ... is) const
+	{
+		if constexpr (sizeof...(is) == 0)
+			return this->data_[i];
+		else
+			return this->data_[ access<0>(0,i,is...)];
+	}
+
+	/// \brief Return a reference to the element \f$i\f$
+	/// Return a reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
 	/// \param i index of the element
 	BOOST_UBLAS_INLINE
-	const_reference operator [] (size_type i) const {
-		return (*this) (i);
+	template<class ... size_types>
+	reference at (size_type i, size_types ... is)
+	{
+		if constexpr (sizeof...(is) == 0)
+			return this->data_[i];
+		else
+			return this->data_[ access<0>(0,i,is...)];
+	}
+
+#if 0
+	/// \brief Return a const reference to the element \f$i\f$
+	/// \param i index of the element
+	///
+	///
+	template<class ... size_types>
+	BOOST_UBLAS_INLINE
+	const_reference operator () (size_type i, size_types ... sizes) const
+	{
+		return access<0>(i,std::forward<size_type>(sizes)...);
+
+//		return this->data_(i);
 	}
 
 	/// \brief Return a reference to the element \f$i\f$
@@ -1005,9 +1035,7 @@ public:
 		return find (data_.size ());
 	}
 
-	// Reverse iterator
-	typedef reverse_iterator_base<const_iterator> const_reverse_iterator;
-	typedef reverse_iterator_base<iterator> reverse_iterator;
+
 
 	/// \brief Return a const reverse iterator before the first element of the reversed tensor (i.e. end() of normal tensor)
 	BOOST_UBLAS_INLINE
@@ -1056,11 +1084,38 @@ public:
 	void serialize(Archive & ar, const unsigned int /* file_version */){
 		ar & serialization::make_nvp("data",data_);
 	}
-#endif
+#endif	
+
 private:
-	extents extents_;
-	layout layout_;
-	strides strides_;
+
+	/** \brief Access function with multi-indices
+	 *
+	 * \param i multi-index vector of length p
+	 * \param w stride vector of length p
+	*/
+	BOOST_UBLAS_INLINE
+	size_type access(std::vector<size_type> const& i)
+	{
+		const auto p = this->rank();
+		size_type sum = 0u;
+		for(auto r = 0u; r < p; ++r)
+			sum += i[r]*strides_[r];
+		return sum;
+	}
+
+	BOOST_UBLAS_INLINE
+	template<std::size_t r, class ... size_types>
+	size_type access(size_type sum, size_type i, size_types ... is)
+	{
+		sum+=i*strides_[r];
+		if constexpr (sizeof...(is) == 0)
+			return sum;
+		else
+			return access<r+1>(sum,std::forward<size_type>(is)...);
+	}
+
+	extents extents_;	
+	strides<layout_type> strides_;
 	array_type data_;
 };
 
