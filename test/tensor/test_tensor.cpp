@@ -12,55 +12,99 @@
 
 BOOST_AUTO_TEST_SUITE ( test_tensor, * boost::unit_test::depends_on("test_extents") ) ;
 
-using test_types = std::tuple<float, double>;
+
+//template<class type1, class ... types1> struct zip
+//{
+//	static constexpr auto size = sizeof...(types1);
+//	template<class ... types2> struct with
+//	{
+
+//		//using next_zip_type = zip<types1...>;
+//		using type =
+//		std::conditional_t<
+//			(size>0u),
+//			std::tuple<std::pair<type1,types2>..., typename zip<types1...>::with<types2...>::type>,
+//			std::tuple<std::pair<type1,types2>...>
+//		>;
+//	};
+//};
+
+
+//template<> struct zip
+//{
+//	static constexpr auto size = sizeof...(types1);
+//	template<class ... types2> struct with
+//	{
+//		using type = std::tuple<>;
+//	};
+//};
+
+
+//using test_types = std::tuple<float, double>;
+
+using test_types =
+std::tuple<
+std::pair<float,boost::numeric::ublas::first_order>,
+std::pair<float,boost::numeric::ublas::last_order>,
+std::pair<double,boost::numeric::ublas::first_order>,
+std::pair<double,boost::numeric::ublas::last_order>
+>;
+
+
+//using t = typename zip<float,double>::with<boost::numeric::ublas::first_order,boost::numeric::ublas::last_order>::type;
+
+//static_assert(
+//		std::is_same<
+//			t,std::tuple<
+//					std::pair<float,boost::numeric::ublas::first_order>,
+//					std::pair<float,boost::numeric::ublas::last_order>
+//					>
+//		>::value,"not same");
+
+
+
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 {
 	using namespace boost::numeric;
+	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
 
-	{
-	auto a1 = ublas::tensor<value>{};
+
+	auto a1 = tensor_type{};
 	BOOST_CHECK_EQUAL( a1.size() , 0ul );
 	BOOST_CHECK( a1.empty() );
 	BOOST_CHECK_EQUAL( a1.data() , nullptr);
 
-	auto a2 = ublas::tensor<value>{1,1};
+	auto a2 = tensor_type{1,1};
 	BOOST_CHECK_EQUAL(  a2.size() , 1 );
 	BOOST_CHECK( !a2.empty() );
 	BOOST_CHECK_NE(  a2.data() , nullptr);
 
-	auto a3 = ublas::tensor<value>{2,1};
+	auto a3 = tensor_type{2,1};
 	BOOST_CHECK_EQUAL(  a3.size() , 2 );
 	BOOST_CHECK( !a3.empty() );
 	BOOST_CHECK_NE(  a3.data() , nullptr);
 
-	auto a4 = ublas::tensor<value>{1,2};
+	auto a4 = tensor_type{1,2};
 	BOOST_CHECK_EQUAL(  a4.size() , 2 );
 	BOOST_CHECK( !a4.empty() );
 	BOOST_CHECK_NE(  a4.data() , nullptr);
 
-	auto a5 = ublas::tensor<value>{2,1};
+	auto a5 = tensor_type{2,1};
 	BOOST_CHECK_EQUAL(  a5.size() , 2 );
 	BOOST_CHECK( !a5.empty() );
 	BOOST_CHECK_NE(  a5.data() , nullptr);
 
-	auto a6 = ublas::tensor<value>{4,3,2};
+	auto a6 = tensor_type{4,3,2};
 	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
 	BOOST_CHECK( !a6.empty() );
 	BOOST_CHECK_NE(  a6.data() , nullptr);
 
-	auto a7 = ublas::tensor<value>{4,1,2};
+	auto a7 = tensor_type{4,1,2};
 	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
 	BOOST_CHECK( !a7.empty() );
 	BOOST_CHECK_NE(  a7.data() , nullptr);
-	}
 
-	{
-	auto a1 = ublas::tensor<value>();
-	BOOST_CHECK_EQUAL( a1.size() , 0ul );
-	BOOST_CHECK( a1.empty() );
-	BOOST_CHECK_EQUAL( a1.data() , nullptr);
-	}
 
 }
 
@@ -69,33 +113,34 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types)
 {
 	using namespace boost::numeric;
+	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
 
-	auto a2 = ublas::tensor<value>{ublas::extents{1,1}};
+	auto a2 = tensor_type{ublas::extents{1,1}};
 	BOOST_CHECK_EQUAL(  a2.size() , 1 );
 	BOOST_CHECK( !a2.empty() );
 	BOOST_CHECK_NE(  a2.data() , nullptr);
 
-	auto a3 = ublas::tensor<value>{ublas::extents{2,1}};
+	auto a3 = tensor_type{ublas::extents{2,1}};
 	BOOST_CHECK_EQUAL(  a3.size() , 2 );
 	BOOST_CHECK( !a3.empty() );
 	BOOST_CHECK_NE(  a3.data() , nullptr);
 
-	auto a4 = ublas::tensor<value>{ublas::extents{1,2}};
+	auto a4 = tensor_type{ublas::extents{1,2}};
 	BOOST_CHECK_EQUAL(  a4.size() , 2 );
 	BOOST_CHECK( !a4.empty() );
 	BOOST_CHECK_NE(  a4.data() , nullptr);
 
-	auto a5 = ublas::tensor<value>{ublas::extents{2,1}};
+	auto a5 = tensor_type{ublas::extents{2,1}};
 	BOOST_CHECK_EQUAL(  a5.size() , 2 );
 	BOOST_CHECK( !a5.empty() );
 	BOOST_CHECK_NE(  a5.data() , nullptr);
 
-	auto a6 = ublas::tensor<value>{ublas::extents{4,3,2}};
+	auto a6 = tensor_type{ublas::extents{4,3,2}};
 	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
 	BOOST_CHECK( !a6.empty() );
 	BOOST_CHECK_NE(  a6.data() , nullptr);
 
-	auto a7 = ublas::tensor<value>{ublas::extents{4,1,2}};
+	auto a7 = tensor_type{ublas::extents{4,1,2}};
 	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
 	BOOST_CHECK( !a7.empty() );
 	BOOST_CHECK_NE(  a7.data() , nullptr);
@@ -105,33 +150,34 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_layout, value,  test_types)
 {
 	using namespace boost::numeric;
+	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
 
-	auto a2 = ublas::tensor<value,ublas::first_order>{ublas::extents{1,1}};
+	auto a2 = tensor_type{ublas::extents{1,1}};
 	BOOST_CHECK_EQUAL(  a2.size() , 1 );
 	BOOST_CHECK( !a2.empty() );
 	BOOST_CHECK_NE(  a2.data() , nullptr);
 
-	auto a3 = ublas::tensor<value,ublas::first_order>{ublas::extents{2,1}};
+	auto a3 = tensor_type{ublas::extents{2,1}};
 	BOOST_CHECK_EQUAL(  a3.size() , 2 );
 	BOOST_CHECK( !a3.empty() );
 	BOOST_CHECK_NE(  a3.data() , nullptr);
 
-	auto a4 = ublas::tensor<value,ublas::first_order>{ublas::extents{1,2}};
+	auto a4 = tensor_type{ublas::extents{1,2}};
 	BOOST_CHECK_EQUAL(  a4.size() , 2 );
 	BOOST_CHECK( !a4.empty() );
 	BOOST_CHECK_NE(  a4.data() , nullptr);
 
-	auto a5 = ublas::tensor<value,ublas::last_order>{ublas::extents{2,1}};
+	auto a5 = tensor_type{ublas::extents{2,1}};
 	BOOST_CHECK_EQUAL(  a5.size() , 2 );
 	BOOST_CHECK( !a5.empty() );
 	BOOST_CHECK_NE(  a5.data() , nullptr);
 
-	auto a6 = ublas::tensor<value,ublas::last_order>{ublas::extents{4,3,2}};
+	auto a6 = tensor_type{ublas::extents{4,3,2}};
 	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
 	BOOST_CHECK( !a6.empty() );
 	BOOST_CHECK_NE(  a6.data() , nullptr);
 
-	auto a7 = ublas::tensor<value,ublas::first_order>{ublas::extents{4,1,2}};
+	auto a7 = tensor_type{ublas::extents{4,1,2}};
 	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
 	BOOST_CHECK( !a7.empty() );
 	BOOST_CHECK_NE(  a7.data() , nullptr);
@@ -141,8 +187,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_layout, value,  test_typ
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_types)
 {
 	using namespace boost::numeric;
+	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
 
-	auto a2 = ublas::tensor<value>{ublas::extents{1,1}, ublas::unbounded_array<value>(1)  };
+	auto a2 = tensor_type{ublas::extents{1,1}, ublas::unbounded_array<typename value::first_type>(1,1)  };
+	BOOST_CHECK_EQUAL( a2[0], 1 );
+
+//	BOOST_CHECK_THROW( ublas::tensor<value>{ublas::extents{1,1}, ublas::unbounded_array<value>(1)  }; )
+
+
+
 //	BOOST_CHECK_EQUAL(  a2.size() , 1 );
 //	BOOST_CHECK( !a2.empty() );
 //	BOOST_CHECK_NE(  a2.data() , nullptr);
@@ -178,17 +231,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_type
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_access, value,  test_types)
 {
 	using namespace boost::numeric;
+	using value_type = typename value::first_type;
+	using tensor_type = ublas::tensor<value_type, typename value::second_type>;
 
-	auto a2 = ublas::tensor<value>{3,1};
+
+	auto a2 =tensor_type{3,1};
 	for(auto i = 0u; i < a2.size(); ++i){
-		a2[i] = static_cast<value>(i);
-		BOOST_CHECK_EQUAL( a2[i], static_cast<value>(i) );
+		a2[i] = static_cast<value_type>(i);
+		BOOST_CHECK_EQUAL( a2[i], static_cast<value_type>(i) );
 	}
 
-	auto a3 = ublas::tensor<value>{3,3};
+	auto a3 = tensor_type{3,3};
 	for(auto i = 0u; i < a3.size(); ++i){
-		a3[i] = static_cast<value>(i);
-		BOOST_CHECK_EQUAL( a3[i], static_cast<value>(i) );
+		a3[i] = static_cast<value_type>(i);
+		BOOST_CHECK_EQUAL( a3[i], static_cast<value_type>(i) );
 	}
 
 }
