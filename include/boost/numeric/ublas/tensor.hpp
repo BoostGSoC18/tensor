@@ -320,7 +320,8 @@ public:
 
 	/** @brief Constructor of the tensor template class
 	 *
-	 *  @code tensor A{extents{4,2,3},vector}; @endcode
+	 *
+	 *  @code tensor A{extents{4,2,3}, array }; @endcode
 	 *
 	 *  @param e initial tensor dimension extents
 	 *  @param data container of \c array_type
@@ -341,7 +342,7 @@ public:
 	/** @brief Constructor of the tensor template class
 	 *
 	 *  @param e initial tensor dimension extents
-	 *  @param i container of \c array_type
+	 *  @param i initial value of all elements of type \c value_type
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (extents const& e, const value_type &i)
@@ -352,15 +353,33 @@ public:
 	{}
 
 
-#if 0
-	/// \brief Copy-constructor of a tensor
-	/// \param v is the tensor to be duplicated
+
+	/** @brief Copy Constructor of the tensor template class
+	 *
+	 *  @param v tensor to be copied.
+	 */
 	BOOST_UBLAS_INLINE
-	tensor (const tensor &v):
-		tensor_container<self_type> (),
-		data_ (v.data_)
+	tensor (const tensor &v)
+		: tensor_container<self_type> ()
+		, extents_ (v.extents_)
+		, strides_ (v.strides_)
+		, data_    (v.data_   )
 	{}
 
+	/** @brief Move Constructor of the tensor template class
+	 *
+	 *  @param v tensor to be moved.
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (tensor &&v)
+		: tensor_container<self_type> ()
+		, extents_ (std::move(v.extents_))
+		, strides_ (std::move(v.strides_))
+		, data_    (std::move(v.data_   ))
+	{}
+
+
+#if 0
 	/// \brief Copy-constructor of a tensor from a tensor_expression
 	/// Depending on the tensor_expression, this constructor can have the cost of the computations
 	/// of the expression (trivial to say it, but it is to take into account in your complexity calculations).
@@ -393,6 +412,12 @@ public:
 	BOOST_UBLAS_INLINE
 	size_type size () const {
 		return this->data_.size ();
+	}
+
+	/// \brief Return the size of the tensor
+	BOOST_UBLAS_INLINE
+	size_type size (size_type r) const {
+		return this->extents_.at(r);
 	}
 
 	/// \brief Return the size of the tensor
@@ -1105,7 +1130,7 @@ private:
 
 	BOOST_UBLAS_INLINE
 	template<std::size_t r, class ... size_types>
-	size_type access(size_type sum, size_type i, size_types ... is)
+	size_type access(size_type sum, size_type i, size_types ... is) const
 	{
 		sum+=i*strides_[r];
 		if constexpr (sizeof...(is) == 0)
