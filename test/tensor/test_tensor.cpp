@@ -13,61 +13,65 @@
 BOOST_AUTO_TEST_SUITE ( test_tensor, * boost::unit_test::depends_on("test_extents") ) ;
 
 
-//template<class type1, class ... types1> struct zip
-//{
-//	static constexpr auto size = sizeof...(types1);
-//	template<class ... types2> struct with
-//	{
-
-//		//using next_zip_type = zip<types1...>;
-//		using type =
-//		std::conditional_t<
-//			(size>0u),
-//			std::tuple<std::pair<type1,types2>..., typename zip<types1...>::with<types2...>::type>,
-//			std::tuple<std::pair<type1,types2>...>
-//		>;
-//	};
-//};
-
-
-//template<> struct zip
-//{
-//	static constexpr auto size = sizeof...(types1);
-//	template<class ... types2> struct with
-//	{
-//		using type = std::tuple<>;
-//	};
-//};
-
-
-//using test_types = std::tuple<float, double>;
-
 using test_types =
 std::tuple<
-std::pair<float,boost::numeric::ublas::first_order>,
-std::pair<float,boost::numeric::ublas::last_order>,
+std::pair<float, boost::numeric::ublas::first_order>,
+std::pair<float, boost::numeric::ublas::last_order >,
 std::pair<double,boost::numeric::ublas::first_order>,
-std::pair<double,boost::numeric::ublas::last_order>
+std::pair<double,boost::numeric::ublas::last_order >
 >;
 
 
-//using t = typename zip<float,double>::with<boost::numeric::ublas::first_order,boost::numeric::ublas::last_order>::type;
+template<class ... types>
+struct zip_helper;
 
-//static_assert(
-//		std::is_same<
-//			t,std::tuple<
-//					std::pair<float,boost::numeric::ublas::first_order>,
-//					std::pair<float,boost::numeric::ublas::last_order>
-//					>
-//		>::value,"not same");
+template<class type1, class ... types3>
+struct zip_helper<std::tuple<types3...>, type1>
+{
+	template<class ... types2>
+	struct with
+	{
+		using type = std::tuple<types3...,std::pair<type1,types2>...>;
+	};
+	template<class ... types2>
+	using with_t = typename with<types2...>::type;
+};
 
 
+template<class type1, class ... types3, class ... types1>
+struct zip_helper<std::tuple<types3...>, type1, types1...>
+{
+	template<class ... types2>
+	struct with
+	{
+		using next_tuple = std::tuple<types3...,std::pair<type1,types2>...>;
+		using type       = typename zip_helper<next_tuple, types1...>::template with<types2...>::type;
+	};
+
+	template<class ... types2>
+	using with_t = typename with<types2...>::type;
+};
+
+template<class ... types>
+using zip = zip_helper<std::tuple<>,types...>;
+
+using test_types2 = zip<float,double>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+
+
+
+static_assert(std::is_same< std::tuple_element_t<0,std::tuple_element_t<0,test_types2>>, float>::value,"should be float ");
+static_assert(std::is_same< std::tuple_element_t<1,std::tuple_element_t<0,test_types2>>, boost::numeric::ublas::first_order>::value,"should be boost::numeric::ublas::first_order ");
+static_assert(std::is_same< std::tuple_element_t<0,std::tuple_element_t<1,test_types2>>, float>::value,"should be float ");
+static_assert(std::is_same< std::tuple_element_t<1,std::tuple_element_t<1,test_types2>>, boost::numeric::ublas::last_order>::value,"should be boost::numeric::ublas::last_order ");
+static_assert(std::is_same<test_types2, test_types>::value,"not same");
 
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 {
 	using namespace boost::numeric;
-	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
 
 
 	auto a1 = tensor_type{};
@@ -113,7 +117,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types)
 {
 	using namespace boost::numeric;
-	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
 
 	auto a2 = tensor_type{ublas::extents{1,1}};
 	BOOST_CHECK_EQUAL(  a2.size() , 1 );
@@ -150,7 +156,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_layout, value,  test_types)
 {
 	using namespace boost::numeric;
-	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
 
 	auto a2 = tensor_type{ublas::extents{1,1}};
 	BOOST_CHECK_EQUAL(  a2.size() , 1 );
@@ -187,7 +195,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_layout, value,  test_typ
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_types)
 {
 	using namespace boost::numeric;
-	using tensor_type = ublas::tensor<typename value::first_type, typename value::second_type>;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
 
 	auto a2 = tensor_type{ublas::extents{1,1}, ublas::unbounded_array<typename value::first_type>(1,1)  };
 	BOOST_CHECK_EQUAL( a2[0], 1 );
@@ -231,8 +241,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_type
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_access, value,  test_types)
 {
 	using namespace boost::numeric;
-	using value_type = typename value::first_type;
-	using tensor_type = ublas::tensor<value_type, typename value::second_type>;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
 
 
 	auto a2 =tensor_type{3,1};
