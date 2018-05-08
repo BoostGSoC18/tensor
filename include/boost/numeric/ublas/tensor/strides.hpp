@@ -64,8 +64,11 @@ public:
 	basic_strides(basic_extents<T> const& s)
 			: _base(s.size(),1)
 	{
+		if(s.empty())
+			return;
+
 		if(!s.valid())
-			throw std::runtime_error("Error in boost::numeric::ublas::basic_strides() : shape is not valid.");
+			throw std::runtime_error("Error in boost::numeric::ublas::basic_strides() : shape is not valid.");		
 
 		if(s.is_vector() || s.is_scalar())
 			return;
