@@ -243,6 +243,9 @@ class tensor:
 		public tensor_container<tensor<T, F, A> >
 {
 
+	static_assert( std::is_same_v<F,first_order> ||
+								 std::is_same_v<F,last_order >, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
+
 	typedef tensor<T, F, A> self_type;
 public:
 #ifdef BOOST_UBLAS_ENABLE_PROXY_SHORTCUTS
@@ -293,9 +296,9 @@ public:
 	explicit BOOST_UBLAS_INLINE
 	tensor (std::initializer_list<size_type> l)
 		: tensor_container<self_type>()
-		, extents_(std::move(l))
-		, strides_(extents_)
-		, data_(extents_.product())
+		, extents_ (std::move(l))
+		, strides_ (extents_)
+		, data_    (extents_.product())
 	{
 	}
 
@@ -366,6 +369,19 @@ public:
 		, data_    (v.data_   )
 	{}
 
+	/** @brief Copy Constructor of the tensor template class
+	 *
+	 *  @param v tensor to be copied.
+	 */
+	BOOST_UBLAS_INLINE
+	template<class other_layout>
+	tensor (const tensor<value_type, layout_type> &v)
+		: tensor_container<self_type> ()
+		, extents_ (v.extents_)
+		, strides_ (v.strides_)
+		, data_    (v.data_   )
+	{}
+
 	/** @brief Move Constructor of the tensor template class
 	 *
 	 *  @param v tensor to be moved.
@@ -397,7 +413,7 @@ public:
 	// Random Access Container
 	// -----------------------
 
-	/// \brief Return true if the tensor is empty (\c size==0)
+	/// @brief Returns true if the tensor is empty (\c size==0)
 	/// \return \c true if empty, \c false otherwise
 	BOOST_UBLAS_INLINE
 	bool empty () const {
