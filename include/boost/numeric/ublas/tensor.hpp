@@ -266,6 +266,9 @@ public:
 	typedef self_type tensor_temporary_type;
 	typedef dense_tag storage_category;
 
+	using strides_type = basic_strides<size_type,layout_type>;
+	using extents_type = basic_extents<size_type>;
+
 	// Reverse iterator
 //	typedef reverse_iterator_base<const_iterator> const_reverse_iterator;
 //	typedef reverse_iterator_base<iterator> reverse_iterator;
@@ -369,18 +372,18 @@ public:
 		, data_    (v.data_   )
 	{}
 
-	/** @brief Copy Constructor of the tensor template class
-	 *
-	 *  @param v tensor to be copied.
-	 */
-	BOOST_UBLAS_INLINE
-	template<class other_layout>
-	tensor (const tensor<value_type, layout_type> &v)
-		: tensor_container<self_type> ()
-		, extents_ (v.extents_)
-		, strides_ (v.strides_)
-		, data_    (v.data_   )
-	{}
+//	/** @brief Copy Constructor of the tensor template class
+//	 *
+//	 *  @param v tensor to be copied.
+//	 */
+//	BOOST_UBLAS_INLINE
+//	template<class other_layout>
+//	tensor (const tensor<value_type, layout_type> &v)
+//		: tensor_container<self_type> ()
+//		, extents_ (v.extents_)
+//		, strides_ (v.strides_)
+//		, data_    (v.data_   )
+//	{}
 
 	/** @brief Move Constructor of the tensor template class
 	 *
@@ -414,7 +417,7 @@ public:
 	// -----------------------
 
 	/// @brief Returns true if the tensor is empty (\c size==0)
-	/// \return \c true if empty, \c false otherwise
+	/// @returns \c true if empty, \c false otherwise
 	BOOST_UBLAS_INLINE
 	bool empty () const {
 		return this->data_.empty();
@@ -424,35 +427,54 @@ public:
 	// Accessors
 	// ---------
 
-	/// \brief Return the size of the tensor
+	/// @brief Returns the size of the tensor
 	BOOST_UBLAS_INLINE
 	size_type size () const {
 		return this->data_.size ();
 	}
 
-	/// \brief Return the size of the tensor
+	/// @brief Returns the size of the tensor
 	BOOST_UBLAS_INLINE
 	size_type size (size_type r) const {
 		return this->extents_.at(r);
 	}
 
-	/// \brief Return the size of the tensor
+	/// @brief Returns the size of the tensor
 	BOOST_UBLAS_INLINE
 	size_type rank () const {
 		return this->extents_.size();
 	}
 
+	/// @brief Returns the strides of the tensor
+	BOOST_UBLAS_INLINE
+	strides_type const& strides () const {
+		return this->strides_;
+	}
+
+	/// @brief Returns the extents of the tensor
+	BOOST_UBLAS_INLINE
+	extents_type const& extents () const {
+		return this->extents_;
+	}
+
+
 	// -----------------
 	// Storage accessors
 	// -----------------
 
-	/// \brief Return a \c const reference to the container. Useful to access data directly for specific type of container.
+	/** @brief Returns a \c const reference to the container.
+	 *
+	 * Useful to access data directly for specific type of container.
+	 */
 	BOOST_UBLAS_INLINE
 	const_pointer data () const {
 		return this->data_.begin();
 	}
 
-	/// \brief Return a reference to the container. Useful to speed-up write operations to the data in very specific case.
+	/** @brief Returns a \c const reference to the container.
+	 *
+	 * Useful to access data directly for specific type of container.
+	 */
 	BOOST_UBLAS_INLINE
 	pointer data () {
 		return this->data_.end();
@@ -529,26 +551,6 @@ public:
 		return (*this) (i);
 	}
 
-	// ------------------
-	// Element assignment
-	// ------------------
-
-	/// \brief Set element \f$i\f$ to the value \c t
-	/// \param i index of the element
-	/// \param t reference to the value to be set
-	// XXX semantic of this is to insert a new element and therefore size=size+1 ?
-	BOOST_UBLAS_INLINE
-	reference insert_element (size_type i, const_reference t) {
-		return (data () [i] = t);
-	}
-
-	/// \brief Set element \f$i\f$ to the \e zero value
-	/// \param i index of the element
-	BOOST_UBLAS_INLINE
-	void erase_element (size_type i) {
-		data () [i] = value_type/*zero*/();
-	}
-
 	// -------
 	// Zeroing
 	// -------
@@ -560,7 +562,7 @@ public:
 	}
 
 	// --------
-	// Resizing
+	// Reshape
 	// --------
 
 
@@ -569,11 +571,20 @@ public:
 	/// \param size new size of the tensor
 	/// \param preserve if true, keep values
 	BOOST_UBLAS_INLINE
-	void resize (size_type size, bool preserve = true) {
-		if (preserve)
-			data ().resize (size, typename A::value_type ());
-		else
+	void reshape (extents const& e)
+	{
+		if(e.product() == extents_.product())
+		{
+			extents_ = e;
+			strides_ = strides<layout_type>(extents_);
+		}
+		else{
+			extents_ = e;
+			strides_ = strides<layout_type>(extents_);
 			data ().resize (size);
+		}
+
+
 	}
 
 	// Assignment
@@ -1129,10 +1140,12 @@ public:
 
 private:
 
-	/** \brief Access function with multi-indices
+	/** @brief Memory access function with multi-indices
 	 *
-	 * \param i multi-index vector of length p
-	 * \param w stride vector of length p
+	 * @code auto m = access(0, 3,4,5); @endcode
+	 *
+	 * @param[in] i multi-index vector of length p
+	 * @returns relative memory location depending on \c i
 	*/
 	BOOST_UBLAS_INLINE
 	size_type access(std::vector<size_type> const& i)
@@ -1144,6 +1157,16 @@ private:
 		return sum;
 	}
 
+	/** @brief Memory access function with multi-indices
+	 *
+	 * @code auto m = access(0, 3,4,5); @endcode
+	 *
+	 *
+	 * @param[in] i   first element of the partial multi-index
+	 * @param[in] is  the following elements of the partial multi-index
+	 * @param[in] sum the current
+	 * @returns relative memory location depending on \c i
+	*/
 	BOOST_UBLAS_INLINE
 	template<std::size_t r, class ... size_types>
 	size_type access(size_type sum, size_type i, size_types ... is) const
@@ -1155,8 +1178,8 @@ private:
 			return access<r+1>(sum,std::forward<size_type>(is)...);
 	}
 
-	extents extents_;	
-	strides<layout_type> strides_;
+	extents_type extents_;
+	strides_type strides_;
 	array_type data_;
 };
 

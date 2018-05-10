@@ -153,6 +153,70 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types, 
 }
 
 
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+	auto check = [](ublas::extents const& e)
+	{
+		auto r = tensor_type{e};
+		auto t = r;
+		BOOST_CHECK_EQUAL (  t.size() , r.size() );
+		BOOST_CHECK_EQUAL (  t.rank() , r.rank() );
+		BOOST_CHECK ( t.strides() == r.strides() );
+		BOOST_CHECK ( t.extents() == r.extents() );
+
+		if(e.empty()) {
+			BOOST_CHECK       ( t.empty()    );
+			BOOST_CHECK_EQUAL ( t.data() , nullptr);
+		}
+		else{
+			BOOST_CHECK       ( !t.empty()    );
+			BOOST_CHECK_NE    (  t.data() , nullptr);
+		}
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL( t[i], r[i]  );
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_move_ctor, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+	auto check = [](ublas::extents const& e)
+	{
+		auto r = tensor_type{e};
+		auto t = std::move(r);
+		BOOST_CHECK_EQUAL (  t.size() , e.product() );
+		BOOST_CHECK_EQUAL (  t.rank() , e.size() );
+
+		if(e.empty()) {
+			BOOST_CHECK       ( t.empty()    );
+			BOOST_CHECK_EQUAL ( t.data() , nullptr);
+		}
+		else{
+			BOOST_CHECK       ( !t.empty()    );
+			BOOST_CHECK_NE    (  t.data() , nullptr);
+		}
+
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
+
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_init, value,  test_types, fixture )
 {
 	using namespace boost::numeric;

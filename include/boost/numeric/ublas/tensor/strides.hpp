@@ -10,8 +10,8 @@
 //
 
 
-#ifndef _BOOST_UBLAS_STRIDES_
-#define _BOOST_UBLAS_STRIDES_
+#ifndef _BOOST_UBLAS_ALGORITHM_
+#define _BOOST_UBLAS_ALGORITHM_
 
 #include <vector>
 #include <limits>
@@ -22,7 +22,8 @@
 
 #include <cassert>
 
-#include <boost/numeric/ublas/functional.hpp>
+// in order to include column and row major
+#include <boost/numeric/ublas/functional.hpp> 
 
 namespace boost { namespace numeric { namespace ublas {
 
