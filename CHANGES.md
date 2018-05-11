@@ -6,7 +6,7 @@ While the tensor template class and its auxiliary classes inherits the implement
 ## Implementation [Tensor]
 
 * The current implementation of the tensor template class __only compiles with compilers supporting C++17__ mostly because `constexpr if` is used.
-* Removed `max_size()` function in vector and matrix class. `max_size()` can still be queried through the underlying storage array. Note that `max_size()` is depcretated since C++17.
+* Function `max_size()` in vector and matrix class is removed. It can still be queried through the underlying storage array. Note that `max_size()` is depcretated since C++17 for the std::vector.
 * Functions like `find_element()` are put outside the tensor template class as free functions. 
 * Iterator structures are removed.
 * Member functions `data()` return a pointer instead of an `array_type` instance.
