@@ -416,8 +416,7 @@ public:
 	// Random Access Container
 	// -----------------------
 
-	/// @brief Returns true if the tensor is empty (\c size==0)
-	/// @returns \c true if empty, \c false otherwise
+	/** @brief Returns true if the tensor is empty (\c size==0) */
 	BOOST_UBLAS_INLINE
 	bool empty () const {
 		return this->data_.empty();
@@ -427,31 +426,31 @@ public:
 	// Accessors
 	// ---------
 
-	/// @brief Returns the size of the tensor
+	/** @brief Returns the size of the tensor */
 	BOOST_UBLAS_INLINE
 	size_type size () const {
 		return this->data_.size ();
 	}
 
-	/// @brief Returns the size of the tensor
+	/** @brief Returns the size of the tensor */
 	BOOST_UBLAS_INLINE
 	size_type size (size_type r) const {
 		return this->extents_.at(r);
 	}
 
-	/// @brief Returns the size of the tensor
+	/** @brief Returns the size of the tensor */
 	BOOST_UBLAS_INLINE
 	size_type rank () const {
 		return this->extents_.size();
 	}
 
-	/// @brief Returns the strides of the tensor
+	/** @brief Returns the strides of the tensor */
 	BOOST_UBLAS_INLINE
 	strides_type const& strides () const {
 		return this->strides_;
 	}
 
-	/// @brief Returns the extents of the tensor
+	/** @brief Returns the extents of the tensor */
 	BOOST_UBLAS_INLINE
 	extents_type const& extents () const {
 		return this->extents_;
@@ -462,19 +461,13 @@ public:
 	// Storage accessors
 	// -----------------
 
-	/** @brief Returns a \c const reference to the container.
-	 *
-	 * Useful to access data directly for specific type of container.
-	 */
+	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	const_pointer data () const {
 		return this->data_.begin();
 	}
 
-	/** @brief Returns a \c const reference to the container.
-	 *
-	 * Useful to access data directly for specific type of container.
-	 */
+	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	pointer data () {
 		return this->data_.end();
@@ -485,17 +478,25 @@ public:
 	// Element access
 	// --------------
 
-	/// \brief Return a const reference to the element \f$i\f$
-	/// Return a const reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
-	/// \param i index of the element
+	/** @brief Element access using a single index.
+	 *
+	 *
+	 *  @code auto a = A[i]; @endcode
+	 *
+	 *  @param i zero-based index where 0 <= i < this->size()
+	 */
 	BOOST_UBLAS_INLINE
 	const_reference operator [] (size_type i) const {
 		return this->data_[i];
 	}
 
-	/// \brief Return a reference to the element \f$i\f$
-	/// Return a reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
-	/// \param i index of the element
+	/** @brief Element access using a single index.
+	 *
+	 *
+	 *  @code A[i] = a; @endcode
+	 *
+	 *  @param i zero-based index where 0 <= i < this->size()
+	 */
 	BOOST_UBLAS_INLINE
 	reference operator [] (size_type i)
 	{
@@ -503,10 +504,15 @@ public:
 	}
 
 
-	/// \brief Return a const reference to the element \f$i\f$
-	/// Return a const reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
-	/// \param i index of the element
-
+	/** @brief Element access using a multi-index or single-index.
+	 *
+	 *
+	 *  @code auto a = A.at(i,j,k); @endcode or
+	 *  @code auto a = A.at(i);     @endcode
+	 *
+	 *  @param i zero-based index where 0 <= i < this->size() if sizeof...(is) == 0, else 0<= i < this->size(0)
+	 *  @param is zero-based indices where 0 <= is[r] < this->size(r) where  0 < r < this->rank()
+	 */
 	template<class ... size_types>
 	BOOST_UBLAS_INLINE
 	const_reference at (size_type i, size_types ... is) const
@@ -517,9 +523,15 @@ public:
 			return this->data_[ access<0>(0,i,is...)];
 	}
 
-	/// \brief Return a reference to the element \f$i\f$
-	/// Return a reference to the element \f$i\f$. With some compilers, this notation will be faster than \c[i]
-	/// \param i index of the element
+	/** @brief Element access using a multi-index or single-index.
+	 *
+	 *
+	 *  @code A.at(i,j,k) = a; @endcode or
+	 *  @code A.at(i) = a;     @endcode
+	 *
+	 *  @param i zero-based index where 0 <= i < this->size() if sizeof...(is) == 0, else 0<= i < this->size(0)
+	 *  @param is zero-based indices where 0 <= is[r] < this->size(r) where  0 < r < this->rank()
+	 */
 	BOOST_UBLAS_INLINE
 	template<class ... size_types>
 	reference at (size_type i, size_types ... is)
@@ -530,63 +542,40 @@ public:
 			return this->data_[ access<0>(0,i,is...)];
 	}
 
-#if 0
-	/// \brief Return a const reference to the element \f$i\f$
-	/// \param i index of the element
-	///
-	///
-	template<class ... size_types>
-	BOOST_UBLAS_INLINE
-	const_reference operator () (size_type i, size_types ... sizes) const
-	{
-		return access<0>(i,std::forward<size_type>(sizes)...);
-
-//		return this->data_(i);
-	}
-
-	/// \brief Return a reference to the element \f$i\f$
-	/// \param i index of the element
-	BOOST_UBLAS_INLINE
-	reference operator [] (size_type i) {
-		return (*this) (i);
-	}
-
-	// -------
-	// Zeroing
-	// -------
-
-	/// \brief Clear the tensor, i.e. set all values to the \c zero value.
-	BOOST_UBLAS_INLINE
-	void clear () {
-		std::fill (data ().begin (), data ().end (), value_type/*zero*/());
-	}
-
-	// --------
-	// Reshape
-	// --------
-
 
 	/// \brief Resize the tensor
 	/// Resize the tensor to a new size. If \c preserve is true, data are copied otherwise data are lost. If the new size is bigger, the remaining values are filled in with the initial value (0 by default) in the case of \c unbounded_array, which is the container by default. If the new size is smaller, last values are lost. This behaviour can be different if you explicitely specify another type of container.
 	/// \param size new size of the tensor
 	/// \param preserve if true, keep values
+
+	/** @brief Reshapes the tensor
+	 *
+	 *
+	 * (1) @code A.reshape(extents{m,n,o});     @endcode or
+	 * (2) @code A.reshape(extents{m,n,o},4);   @endcode
+	 *
+	 * If the size of this smaller than the specified extents than
+	 * default constructed (1) or specified (2) value is appended.
+	 *
+	 * @note rank of the tensor might also change.
+	 *
+	 * @param e extents with which the tensor is reshaped.
+	 * @param v value which is appended if the tensor is enlarged.
+	 */
+
 	BOOST_UBLAS_INLINE
-	void reshape (extents const& e)
+	void reshape (extents_type const& e, value_type v = value_type{})
 	{
-		if(e.product() == extents_.product())
-		{
-			extents_ = e;
-			strides_ = strides<layout_type>(extents_);
-		}
-		else{
-			extents_ = e;
-			strides_ = strides<layout_type>(extents_);
-			data ().resize (size);
-		}
+		extents_ = e;
+		strides_ = strides_type(extents_);
 
-
+		if(e.product() != this->size())
+			data_.resize (this->extents_.product(),v);
 	}
 
+
+
+#if 0
 	// Assignment
 #ifdef BOOST_UBLAS_MOVE_SEMANTICS
 
@@ -788,21 +777,6 @@ public:
 	friend void swap (tensor &v1, tensor &v2) {
 		v1.swap (v2);
 	}
-
-	// Iterator types
-private:
-	// Use the storage array iterator
-	typedef typename A::const_iterator const_subiterator_type;
-	typedef typename A::iterator subiterator_type;
-
-public:
-#ifdef BOOST_UBLAS_USE_INDEXED_ITERATOR
-	typedef indexed_iterator<self_type, dense_random_access_iterator_tag> iterator;
-	typedef indexed_const_iterator<self_type, dense_random_access_iterator_tag> const_iterator;
-#else
-	class const_iterator;
-	class iterator;
-#endif
 
 	// --------------
 	// Element lookup

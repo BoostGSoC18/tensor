@@ -111,17 +111,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 struct fixture {
 	using extents_type = boost::numeric::ublas::extents;
 	fixture() : extents{
-								extents_type{},    // 0
-								extents_type{1,1}, // 1
-								extents_type{1,2}, // 2
-								extents_type{2,1}, // 3
-								extents_type{2,3}, // 4
-								extents_type{2,3,1}, // 5
-								extents_type{4,1,3}, // 6
-								extents_type{1,2,3}, // 7
-								extents_type{4,2,3}, // 8
-								extents_type{4,2,3,5} // 9
-								}
+				extents_type{},    // 0
+				extents_type{1,1}, // 1
+				extents_type{1,2}, // 2
+				extents_type{2,1}, // 3
+				extents_type{2,3}, // 4
+				extents_type{2,3,1}, // 5
+				extents_type{4,1,3}, // 6
+				extents_type{1,2,3}, // 7
+				extents_type{4,2,3}, // 8
+				extents_type{4,2,3,5} // 9
+				}
 	{}
 	std::vector<extents_type> extents;
 };
@@ -355,6 +355,43 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 
 	for(auto const& e : extents)
 		check(e);
+}
+
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixture)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+	auto check = [](ublas::extents const& efrom, ublas::extents const& eto)
+	{
+		auto v = value_type {};
+		++v;
+		auto t = tensor_type{efrom, v};
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL( t[i], v );
+
+		t.reshape(eto);
+		for(auto i = 0ul; i < std::min(efrom.product(),eto.product()); ++i)
+			BOOST_CHECK_EQUAL( t[i], v );
+
+		BOOST_CHECK_EQUAL (  t.size() , eto.product() );
+		BOOST_CHECK_EQUAL (  t.rank() , eto.size() );
+		BOOST_CHECK ( t.extents() == eto );
+
+		if(efrom != eto){
+			for(auto i = efrom.product(); i < t.size(); ++i)
+				BOOST_CHECK_EQUAL( t[i], value_type{} );
+		}
+	};
+
+	for(auto const& efrom : extents)
+		for(auto const& eto : extents)
+			check(efrom,eto);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
