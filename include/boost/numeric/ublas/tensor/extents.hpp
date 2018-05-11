@@ -83,27 +83,16 @@ public:
 
 	~basic_extents() = default;
 
-	basic_extents& operator=(base_type const& l )
+	basic_extents& operator=(basic_extents other)
 	{
-
-		_base = l;
-		if (!this->valid())
-			throw std::length_error("Error in basic_extents::operator=() : shape tuple is not a valid permutation: has zero elements.");
-
+		swap (*this, other);
 		return *this;
 	}
 
-	basic_extents& operator=(basic_extents const& l )
-	{
-		_base = l._base;
-		return *this;
+	friend void swap(basic_extents& lhs, basic_extents& rhs) {
+		std::swap(lhs._base   , rhs._base   );
 	}
 
-	basic_extents& operator=(basic_extents && l )
-	{
-		_base = std::move(l._base);
-		return *this;
-	}
 
 
 	bool is_scalar() const

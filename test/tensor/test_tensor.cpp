@@ -248,8 +248,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_t
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
 	using layout_type = typename value::second_type;
-	using array_type  = ublas::unbounded_array<typename value::first_type>;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using array_type  = typename tensor_type::array_type;
 
 	auto check = [](ublas::extents const& e) {
 		auto a = array_type(e.product());
@@ -346,7 +346,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 		for(auto i = 0ul; i < t.size(); ++i)
 			t[i] = v++;
 
-				 if(t.rank() == 1) check1(t);
+			 if(t.rank() == 1) check1(t);
 		else if(t.rank() == 2) check2(t);
 		else if(t.rank() == 3) check3(t);
 		else if(t.rank() == 4) check4(t);
@@ -387,6 +387,45 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixtu
 			for(auto i = efrom.product(); i < t.size(); ++i)
 				BOOST_CHECK_EQUAL( t[i], value_type{} );
 		}
+	};
+
+	for(auto const& efrom : extents)
+		for(auto const& eto : extents)
+			check(efrom,eto);
+}
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+	auto check = [](ublas::extents const& e_t, ublas::extents const& e_r)
+	{
+		auto v = value_type {} + 1;
+		auto w = value_type {} + 2;
+		auto t = tensor_type{e_t, v};
+		auto r = tensor_type{e_r, w};
+
+		std::swap( r, t );
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL( t[i], w );
+
+		BOOST_CHECK_EQUAL (  t.size() , e_r.product() );
+		BOOST_CHECK_EQUAL (  t.rank() , e_r.size() );
+		BOOST_CHECK ( t.extents() == e_r );
+
+		for(auto i = 0ul; i < r.size(); ++i)
+			BOOST_CHECK_EQUAL( r[i], v );
+
+		BOOST_CHECK_EQUAL (  r.size() , e_t.product() );
+		BOOST_CHECK_EQUAL (  r.rank() , e_t.size() );
+		BOOST_CHECK ( r.extents() == e_t );
+
+
 	};
 
 	for(auto const& efrom : extents)

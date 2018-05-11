@@ -114,14 +114,15 @@ public:
 
 	~basic_strides() = default;
 
-	basic_strides& operator=(basic_strides const& l ){
-		_base = l._base;
+
+	basic_strides& operator=(basic_strides other)
+	{
+		swap (*this, other);
 		return *this;
 	}
 
-	basic_strides& operator=(basic_strides && l ){
-		_base = std::move(l._base);
-		return *this;
+	friend void swap(basic_strides& lhs, basic_strides& rhs) {
+		std::swap(lhs._base   , rhs._base);
 	}
 
 	const_reference operator[] (size_type p) const{

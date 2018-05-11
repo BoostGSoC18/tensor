@@ -238,7 +238,7 @@ public:
 		* @tparam T type of the objects stored in the tensor (like int, double, complex,...)
 		* @tparam A The type of the storage array of the tensor. Default is \c unbounded_array<T>. \c <bounded_array<T> and \c std::vector<T> can also be used
 		*/
-template<class T, class F = first_order, class A = unbounded_array<T,std::allocator<T>> >
+template<class T, class F = first_order, class A = std::vector<T,std::allocator<T>> >
 class tensor:
 		public tensor_container<tensor<T, F, A> >
 {
@@ -454,13 +454,13 @@ public:
 	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	const_pointer data () const {
-		return this->data_.begin();
+		return this->data_.data();
 	}
 
 	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	pointer data () {
-		return this->data_.end();
+		return this->data_.data();
 	}
 
 	/** @brief Element access using a single index.
@@ -548,35 +548,17 @@ public:
 		this->strides_ = strides_type(this->extents_);
 
 		if(e.product() != this->size())
-			this->data_.resize (this->extents_.product(),v);
+			this->data_.resize (this->extents_.product(), v);
 	}
 
 
+	tensor& operator=(tensor other)
+	{
+		swap (*this, other);
+		return *this;
+	}
 
 #if 0
-	// Assignment
-#ifdef BOOST_UBLAS_MOVE_SEMANTICS
-
-	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
-	/// \param v is the source tensor
-	/// \return a reference to a tensor (i.e. the destination tensor)
-	/*! @note "pass by value" the key idea to enable move semantics */
-	BOOST_UBLAS_INLINE
-	tensor &operator = (tensor v) {
-		assign_temporary(v);
-		return *this;
-	}
-#else
-	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
-	/// \param v is the source tensor
-	/// \return a reference to a tensor (i.e. the destination tensor)
-	BOOST_UBLAS_INLINE
-	tensor &operator = (const tensor &v) {
-		data () = v.data ();
-		return *this;
-	}
-#endif
-
 	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
 	/// Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor). This method does not create any temporary.
 	/// \param v is the source tensor container
@@ -738,22 +720,31 @@ public:
 	}
 #endif
 
-	/// \brief Swap the content of the tensor with another tensor
-	/// \param v is the tensor to be swapped with
-	BOOST_UBLAS_INLINE
-	void swap (tensor &v) {
-		if (this != &v) {
-			data ().swap (v.data ());
-		}
+
+
+	friend void swap(tensor& lhs, tensor& rhs) {
+		std::swap(lhs.data_   , rhs.data_   );
+		std::swap(lhs.extents_, rhs.extents_);
+		std::swap(lhs.strides_, rhs.strides_);
 	}
 
-	/// \brief Swap the content of two tensors
-	/// \param v1 is the first tensor. It takes values from v2
-	/// \param v2 is the second tensor It takes values from v1
-	BOOST_UBLAS_INLINE
-	friend void swap (tensor &v1, tensor &v2) {
-		v1.swap (v2);
-	}
+
+//	/// \brief Swap the content of the tensor with another tensor
+//	/// \param v is the tensor to be swapped with
+//	BOOST_UBLAS_INLINE
+//	void swap (tensor &v) {
+//		if (this != &v) {
+//			data ().swap (v.data ());
+//		}
+//	}
+
+//	/// \brief Swap the content of two tensors
+//	/// \param v1 is the first tensor. It takes values from v2
+//	/// \param v2 is the second tensor It takes values from v1
+//	BOOST_UBLAS_INLINE
+//	friend void swap (tensor &v1, tensor &v2) {
+//		v1.swap (v2);
+//	}
 
 #if 0
 
