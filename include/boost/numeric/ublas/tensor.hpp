@@ -251,16 +251,25 @@ public:
 #ifdef BOOST_UBLAS_ENABLE_PROXY_SHORTCUTS
 	using tensor_container<self_type>::operator ();
 #endif
+	using array_type  = A;
+	using layout_type = F;
 
-	typedef typename A::size_type size_type;
-	typedef typename A::difference_type difference_type;
-	typedef T value_type;
-	typedef typename type_traits<T>::const_reference const_reference;
-	typedef T &reference;
-	typedef T *pointer;
-	typedef const T *const_pointer;
-	typedef A array_type;
-	typedef F layout_type;
+	using size_type       = typename array_type::size_type;
+	using difference_type = typename array_type::difference_type;
+	using value_type      = typename array_type::value_type;
+
+	using reference       = typename array_type::reference;
+	using const_reference = typename array_type::const_reference;
+
+	using pointer         = typename array_type::pointer;
+	using const_pointer   = typename array_type::const_pointer;
+
+	using iterator        = typename array_type::iterator;
+	using const_iterator  = typename array_type::const_iterator;
+
+	using reverse_iterator        = typename array_type::reverse_iterator;
+	using const_reverse_iterator  = typename array_type::const_reverse_iterator;
+
 //	typedef const tensor_reference<const self_type> const_closure_type;
 //	typedef tensor_reference<self_type> closure_type;
 	typedef self_type tensor_temporary_type;
@@ -557,7 +566,6 @@ public:
 		swap (*this, other);
 		return *this;
 	}
-
 #if 0
 	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
 	/// Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor). This method does not create any temporary.
@@ -729,99 +737,78 @@ public:
 	}
 
 
-//	/// \brief Swap the content of the tensor with another tensor
-//	/// \param v is the tensor to be swapped with
-//	BOOST_UBLAS_INLINE
-//	void swap (tensor &v) {
-//		if (this != &v) {
-//			data ().swap (v.data ());
-//		}
-//	}
-
-//	/// \brief Swap the content of two tensors
-//	/// \param v1 is the first tensor. It takes values from v2
-//	/// \param v2 is the second tensor It takes values from v1
-//	BOOST_UBLAS_INLINE
-//	friend void swap (tensor &v1, tensor &v2) {
-//		v1.swap (v2);
-//	}
-
-#if 0
-
 	/// \brief return an iterator on the first element of the tensor
 	BOOST_UBLAS_INLINE
 	const_iterator begin () const {
-		return find (0);
+		return data_.begin ();
 	}
 
 	/// \brief return an iterator on the first element of the tensor
 	BOOST_UBLAS_INLINE
 	const_iterator cbegin () const {
-		return begin ();
+		return data_.cbegin ();
 	}
 
 	/// \brief return an iterator after the last element of the tensor
 	BOOST_UBLAS_INLINE
 	const_iterator end () const {
-		return find (data_.size ());
+		return data_.end();
 	}
 
 	/// \brief return an iterator after the last element of the tensor
 	BOOST_UBLAS_INLINE
 	const_iterator cend () const {
-		return end ();
+		return data_.cend ();
 	}
 
 	/// \brief Return an iterator on the first element of the tensor
 	BOOST_UBLAS_INLINE
 	iterator begin () {
-		return find (0);
+		return data_.begin();
 	}
 
 	/// \brief Return an iterator at the end of the tensor
 	BOOST_UBLAS_INLINE
 	iterator end () {
-		return find (data_.size ());
+		return data_.end();
 	}
-
-
 
 	/// \brief Return a const reverse iterator before the first element of the reversed tensor (i.e. end() of normal tensor)
 	BOOST_UBLAS_INLINE
 	const_reverse_iterator rbegin () const {
-		return const_reverse_iterator (end ());
+		return data_.rbegin();
 	}
 
 	/// \brief Return a const reverse iterator before the first element of the reversed tensor (i.e. end() of normal tensor)
 	BOOST_UBLAS_INLINE
 	const_reverse_iterator crbegin () const {
-		return rbegin ();
+		return data_.crbegin();
 	}
 
 	/// \brief Return a const reverse iterator on the end of the reverse tensor (i.e. first element of the normal tensor)
 	BOOST_UBLAS_INLINE
 	const_reverse_iterator rend () const {
-		return const_reverse_iterator (begin ());
+		return data_.rend();
 	}
 
 	/// \brief Return a const reverse iterator on the end of the reverse tensor (i.e. first element of the normal tensor)
 	BOOST_UBLAS_INLINE
 	const_reverse_iterator crend () const {
-		return rend ();
+		return data_.crend();
 	}
 
 	/// \brief Return a const reverse iterator before the first element of the reversed tensor (i.e. end() of normal tensor)
 	BOOST_UBLAS_INLINE
 	reverse_iterator rbegin () {
-		return reverse_iterator (end ());
+		return data_.rbegin();
 	}
 
 	/// \brief Return a const reverse iterator on the end of the reverse tensor (i.e. first element of the normal tensor)
 	BOOST_UBLAS_INLINE
 	reverse_iterator rend () {
-		return reverse_iterator (begin ());
+		return data_.rend();
 	}
-#endif
+
 
 #if 0
 	// -------------

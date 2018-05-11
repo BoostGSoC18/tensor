@@ -433,4 +433,38 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)
 			check(efrom,eto);
 }
 
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_types, fixture)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using iterator_type = typename tensor_type::iterator;
+	using const_iterator_type = typename tensor_type::const_iterator;
+
+	auto check = [](ublas::extents const& e)
+	{
+		auto v = value_type {} + 1;
+		auto t = tensor_type{e, v};
+
+		BOOST_CHECK_EQUAL( std::distance(t.begin(),  t.end ()), t.size()  );
+		BOOST_CHECK_EQUAL( std::distance(t.rbegin(), t.rend()), t.size()  );
+
+		BOOST_CHECK_EQUAL( std::distance(t.cbegin(),  t.cend ()), t.size() );
+		BOOST_CHECK_EQUAL( std::distance(t.crbegin(), t.crend()), t.size() );
+
+		BOOST_CHECK(  iterator_type       ( t.data() ) ==  t.begin ()  ) ;
+		BOOST_CHECK(  const_iterator_type ( t.data() ) ==  t.cbegin()  ) ;
+
+		BOOST_CHECK(  iterator_type       ( t.data()+t.size() ) ==  t.end ()  ) ;
+		BOOST_CHECK(  const_iterator_type ( t.data()+t.size() ) ==  t.cend()  ) ;
+
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
 BOOST_AUTO_TEST_SUITE_END();
