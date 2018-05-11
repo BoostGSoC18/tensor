@@ -10,8 +10,8 @@
 //
 
 
-#ifndef _BOOST_UBLAS_ALGORITHM_
-#define _BOOST_UBLAS_ALGORITHM_
+#ifndef _BOOST_UBLAS_TENSOR_STRIDES_
+#define _BOOST_UBLAS_TENSOR_STRIDES_
 
 #include <vector>
 #include <limits>

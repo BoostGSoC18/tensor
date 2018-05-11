@@ -10,8 +10,8 @@
 //
 
 
-#ifndef _BOOST_UBLAS_EXTENTS_
-#define _BOOST_UBLAS_EXTENTS_
+#ifndef _BOOST_UBLAS_TENSOR_EXTENTS_
+#define _BOOST_UBLAS_TENSOR_EXTENTS_
 
 #include <vector>
 #include <limits>
