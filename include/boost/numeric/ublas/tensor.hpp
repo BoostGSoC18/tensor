@@ -409,12 +409,9 @@ public:
 		tensor_container<self_type> (),
 		data_ (ae ().size ())
 	{
-		// tensor_assign<scalar_assign> (*this, ae);
+		tensor_assign<scalar_assign> (*this, ae);
 	}
 #endif
-	// -----------------------
-	// Random Access Container
-	// -----------------------
 
 	/** @brief Returns true if the tensor is empty (\c size==0) */
 	BOOST_UBLAS_INLINE
@@ -422,9 +419,6 @@ public:
 		return this->data_.empty();
 	}
 
-	// ---------
-	// Accessors
-	// ---------
 
 	/** @brief Returns the size of the tensor */
 	BOOST_UBLAS_INLINE
@@ -457,10 +451,6 @@ public:
 	}
 
 
-	// -----------------
-	// Storage accessors
-	// -----------------
-
 	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	const_pointer data () const {
@@ -473,13 +463,7 @@ public:
 		return this->data_.end();
 	}
 
-
-	// --------------
-	// Element access
-	// --------------
-
 	/** @brief Element access using a single index.
-	 *
 	 *
 	 *  @code auto a = A[i]; @endcode
 	 *
@@ -543,11 +527,6 @@ public:
 	}
 
 
-	/// \brief Resize the tensor
-	/// Resize the tensor to a new size. If \c preserve is true, data are copied otherwise data are lost. If the new size is bigger, the remaining values are filled in with the initial value (0 by default) in the case of \c unbounded_array, which is the container by default. If the new size is smaller, last values are lost. This behaviour can be different if you explicitely specify another type of container.
-	/// \param size new size of the tensor
-	/// \param preserve if true, keep values
-
 	/** @brief Reshapes the tensor
 	 *
 	 *
@@ -562,15 +541,14 @@ public:
 	 * @param e extents with which the tensor is reshaped.
 	 * @param v value which is appended if the tensor is enlarged.
 	 */
-
 	BOOST_UBLAS_INLINE
 	void reshape (extents_type const& e, value_type v = value_type{})
 	{
-		extents_ = e;
-		strides_ = strides_type(extents_);
+		this->extents_ = e;
+		this->strides_ = strides_type(this->extents_);
 
 		if(e.product() != this->size())
-			data_.resize (this->extents_.product(),v);
+			this->data_.resize (this->extents_.product(),v);
 	}
 
 
@@ -645,7 +623,9 @@ public:
 //		tensor_assign<scalar_assign> (*this, ae);
 		return *this;
 	}
+#endif
 
+#if 0
 	// -------------------
 	// Computed assignment
 	// -------------------
@@ -756,10 +736,7 @@ public:
 //		tensor_assign_scalar<scalar_divides_assign> (*this, at);
 		return *this;
 	}
-
-	// --------
-	// Swapping
-	// --------
+#endif
 
 	/// \brief Swap the content of the tensor with another tensor
 	/// \param v is the tensor to be swapped with
@@ -778,160 +755,7 @@ public:
 		v1.swap (v2);
 	}
 
-	// --------------
-	// Element lookup
-	// --------------
-
-	/// \brief Return a const iterator to the element \e i
-	/// \param i index of the element
-	BOOST_UBLAS_INLINE
-	const_iterator find (size_type i) const {
-#ifndef BOOST_UBLAS_USE_INDEXED_ITERATOR
-		return const_iterator (*this, data ().begin () + i);
-#else
-		return const_iterator (*this, i);
-#endif
-	}
-
-	/// \brief Return an iterator to the element \e i
-	/// \param i index of the element
-	BOOST_UBLAS_INLINE
-	iterator find (size_type i) {
-#ifndef BOOST_UBLAS_USE_INDEXED_ITERATOR
-		return iterator (*this, data ().begin () + i);
-#else
-		return iterator (*this, i);
-#endif
-	}
-
-#ifndef BOOST_UBLAS_USE_INDEXED_ITERATOR
-	class const_iterator:
-			public container_const_reference<tensor>,
-			public random_access_iterator_base<dense_random_access_iterator_tag,
-			const_iterator, value_type, difference_type> {
-	public:
-		typedef typename tensor::difference_type difference_type;
-		typedef typename tensor::value_type value_type;
-		typedef typename tensor::const_reference reference;
-		typedef const typename tensor::pointer pointer;
-
-		// ----------------------------
-		// Construction and destruction
-		// ----------------------------
-
-
-		BOOST_UBLAS_INLINE
-		const_iterator ():
-			container_const_reference<self_type> (), it_ () {}
-		BOOST_UBLAS_INLINE
-		const_iterator (const self_type &v, const const_subiterator_type &it):
-			container_const_reference<self_type> (v), it_ (it) {}
-		BOOST_UBLAS_INLINE
-		const_iterator (const typename self_type::iterator &it):  // ISSUE tensor:: stops VC8 using std::iterator here
-			container_const_reference<self_type> (it ()), it_ (it.it_) {}
-
-		// ----------
-		// Arithmetic
-		// ----------
-
-		/// \brief Increment by 1 the position of the iterator
-		/// \return a reference to the const iterator
-		BOOST_UBLAS_INLINE
-		const_iterator &operator ++ () {
-			++ it_;
-			return *this;
-		}
-
-		/// \brief Decrement by 1 the position of the iterator
-		/// \return a reference to the const iterator
-		BOOST_UBLAS_INLINE
-		const_iterator &operator -- () {
-			-- it_;
-			return *this;
-		}
-
-		/// \brief Increment by \e n the position of the iterator
-		/// \return a reference to the const iterator
-		BOOST_UBLAS_INLINE
-		const_iterator &operator += (difference_type n) {
-			it_ += n;
-			return *this;
-		}
-
-		/// \brief Decrement by \e n the position of the iterator
-		/// \return a reference to the const iterator
-		BOOST_UBLAS_INLINE
-		const_iterator &operator -= (difference_type n) {
-			it_ -= n;
-			return *this;
-		}
-
-		/// \brief Return the different in number of positions between 2 iterators
-		BOOST_UBLAS_INLINE
-		difference_type operator - (const const_iterator &it) const {
-			BOOST_UBLAS_CHECK (&(*this) () == &it (), external_logic ());
-			return it_ - it.it_;
-		}
-
-		/// \brief Dereference an iterator
-		/// Dereference an iterator: a bounds' check is done before returning the value. A bad_index() expection is returned if out of bounds.
-		/// \return a const reference to the value pointed by the iterator
-		BOOST_UBLAS_INLINE
-		const_reference operator * () const {
-			BOOST_UBLAS_CHECK (it_ >= (*this) ().begin ().it_ && it_ < (*this) ().end ().it_, bad_index ());
-			return *it_;
-		}
-
-		/// \brief Dereference an iterator at the n-th forward value
-		/// Dereference an iterator at the n-th forward value, that is the value pointed by iterator+n.
-		/// A bounds' check is done before returning the value. A bad_index() expection is returned if out of bounds.
-		/// \return a const reference
-		BOOST_UBLAS_INLINE
-		const_reference operator [] (difference_type n) const {
-			return *(it_ + n);
-		}
-
-		// Index
-		/// \brief return the index of the element referenced by the iterator
-		BOOST_UBLAS_INLINE
-		size_type index () const {
-			BOOST_UBLAS_CHECK (it_ >= (*this) ().begin ().it_ && it_ < (*this) ().end ().it_, bad_index ());
-			return it_ - (*this) ().begin ().it_;
-		}
-
-		// Assignment
-		BOOST_UBLAS_INLINE
-		/// \brief assign the value of an iterator to the iterator
-		const_iterator &operator = (const const_iterator &it) {
-			container_const_reference<self_type>::assign (&it ());
-			it_ = it.it_;
-			return *this;
-		}
-
-		// Comparison
-		/// \brief compare the value of two itetarors
-		/// \return true if they reference the same element
-		BOOST_UBLAS_INLINE
-		bool operator == (const const_iterator &it) const {
-			BOOST_UBLAS_CHECK (&(*this) () == &it (), external_logic ());
-			return it_ == it.it_;
-		}
-
-
-		/// \brief compare the value of two iterators
-		/// \return return true if the left-hand-side iterator refers to a value placed before the right-hand-side iterator
-		BOOST_UBLAS_INLINE
-		bool operator < (const const_iterator &it) const {
-			BOOST_UBLAS_CHECK (&(*this) () == &it (), external_logic ());
-			return it_ < it.it_;
-		}
-
-	private:
-		const_subiterator_type it_;
-
-		friend class iterator;
-	};
-#endif
+#if 0
 
 	/// \brief return an iterator on the first element of the tensor
 	BOOST_UBLAS_INLINE
@@ -956,98 +780,6 @@ public:
 	const_iterator cend () const {
 		return end ();
 	}
-
-#ifndef BOOST_UBLAS_USE_INDEXED_ITERATOR
-	class iterator:
-			public container_reference<tensor>,
-			public random_access_iterator_base<dense_random_access_iterator_tag,
-			iterator, value_type, difference_type> {
-	public:
-		typedef typename tensor::difference_type difference_type;
-		typedef typename tensor::value_type value_type;
-		typedef typename tensor::reference reference;
-		typedef typename tensor::pointer pointer;
-
-
-		// Construction and destruction
-		BOOST_UBLAS_INLINE
-		iterator ():
-			container_reference<self_type> (), it_ () {}
-		BOOST_UBLAS_INLINE
-		iterator (self_type &v, const subiterator_type &it):
-			container_reference<self_type> (v), it_ (it) {}
-
-		// Arithmetic
-		BOOST_UBLAS_INLINE
-		iterator &operator ++ () {
-			++ it_;
-			return *this;
-		}
-		BOOST_UBLAS_INLINE
-		iterator &operator -- () {
-			-- it_;
-			return *this;
-		}
-		BOOST_UBLAS_INLINE
-		iterator &operator += (difference_type n) {
-			it_ += n;
-			return *this;
-		}
-		BOOST_UBLAS_INLINE
-		iterator &operator -= (difference_type n) {
-			it_ -= n;
-			return *this;
-		}
-		BOOST_UBLAS_INLINE
-		difference_type operator - (const iterator &it) const {
-			BOOST_UBLAS_CHECK (&(*this) () == &it (), external_logic ());
-			return it_ - it.it_;
-		}
-
-		// Dereference
-		BOOST_UBLAS_INLINE
-		reference operator * () const {
-			BOOST_UBLAS_CHECK (it_ >= (*this) ().begin ().it_ && it_ < (*this) ().end ().it_ , bad_index ());
-			return *it_;
-		}
-		BOOST_UBLAS_INLINE
-		reference operator [] (difference_type n) const {
-			return *(it_ + n);
-		}
-
-		// Index
-		BOOST_UBLAS_INLINE
-		size_type index () const {
-			BOOST_UBLAS_CHECK (it_ >= (*this) ().begin ().it_ && it_ < (*this) ().end ().it_ , bad_index ());
-			return it_ - (*this) ().begin ().it_;
-		}
-
-		// Assignment
-		BOOST_UBLAS_INLINE
-		iterator &operator = (const iterator &it) {
-			container_reference<self_type>::assign (&it ());
-			it_ = it.it_;
-			return *this;
-		}
-
-		// Comparison
-		BOOST_UBLAS_INLINE
-		bool operator == (const iterator &it) const {
-			BOOST_UBLAS_CHECK (&(*this) () == &it (), external_logic ());
-			return it_ == it.it_;
-		}
-		BOOST_UBLAS_INLINE
-		bool operator < (const iterator &it) const {
-			BOOST_UBLAS_CHECK (&(*this) () == &it (), external_logic ());
-			return it_ < it.it_;
-		}
-
-	private:
-		subiterator_type it_;
-
-		friend class const_iterator;
-	};
-#endif
 
 	/// \brief Return an iterator on the first element of the tensor
 	BOOST_UBLAS_INLINE
@@ -1098,7 +830,9 @@ public:
 	reverse_iterator rend () {
 		return reverse_iterator (begin ());
 	}
+#endif
 
+#if 0
 	// -------------
 	// Serialization
 	// -------------
