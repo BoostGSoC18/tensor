@@ -3,6 +3,13 @@
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
+//
+//  The authors gratefully acknowledge the support of
+//  Fraunhofer IOSB in producing this work.
+//
+//  And we acknowledge the support from all contributors.
+
+
 
 #include <boost/test/unit_test.hpp>
 #include <boost/numeric/ublas/tensor/strides.hpp>

@@ -3,65 +3,27 @@
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
+//
+//  The authors gratefully acknowledge the support of
+//  Fraunhofer IOSB in producing this work.
+//
+//  And we acknowledge the support from all contributors.
+
+
 
 #include <random>
 #include <boost/numeric/ublas/tensor.hpp>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TestTensor
+
 #include <boost/test/unit_test.hpp>
+#include "utility.hpp"
 
 BOOST_AUTO_TEST_SUITE ( test_tensor, * boost::unit_test::depends_on("test_extents") ) ;
 
 
-
-
-
-template<class ... types>
-struct zip_helper;
-
-template<class type1, class ... types3>
-struct zip_helper<std::tuple<types3...>, type1>
-{
-	template<class ... types2>
-	struct with
-	{
-		using type = std::tuple<types3...,std::pair<type1,types2>...>;
-	};
-	template<class ... types2>
-	using with_t = typename with<types2...>::type;
-};
-
-
-template<class type1, class ... types3, class ... types1>
-struct zip_helper<std::tuple<types3...>, type1, types1...>
-{
-	template<class ... types2>
-	struct with
-	{
-		using next_tuple = std::tuple<types3...,std::pair<type1,types2>...>;
-		using type       = typename zip_helper<next_tuple, types1...>::template with<types2...>::type;
-	};
-
-	template<class ... types2>
-	using with_t = typename with<types2...>::type;
-};
-
-template<class ... types>
-using zip = zip_helper<std::tuple<>,types...>;
-
 using test_types = zip<int,long,float,double>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
-
-// creates e.g.
-//using test_types =
-//std::tuple<
-//std::pair<float, boost::numeric::ublas::first_order>,
-//std::pair<float, boost::numeric::ublas::last_order >,
-//std::pair<double,boost::numeric::ublas::first_order>,
-//std::pair<double,boost::numeric::ublas::last_order >
-//>;
-//static_assert(std::is_same< std::tuple_element_t<0,std::tuple_element_t<0,test_types2>>, float>::value,"should be float ");
-//static_assert(std::is_same< std::tuple_element_t<1,std::tuple_element_t<0,test_types2>>, boost::numeric::ublas::first_order>::value,"should be boost::numeric::ublas::first_order ");
 
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
@@ -279,6 +241,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_single_index_access, va
 		for(auto i = 0ul; i < t.size(); ++i, ++v){
 			t[i] = v;
 			BOOST_CHECK_EQUAL( t[i], v );
+
+			t(i) = v;
+			BOOST_CHECK_EQUAL( t(i), v );
 		}
 	};
 

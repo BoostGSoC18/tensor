@@ -17,9 +17,9 @@
 #define _BOOST_UBLAS_TENSOR_
 
 #include <boost/config.hpp>
-#include <boost/numeric/ublas/expression_types.hpp>
 #include <boost/numeric/ublas/storage.hpp>
 
+#include <boost/numeric/ublas/tensor/expression.hpp>
 #include <boost/numeric/ublas/tensor/extents.hpp>
 #include <boost/numeric/ublas/tensor/strides.hpp>
 
@@ -53,181 +53,31 @@ namespace boost { namespace numeric { namespace ublas {
 template<class T, class F, class A>
 class tensor;
 
+///** \brief Base class for Tensor container models
+// *
+// * it does not model the Tensor concept but all derived types should.
+// * The class defines a common base type and some common interface for all
+// * statically derived Tensor classes
+// * We implement the casts to the statically derived type.
+// */
+//template<class C>
+//class tensor_container:
+//		public detail::tensor_expression<C>
+//{
+//public:
+//	static const unsigned complexity = 0;
+//	typedef C container_type;
+//	typedef tensor_tag type_category;
 
-//TODO: put in fwd.hpp
-struct tensor_tag {};
-
-
-//TODO: put in expression_types.hpp
-
-/** \brief Base class for Tensor Expression models
- *
- * it does not model the Tensor Expression concept but all derived types should.
- * The class defines a common base type and some common interface for all
- * statically derived Tensor Expression classes.
- * We implement the casts to the statically derived type.
- */
-template<class E>
-class tensor_expression:
-		public ublas_expression<E> {
-public:
-		static const unsigned complexity = 0;
-		typedef E expression_type;
-		typedef tensor_tag type_category;
-		/* E can be an incomplete type - to define the following we would need more template arguments
-		typedef typename E::size_type size_type;
-		*/
-
-		BOOST_UBLAS_INLINE
-		const expression_type &operator () () const {
-				return *static_cast<const expression_type *> (this);
-		}
-		BOOST_UBLAS_INLINE
-		expression_type &operator () () {
-				return *static_cast<expression_type *> (this);
-		}
-
-#ifdef BOOST_UBLAS_ENABLE_PROXY_SHORTCUTS
-private:
-		// projection types
-		typedef tensor_range<E> tensor_range_type;
-		typedef tensor_range<const E> const_tensor_range_type;
-		typedef tensor_slice<E> tensor_slice_type;
-		typedef tensor_slice<const E> const_tensor_slice_type;
-		// tensor_indirect_type will depend on the A template parameter
-		typedef basic_range<> default_range;    // required to avoid range/slice name confusion
-		typedef basic_slice<> default_slice;
-public:
-		BOOST_UBLAS_INLINE
-		const_tensor_range_type operator () (const default_range &r) const {
-				return const_tensor_range_type (operator () (), r);
-		}
-		BOOST_UBLAS_INLINE
-		tensor_range_type operator () (const default_range &r) {
-				return tensor_range_type (operator () (), r);
-		}
-		BOOST_UBLAS_INLINE
-		const_tensor_slice_type operator () (const default_slice &s) const {
-				return const_tensor_slice_type (operator () (), s);
-		}
-		BOOST_UBLAS_INLINE
-		tensor_slice_type operator () (const default_slice &s) {
-				return tensor_slice_type (operator () (), s);
-		}
-		template<class A>
-		BOOST_UBLAS_INLINE
-		const tensor_indirect<const E, indirect_array<A> > operator () (const indirect_array<A> &ia) const {
-				return tensor_indirect<const E, indirect_array<A> >  (operator () (), ia);
-		}
-		template<class A>
-		BOOST_UBLAS_INLINE
-		tensor_indirect<E, indirect_array<A> > operator () (const indirect_array<A> &ia) {
-				return tensor_indirect<E, indirect_array<A> > (operator () (), ia);
-		}
-
-		BOOST_UBLAS_INLINE
-		const_tensor_range_type project (const default_range &r) const {
-				return const_tensor_range_type (operator () (), r);
-		}
-		BOOST_UBLAS_INLINE
-		tensor_range_type project (const default_range &r) {
-				return tensor_range_type (operator () (), r);
-		}
-		BOOST_UBLAS_INLINE
-		const_tensor_slice_type project (const default_slice &s) const {
-				return const_tensor_slice_type (operator () (), s);
-		}
-		BOOST_UBLAS_INLINE
-		tensor_slice_type project (const default_slice &s) {
-				return tensor_slice_type (operator () (), s);
-		}
-		template<class A>
-		BOOST_UBLAS_INLINE
-		const tensor_indirect<const E, indirect_array<A> > project (const indirect_array<A> &ia) const {
-				return tensor_indirect<const E, indirect_array<A> > (operator () (), ia);
-		}
-		template<class A>
-		BOOST_UBLAS_INLINE
-		tensor_indirect<E, indirect_array<A> > project (const indirect_array<A> &ia) {
-				return tensor_indirect<E, indirect_array<A> > (operator () (), ia);
-		}
-#endif
-};
-
-
-/** \brief output stream operator for tensor expressions
- *
- * Any vector expressions can be written to a standard output stream
- * as defined in the C++ standard library. For example:
- * \code
- * vector<float> v1(3),v2(3);
- * for(size_t i=0; i<3; i++)
- * {
- *       v1(i) = i+0.2;
- *       v2(i) = i+0.3;
- * }
- * cout << v1+v2 << endl;
- * \endcode
- * will display the some of the 2 vectors like this:
- * \code
- * [3](0.5,2.5,4.5)
- * \endcode
- *
- * \param os is a standard basic output stream
- * \param v is a vector expression
- * \return a reference to the resulting output stream
- */
-template<class E, class T, class VE>
-// BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
-std::basic_ostream<E, T>&
-operator << (std::basic_ostream<E, T> &os, const tensor_expression<VE> &v) {
-		typedef typename VE::size_type size_type;
-		size_type size = v ().size ();
-		std::basic_ostringstream<E, T, std::allocator<E> > s;
-		s.flags (os.flags ());
-		s.imbue (os.getloc ());
-		s.precision (os.precision ());
-		s << '[' << size << "](";
-		if (size > 0)
-				s << v () (0);
-		for (size_type i = 1; i < size; ++ i)
-				s << ',' << v () (i);
-		s << ')';
-		return os << s.str ().c_str ();
-}
-
-
-
-
-/** \brief Base class for Tensor container models
- *
- * it does not model the Tensor concept but all derived types should.
- * The class defines a common base type and some common interface for all
- * statically derived Tensor classes
- * We implement the casts to the statically derived type.
- */
-template<class C>
-class tensor_container:
-		public tensor_expression<C>
-{
-public:
-		static const unsigned complexity = 0;
-		typedef C container_type;
-		typedef tensor_tag type_category;
-
-		BOOST_UBLAS_INLINE
-		const container_type &operator () () const {
-				return *static_cast<const container_type *> (this);
-		}
-		BOOST_UBLAS_INLINE
-		container_type &operator () () {
-				return *static_cast<container_type *> (this);
-		}
-
-#ifdef BOOST_UBLAS_ENABLE_PROXY_SHORTCUTS
-		using tensor_expression<C>::operator ();
-#endif
-};
+//	BOOST_UBLAS_INLINE
+//	const container_type &operator () () const {
+//			return *static_cast<const container_type *> (this);
+//	}
+//	BOOST_UBLAS_INLINE
+//	container_type &operator () () {
+//			return *static_cast<container_type *> (this);
+//	}
+//};
 
 /** @brief A dense tensor of values of type \c T.
 		*
@@ -240,17 +90,22 @@ public:
 		*/
 template<class T, class F = first_order, class A = std::vector<T,std::allocator<T>> >
 class tensor:
-		public tensor_container<tensor<T, F, A> >
+		public detail::tensor_expression<tensor<T, F, A>,tensor<T, F, A>>
 {
 
 	static_assert( std::is_same_v<F,first_order> ||
 								 std::is_same_v<F,last_order >, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
 
-	typedef tensor<T, F, A> self_type;
+	using self_type  = tensor<T, F, A>;
 public:
-#ifdef BOOST_UBLAS_ENABLE_PROXY_SHORTCUTS
-	using tensor_container<self_type>::operator ();
-#endif
+
+	template<class derived_type>
+	using expression_type = detail::tensor_expression<self_type,derived_type>;
+
+	using super_type = expression_type<self_type>;
+
+//	static_assert(std::is_same_v<expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "expression_type<self_type>");
+
 	using array_type  = A;
 	using layout_type = F;
 
@@ -270,17 +125,15 @@ public:
 	using reverse_iterator        = typename array_type::reverse_iterator;
 	using const_reverse_iterator  = typename array_type::const_reverse_iterator;
 
-//	typedef const tensor_reference<const self_type> const_closure_type;
-//	typedef tensor_reference<self_type> closure_type;
-	typedef self_type tensor_temporary_type;
-	typedef dense_tag storage_category;
+	template<class derived_type__>
+	using expression_type  = detail::tensor_expression<self_type, derived_type__>;
+
+	using tensor_temporary_type = self_type;
+	using storage_category = dense_tag;
 
 	using strides_type = basic_strides<size_type,layout_type>;
 	using extents_type = basic_extents<size_type>;
 
-	// Reverse iterator
-//	typedef reverse_iterator_base<const_iterator> const_reverse_iterator;
-//	typedef reverse_iterator_base<iterator> reverse_iterator;
 
 	/** @brief Standard constructor of the tensor template class
 	 *
@@ -288,7 +141,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	constexpr tensor ()
-		: tensor_container<self_type>()
+		: expression_type<self_type>() // container_type
 		, extents_()
 		, strides_()
 		, data_()
@@ -307,7 +160,7 @@ public:
 	 */
 	explicit BOOST_UBLAS_INLINE
 	tensor (std::initializer_list<size_type> l)
-		: tensor_container<self_type>()
+		: expression_type<self_type>()
 		, extents_ (std::move(l))
 		, strides_ (extents_)
 		, data_    (extents_.product())
@@ -326,7 +179,7 @@ public:
 		*/
 	explicit BOOST_UBLAS_INLINE
 	tensor (extents const& e)
-		: tensor_container<self_type>()
+		: expression_type<self_type>() //tensor_container<self_type>()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (extents_.product())
@@ -343,7 +196,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (extents const& e, const array_type &data)
-		: tensor_container<self_type>()
+		: expression_type<self_type>() //tensor_container<self_type>()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (data)
@@ -361,7 +214,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (extents const& e, const value_type &i)
-		: tensor_container<self_type> ()
+		: expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (extents_.product(), i)
@@ -375,7 +228,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (const tensor &v)
-		: tensor_container<self_type> ()
+		: expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (v.extents_)
 		, strides_ (v.strides_)
 		, data_    (v.data_   )
@@ -400,7 +253,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (tensor &&v)
-		: tensor_container<self_type> ()
+		: expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (std::move(v.extents_))
 		, strides_ (std::move(v.strides_))
 		, data_    (std::move(v.data_   ))
@@ -508,8 +361,7 @@ public:
 	 */
 	template<class ... size_types>
 	BOOST_UBLAS_INLINE
-	const_reference at (size_type i, size_types ... is) const
-	{
+	const_reference at (size_type i, size_types ... is) const {
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
@@ -527,14 +379,38 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	template<class ... size_types>
-	reference at (size_type i, size_types ... is)
-	{
+	reference at (size_type i, size_types ... is) {
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
 			return this->data_[ access<0>(0,i,is...)];
 	}
 
+
+	/** @brief Element access using a single index.
+	 *
+	 *
+	 *  @code A(i) = a; @endcode
+	 *
+	 *  @param i zero-based index where 0 <= i < this->size()
+	 */
+	BOOST_UBLAS_INLINE
+	const_reference operator()(size_type i) const {
+		return this->data_[i];
+	}
+
+
+	/** @brief Element access using a single index.
+	 *
+	 *
+	 *  @code A(i) = a; @endcode
+	 *
+	 *  @param i zero-based index where 0 <= i < this->size()
+	 */
+	BOOST_UBLAS_INLINE
+	reference operator()(size_type i){
+		return this->data_[i];
+	}
 
 	/** @brief Reshapes the tensor
 	 *
@@ -862,6 +738,15 @@ private:
 			return sum;
 		else
 			return access<r+1>(sum,std::forward<size_type>(is)...);
+	}
+
+
+	template<class derive_type>
+	void eval(expression_type<derive_type> const& other)
+	{
+		#pragma omp parallel for
+		for(auto i = 0u; i < this->size(); ++i)
+			data_[i] = other(i);
 	}
 
 	extents_type extents_;
