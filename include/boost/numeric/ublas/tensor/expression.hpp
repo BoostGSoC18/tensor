@@ -83,7 +83,7 @@ public:
 	using expression_type = tensor_expression <tensor_type, lambda<tensor_type,lambda_type>>;
 	using size_type = typename tensor_type::size_type;
 
-	explicit lambda(lambda_type const& l)  : expression_type{}, _lambda { l }  {}
+	explicit lambda(lambda_type const& l)  : expression_type(), _lambda(l)  {}
 	decltype(auto)
 	operator()(size_type i) const { return _lambda(i); }
 	decltype(auto)

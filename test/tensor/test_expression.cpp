@@ -15,10 +15,13 @@
 #include <boost/numeric/ublas/tensor/expression.hpp>
 #include <boost/numeric/ublas/tensor.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/multiprecision/cpp_bin_float.hpp>
 #include "utility.hpp"
 
 
-using test_types = zip<int,long,float,double>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using double_extended = typename boost::multiprecision::cpp_bin_float_double_extended;
+
+using test_types = zip<int,long,float,double,double_extended>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
 
 
@@ -45,4 +48,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_types
 
 	for(auto i = 0ul; i < t.size(); ++i)
 		BOOST_CHECK_EQUAL( super(i), t(i)  );
+}
+
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_make_lambda, value,  test_types)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+	auto t = tensor_type{5,4,3};
+
+	auto op = [&t](std::size_t i){ return t(i)+1;};
+	auto lambda = ublas::detail::lambda<tensor_type, decltype(op)>(op);
+
+	for(auto i = 0ul; i < t.size(); ++i)
+		BOOST_CHECK_EQUAL( lambda(i), t(i)+1  );
 }

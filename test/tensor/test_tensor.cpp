@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
 
 
 struct fixture {
-	using extents_type = boost::numeric::ublas::extents;
+	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;
 	fixture() : extents{
 				extents_type{},    // 0
 				extents_type{1,1}, // 1
@@ -96,7 +96,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types, 
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto check = [](ublas::extents const& e) {
+	auto check = [](auto const& e) {
 		auto t = tensor_type{e};
 		BOOST_CHECK_EQUAL (  t.size() , e.product() );
 		BOOST_CHECK_EQUAL (  t.rank() , e.size() );
@@ -122,7 +122,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor, value,  test_types, fix
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto check = [](ublas::extents const& e)
+	auto check = [](auto const& e)
 	{
 		auto r = tensor_type{e};
 		auto t = r;
@@ -156,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_move_ctor, value,  test_types
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto check = [](ublas::extents const& e)
+	auto check = [](auto const& e)
 	{
 		auto r = tensor_type{e};
 		auto t = std::move(r);
@@ -192,7 +192,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_init, value,  test_ty
 	using distribution_type = std::conditional_t<std::is_integral_v<value_type>, std::uniform_int_distribution<>, std::uniform_real_distribution<> >;
 	auto distribution = distribution_type(1,6);
 
-	auto check = [&distribution,&generator](ublas::extents const& e) {
+	auto check = [&distribution,&generator](auto const& e) {
 		auto r = static_cast<value_type>(distribution(generator));
 		auto t = tensor_type{e,r};
 		for(auto i = 0ul; i < t.size(); ++i)
@@ -213,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_t
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 	using array_type  = typename tensor_type::array_type;
 
-	auto check = [](ublas::extents const& e) {
+	auto check = [](auto const& e) {
 		auto a = array_type(e.product());
 		std::iota(a.begin(), a.end(), value_type{});
 		auto t = tensor_type{e, a};
@@ -235,7 +235,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_single_index_access, va
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto check = [](ublas::extents const& e) {
+	auto check = [](auto const& e) {
 		auto t = tensor_type{e};
 		auto v = value_type {};
 		for(auto i = 0ul; i < t.size(); ++i, ++v){
@@ -305,7 +305,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 						BOOST_CHECK_EQUAL(t.at(k[0],k[1],k[2],k[3]), v++);
 	};
 
-	auto check = [check1,check2,check3,check4](ublas::extents const& e) {
+	auto check = [check1,check2,check3,check4](auto const& e) {
 		auto t = tensor_type{e};
 		auto v = value_type {};
 		for(auto i = 0ul; i < t.size(); ++i)
@@ -332,7 +332,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixtu
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto check = [](ublas::extents const& efrom, ublas::extents const& eto)
+	auto check = [](auto const& efrom, auto const& eto)
 	{
 		auto v = value_type {};
 		++v;
@@ -367,7 +367,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto check = [](ublas::extents const& e_t, ublas::extents const& e_r)
+	auto check = [](auto const& e_t, auto const& e_r)
 	{
 		auto v = value_type {} + 1;
 		auto w = value_type {} + 2;
@@ -409,7 +409,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_ty
 	using iterator_type = typename tensor_type::iterator;
 	using const_iterator_type = typename tensor_type::const_iterator;
 
-	auto check = [](ublas::extents const& e)
+	auto check = [](auto const& e)
 	{
 		auto v = value_type {} + 1;
 		auto t = tensor_type{e, v};

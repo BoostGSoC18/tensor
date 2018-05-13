@@ -125,14 +125,11 @@ public:
 	using reverse_iterator        = typename array_type::reverse_iterator;
 	using const_reverse_iterator  = typename array_type::const_reverse_iterator;
 
-	template<class derived_type__>
-	using expression_type  = detail::tensor_expression<self_type, derived_type__>;
-
 	using tensor_temporary_type = self_type;
 	using storage_category = dense_tag;
 
-	using strides_type = basic_strides<size_type,layout_type>;
-	using extents_type = basic_extents<size_type>;
+	using strides_type = basic_strides<std::size_t,layout_type>;
+	using extents_type = shape;
 
 
 	/** @brief Standard constructor of the tensor template class
@@ -178,7 +175,7 @@ public:
 		* @param e initial tensor dimension extents
 		*/
 	explicit BOOST_UBLAS_INLINE
-	tensor (extents const& e)
+	tensor (shape const& e)
 		: expression_type<self_type>() //tensor_container<self_type>()
 		, extents_ (e)
 		, strides_ (extents_)
@@ -195,7 +192,7 @@ public:
 	 *  @param data container of \c array_type
 	 */
 	BOOST_UBLAS_INLINE
-	tensor (extents const& e, const array_type &data)
+	tensor (shape const& e, const array_type &data)
 		: expression_type<self_type>() //tensor_container<self_type>()
 		, extents_ (e)
 		, strides_ (extents_)
@@ -213,7 +210,7 @@ public:
 	 *  @param i initial value of all elements of type \c value_type
 	 */
 	BOOST_UBLAS_INLINE
-	tensor (extents const& e, const value_type &i)
+	tensor (shape const& e, const value_type &i)
 		: expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (e)
 		, strides_ (extents_)
@@ -755,6 +752,8 @@ private:
 };
 
 }}} // namespaces
+
+
 
 
 

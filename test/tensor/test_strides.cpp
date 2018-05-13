@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_strides_ctor, value, test_types)
 {
 	using namespace boost::numeric;
 
-	using extents_type  = ublas::extents;
+	using extents_type  = ublas::basic_extents<unsigned>;
 	using strides_type = ublas::strides<value>;
 
 	strides_type         s0{};
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_strides_ctor_access_first_order)
 {
 	using namespace boost::numeric;
 
-	using extents_type  = ublas::extents;
+	using extents_type  = ublas::basic_extents<unsigned>;
 	using strides_type =  ublas::strides<ublas::first_order>;
 
 	strides_type         s1{extents_type{1,1}};
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_strides_ctor_access_last_order)
 {
 	using namespace boost::numeric;
 
-	using extents_type  = ublas::extents;
+	using extents_type  = ublas::basic_extents<unsigned>;
 	using strides_type =  ublas::strides<ublas::last_order>;
 
 	strides_type         s1{extents_type{1,1}};
