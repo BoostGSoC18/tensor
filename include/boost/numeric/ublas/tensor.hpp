@@ -460,6 +460,7 @@ public:
 		swap (v);
 		return *this;
 	}
+#endif
 
 	/// \brief Assign the result of a tensor_expression to the tensor
 	/// Assign the result of a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
@@ -468,12 +469,13 @@ public:
 	/// \return a reference to the resulting tensor
 	template<class AE>
 	BOOST_UBLAS_INLINE
-	tensor &operator = (const tensor_expression<AE> &ae)
+	tensor &operator = (const expression_type<AE> &ae)
 	{
-		self_type temporary (ae);
-		return assign_temporary (temporary);
+		this->eval(  ae  );
+		return *this;
 	}
 
+#if 0
 	/// \brief Assign the result of a tensor_expression to the tensor
 	/// Assign the result of a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
 	/// \tparam AE is the type of the tensor_expression
@@ -741,7 +743,7 @@ private:
 	template<class derive_type>
 	void eval(expression_type<derive_type> const& other)
 	{
-		#pragma omp parallel for
+//		#pragma omp parallel for
 		for(auto i = 0u; i < this->size(); ++i)
 			data_[i] = other(i);
 	}

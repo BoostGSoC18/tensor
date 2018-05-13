@@ -36,7 +36,7 @@ namespace detail {
 
 // \brief expression class for expression templates
 //
-// \note implements crtp - use of virtual function calls
+// \note implements crtp - no use of virtual function calls
 // 
 // \tparam T element type of matrices and scalars of the expression
 // \tparam D derived type that can be matrices or generic lambda functions. Must support operator()(std::size_t i)
@@ -44,7 +44,7 @@ template<class T, class D>
 struct tensor_expression
 		: public ublas_expression<D>
 {
-	static const unsigned complexity = 0;
+//	static const unsigned complexity = 0;
 	using expression_type = D;
 	using type_category = tensor_tag;
 	using tensor_type = T;
@@ -84,16 +84,23 @@ public:
 	using size_type = typename tensor_type::size_type;
 
 	explicit lambda(lambda_type const& l)  : expression_type(), _lambda(l)  {}
-	decltype(auto)
-	operator()(size_type i) const { return _lambda(i); }
-	decltype(auto)
-	operator()(size_type i)       { return _lambda(i); }
+	lambda() = delete;
+	lambda(const lambda& l) = delete;
+
+	BOOST_UBLAS_INLINE
+	decltype(auto)  operator()(size_type i) const { return _lambda(i); }
+
+	BOOST_UBLAS_INLINE
+	decltype(auto)  operator()(size_type i)       { return _lambda(i); }
 private:
 	lambda_type _lambda;
 };
+
+
 // \brief helper function to simply instantiation of lambda proxy class 
-template<class F, class T>
+template<class T, class F>
 auto make_lambda( F&& f ) { return lambda<T,F>(std::forward<F>(f)); }
 }
+
 }}}
 #endif

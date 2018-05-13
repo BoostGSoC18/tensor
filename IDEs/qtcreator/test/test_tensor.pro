@@ -32,7 +32,8 @@ SOURCES += \
     ../../../test/tensor/test_tensor.cpp \
 	../../../test/tensor/test_extents.cpp \
 	../../../test/tensor/test_strides.cpp \
-	../../../test/tensor/test_expression.cpp
+	../../../test/tensor/test_expression.cpp \
+	../../../test/tensor/test_operators.cpp
 
 
 INCLUDEPATH += \
