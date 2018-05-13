@@ -699,6 +699,8 @@ public:
 	}
 #endif	
 
+
+
 private:
 
 	/** @brief Memory access function with multi-indices
@@ -741,17 +743,41 @@ private:
 
 
 	template<class derive_type>
-	void eval(expression_type<derive_type> const& other)
+	void eval(expression_type<derive_type> const& expr)
 	{
+//		static_assert(has_tensor_types<expression_type<derive_type>>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
+
 //		#pragma omp parallel for
 		for(auto i = 0u; i < this->size(); ++i)
-			data_[i] = other(i);
+			data_[i] = expr(i);
 	}
+
+
+
+//	template<class derive_type>
+//	const shape& retrieve_extents(expression_type<derive_type> const& expr)
+//	{
+//		using expr_type = expression_type<derive_type>;
+
+//		static_assert(has_tensor_types<expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
+
+//		if constexpr ( std::is_same<derive_type,self_type>::value )
+//			return static_cast<self_type const&>(expr).extents();
+//		else
+//			retrieve_extents(derive_type)
+
+
+//	}
+
+
 
 	extents_type extents_;
 	strides_type strides_;
 	array_type data_;
 };
+
+
+
 
 }}} // namespaces
 

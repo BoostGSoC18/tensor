@@ -18,11 +18,11 @@
 #include "utility.hpp"
 
 
-using double_extended = typename boost::multiprecision::cpp_bin_float_double_extended;
+using double_extended = boost::multiprecision::cpp_bin_float_double_extended;
 
-using test_types = zip<int,long,float,double,double_extended>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+//using test_types = zip<int,long,float,double,double_extended>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
-
+using test_types = zip<int>::with_t<boost::numeric::ublas::last_order>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_types)
 {
@@ -64,11 +64,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_make_lambda, value,  test_
 	auto op = [&t](std::size_t i){ return t(i)+1;};
 	auto lambda = ublas::detail::lambda<tensor_type, decltype(op)>(op);
 
+//	using lambda_type = decltype(lambda);
+//	using expression_type_of_lambda_type = typename lambda_type::expression_type;
+//	auto super_lambda = static_cast<typename lambda_type::expression_type const&>(lambda);
+//	BOOST_CHECK (  (has_tensor_types<expression_type_of_lambda_type, tensor_type>::value)  );
+
+
 	for(auto i = 0ul; i < t.size(); ++i)
 		BOOST_CHECK_EQUAL( lambda(i), t(i)+1  );
 
 	auto lambda2 = ublas::detail::make_lambda<tensor_type>( [&t](std::size_t i){ return t(i)+1;}  );
 	auto lambda3 = ublas::detail::make_lambda<tensor_type>( [&lambda2](std::size_t i){ return lambda2(i)+1;}  );
+
+//	BOOST_CHECK(  (has_tensor_types<decltype(lambda), tensor_type>::value) );
 
 	auto t2 = tensor_type(t.extents());
 	t2 = lambda2;

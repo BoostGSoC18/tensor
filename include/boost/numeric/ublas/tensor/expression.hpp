@@ -21,6 +21,9 @@ namespace boost { namespace numeric { namespace ublas {
 template<class element_type, class storage_format, class storage_type>
 class tensor;
 
+template<class size_type>
+class basic_extents;
+
 //TODO: put in fwd.hpp
 struct tensor_tag {};
 
@@ -48,12 +51,6 @@ struct tensor_expression
 	using expression_type = D;
 	using type_category = tensor_tag;
 	using tensor_type = T;
-//	using size_type = typename tensor_type::size_type;
-
-
-	/* E can be an incomplete type - to define the following we would need more template arguments
-	typedef typename E::size_type size_type;
-	*/
 
 	BOOST_UBLAS_INLINE
 	const expression_type &operator () () const { return *static_cast<const expression_type *> (this); }
@@ -65,6 +62,8 @@ struct tensor_expression
 
 	BOOST_UBLAS_INLINE
 	decltype(auto) operator()(std::size_t i) { return static_cast<      D&>(*this)(i); }
+
+
 };
 
 template<class F, class M>
@@ -75,7 +74,8 @@ class lambda;
 // \tparam T element type of matrices and scalars of the expression
 // \tparam F type of lambda function that is encapsulated
 template<class T, class F>
-class lambda : public tensor_expression <T, lambda<T,F>>
+class lambda
+		: public tensor_expression <T, lambda<T,F>>
 {
 public:
 	using tensor_type = T;
@@ -96,10 +96,58 @@ private:
 	lambda_type _lambda;
 };
 
-
-// \brief helper function to simply instantiation of lambda proxy class 
+// \brief helper function to simply instantiation of lambda proxy class
 template<class T, class F>
 auto make_lambda( F&& f ) { return lambda<T,F>(std::forward<F>(f)); }
+
+
+
+template<class T, class EL, class ER, class OP>
+struct binary_tensor_expression
+		: public tensor_expression <T, binary_tensor_expression<T,EL,ER,OP>>
+{
+
+	using self_type = binary_tensor_expression<T,EL,ER,OP>;
+	using tensor_type  = T;
+	using expr_right_t = ER;
+	using expr_left_t  = EL;
+	using binary_op = OP;
+
+	using expression_type = tensor_expression <tensor_type,self_type>;
+	using size_type = typename tensor_type::size_type;
+
+	explicit binary_tensor_expression(expr_left_t  const& l,
+									  expr_right_t const& r,
+									  binary_op op)
+		: expr_left (l)
+		, expr_right(r)
+		, op_(op)
+	{}
+	binary_tensor_expression() = delete;
+	binary_tensor_expression(const binary_tensor_expression& l) = delete;
+
+	BOOST_UBLAS_INLINE
+	decltype(auto)  operator()(size_type i) const { return op_(expr_left(i), expr_right(i)); }
+
+	BOOST_UBLAS_INLINE
+	decltype(auto)  operator()(size_type i)       { return op_(expr_left(i), expr_right(i)); }
+
+
+	expr_left_t  const& expr_left;
+	expr_right_t const& expr_right;
+	binary_op op_;
+};
+
+// \brief helper function to simply instantiation of lambda proxy class
+template<class T, class EL, class ER, class OP>
+auto make_binary_tensor_expression( EL const& el, ER const& er, OP op)
+{
+	return binary_tensor_expression<T,EL,ER,OP>(el, er, op);
+}
+
+
+
+
 }
 
 }}}

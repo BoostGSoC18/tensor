@@ -61,14 +61,22 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_binary_operations, valu
 
 		r = t + t + t + t2;
 
+//		BOOST_CHECK(  (ublas::has_tensor_types<tensor_type, decltype(tttt)>::value)  );
+
 		for(auto i = 0ul; i < t.size(); ++i)
 			BOOST_CHECK_EQUAL ( r(i), 3*t(i) + t2(i) );
 
 
 		r = t2 - t + t2 - t;
 
-		for(auto i = 0ul; i < t.size(); ++i)
+		for(auto i = 0ul; i < r.size(); ++i)
 			BOOST_CHECK_EQUAL ( r(i), 4 );
+
+
+		r = tensor_type (e,1) + tensor_type (e,1);
+
+		for(auto i = 0ul; i < r.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2 );
 	};
 
 	for(auto const& e : extents)
