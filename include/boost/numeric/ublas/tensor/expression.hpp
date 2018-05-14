@@ -106,36 +106,25 @@ template<class T, class EL, class ER, class OP>
 struct binary_tensor_expression
 		: public tensor_expression <T, binary_tensor_expression<T,EL,ER,OP>>
 {
-
 	using self_type = binary_tensor_expression<T,EL,ER,OP>;
 	using tensor_type  = T;
-	using expr_right_t = ER;
-	using expr_left_t  = EL;
-	using binary_op = OP;
-
 	using expression_type = tensor_expression <tensor_type,self_type>;
 	using size_type = typename tensor_type::size_type;
 
-	explicit binary_tensor_expression(expr_left_t  const& l,
-									  expr_right_t const& r,
-									  binary_op op)
-		: expr_left (l)
-		, expr_right(r)
-		, op_(op)
-	{}
+	explicit binary_tensor_expression(EL const& l, ER const& r, OP op) : el_(l) , er_(r) , op_(op) {}
 	binary_tensor_expression() = delete;
 	binary_tensor_expression(const binary_tensor_expression& l) = delete;
 
 	BOOST_UBLAS_INLINE
-	decltype(auto)  operator()(size_type i) const { return op_(expr_left(i), expr_right(i)); }
+	decltype(auto)  operator()(size_type i) const { return op_(el_(i), er_(i)); }
 
 	BOOST_UBLAS_INLINE
-	decltype(auto)  operator()(size_type i)       { return op_(expr_left(i), expr_right(i)); }
+	decltype(auto)  operator()(size_type i)       { return op_(el_(i), er_(i)); }
 
 
-	expr_left_t  const& expr_left;
-	expr_right_t const& expr_right;
-	binary_op op_;
+	EL const& el_;
+	ER const& er_;
+	OP op_;
 };
 
 // \brief helper function to simply instantiation of lambda proxy class
@@ -147,8 +136,67 @@ auto make_binary_tensor_expression( EL const& el, ER const& er, OP op)
 
 
 
+template<class T, class E, class OP>
+struct unary_tensor_expression
+		: public tensor_expression <T, unary_tensor_expression<T,E,OP>>
+{
 
+	using self_type = unary_tensor_expression<T,E,OP>;
+	using tensor_type  = T;
+	using expression_type = tensor_expression <tensor_type,self_type>;
+	using size_type = typename tensor_type::size_type;
+
+	explicit unary_tensor_expression(E const& e, OP op) : e_(e) , op_(op) {}
+	unary_tensor_expression() = delete;
+	unary_tensor_expression(const unary_tensor_expression& l) = delete;
+
+	BOOST_UBLAS_INLINE
+	decltype(auto)  operator()(size_type i) const { return op_(e_(i)); }
+
+	BOOST_UBLAS_INLINE
+	decltype(auto)  operator()(size_type i)       { return op_(e_(i)); }
+
+	E const& e_;
+	OP op_;
+};
+
+// \brief helper function to simply instantiation of lambda proxy class
+template<class T, class E, class OP>
+auto make_unary_tensor_expression( E const& e, OP op)
+{
+	return unary_tensor_expression<T,E,OP>(e, op);
 }
 
-}}}
+
+
+template<class T, class E>
+struct has_tensor_types
+{ static constexpr bool value = false; };
+
+template<class T>
+struct has_tensor_types<T,T>
+{ static constexpr bool value = true; };
+
+template<class T, class D>
+struct has_tensor_types<T, tensor_expression<T,D>>
+{ static constexpr bool value = std::is_same<T,D>::value || has_tensor_types<T,D>::value; };
+
+
+template<class T, class EL, class ER, class OP>
+struct has_tensor_types<T, binary_tensor_expression<T,EL,ER,OP>>
+{ static constexpr bool value = std::is_same<T,EL>::value || std::is_same<T,ER>::value || has_tensor_types<T,EL>::value || has_tensor_types<T,ER>::value;  };
+
+template<class T, class E, class OP>
+struct has_tensor_types<T, unary_tensor_expression<T,E,OP>>
+{ static constexpr bool value = std::is_same<T,E>::value || has_tensor_types<T,E>::value; };
+
+
+// Lambdas cannot be supported as wanted.
+template<class T, class F>
+struct has_tensor_types<T, lambda<T,F>>
+{ static constexpr bool value = true; };
+
+
+
+}}}}
 #endif

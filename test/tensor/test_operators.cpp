@@ -61,11 +61,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_binary_operations, valu
 
 		r = t + t + t + t2;
 
-//		BOOST_CHECK(  (ublas::has_tensor_types<tensor_type, decltype(tttt)>::value)  );
-
 		for(auto i = 0ul; i < t.size(); ++i)
 			BOOST_CHECK_EQUAL ( r(i), 3*t(i) + t2(i) );
-
 
 		r = t2 - t + t2 - t;
 
@@ -77,8 +74,151 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_binary_operations, valu
 
 		for(auto i = 0ul; i < r.size(); ++i)
 			BOOST_CHECK_EQUAL ( r(i), 2 );
+
+		r = t * t * t * t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), t(i)*t(i)*t(i)*t2(i) );
+
+		r = (t2/t2) * (t2/t2);
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 1 );
 	};
 
 	for(auto const& e : extents)
 		check(e);
 }
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_unary_operations, value,  test_types, fixture)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+
+	auto check = [](auto const& e)
+	{
+		auto t  = tensor_type (e);
+		auto t2 = tensor_type (e);
+		auto r  = tensor_type (e);
+		auto v  = value_type  {};
+
+		std::iota(t.begin(), t.end(), v);
+		std::iota(t2.begin(), t2.end(), v+2);
+
+		r = t + 2 + t + 2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
+
+		r = 2 + t + 2 + t;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
+
+		r = (t-2) + (t-2);
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) - 4 );
+
+		r = (t*2) * (3*t);
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*3*t(i)*t(i) );
+
+		r = (t2*2) / (2*t2) * t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), (t2(i)*2) / (2*t2(i)) * t2(i) );
+
+		r = (t2/2+1) / (2/t2+1) / t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), (t2(i)/2+1) / (2/t2(i)+1) / t2(i) );
+
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
+
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_assign_operations, value,  test_types, fixture)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+
+
+	auto check = [](auto const& e)
+	{
+		auto t  = tensor_type (e);
+		auto t2 = tensor_type (e);
+		auto r  = tensor_type (e);
+		auto v  = value_type  {};
+
+		std::iota(t.begin(), t.end(), v);
+		std::iota(t2.begin(), t2.end(), v+2);
+
+		r  = t + 2;
+		r += t;
+		r += 2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
+
+		r  = 2 + t;
+		r += t;
+		r += 2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
+
+		r = (t-2);
+		r += t;
+		r -= 2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*t(i) - 4 );
+
+		r  = (t*2);
+		r *= 3;
+		r *= t;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), 2*3*t(i)*t(i) );
+
+		r  = (t2*2);
+		r /= 2;
+		r /= t2;
+		r *= t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), (t2(i)*2) / (2*t2(i)) * t2(i) );
+
+//		r = (t2/2+1) / (2/t2+1) / t2;
+		r  = (t2/2+1);
+		r /= (2/t2+1);
+		r /= t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r(i), (t2(i)/2+1) / (2/t2(i)+1) / t2(i) );
+
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
+

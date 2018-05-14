@@ -745,7 +745,8 @@ private:
 	template<class derive_type>
 	void eval(expression_type<derive_type> const& expr)
 	{
-//		static_assert(has_tensor_types<expression_type<derive_type>>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
+		using expr_type = detail::tensor_expression<self_type,derive_type>;
+		static_assert(detail::has_tensor_types<self_type,expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
 
 //		#pragma omp parallel for
 		for(auto i = 0u; i < this->size(); ++i)
@@ -753,21 +754,38 @@ private:
 	}
 
 
+//	template<class E>
+//	struct has_tensor_types
+//	{ static constexpr bool value = false; };
+
+//	template<>
+//	struct has_tensor_types<self_type,self_type>
+//	{ static constexpr bool value = true; };
+
+//	template<class derived_type>
+//	struct has_tensor_types<expression_type<derived_type>>
+//	{ static constexpr bool value = std::is_same<self_type,derived_type>::value || has_tensor_types<derived_type>::value; };
+
+
 
 //	template<class derive_type>
 //	const shape& retrieve_extents(expression_type<derive_type> const& expr)
 //	{
-//		using expr_type = expression_type<derive_type>;
+//		using expr_type = detail::tensor_expression<self_type,derive_type>;
 
-//		static_assert(has_tensor_types<expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
+//		static_assert(detail::has_tensor_types<self_type,expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
 
-//		if constexpr ( std::is_same<derive_type,self_type>::value )
-//			return static_cast<self_type const&>(expr).extents();
-//		else
-//			retrieve_extents(derive_type)
+
+
+////		if constexpr ( std::is_same<derive_type,self_type>::value )
+////			return static_cast<self_type const&>(expr).extents();
+////		else
+////			retrieve_extents(derive_type)
 
 
 //	}
+
+
 
 
 
