@@ -51,34 +51,34 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_types
 
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_make_lambda, value,  test_types)
-{
-	using namespace boost::numeric;
-	using value_type  = typename value::first_type;
-	using layout_type = typename value::second_type;
-	using tensor_type = ublas::tensor<value_type, layout_type>;
+//BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_expression_make_lambda, value,  test_types)
+//{
+//	using namespace boost::numeric;
+//	using value_type  = typename value::first_type;
+//	using layout_type = typename value::second_type;
+//	using tensor_type = ublas::tensor<value_type, layout_type>;
 
-	auto t = tensor_type{5,4,3};
+//	auto t = tensor_type{5,4,3};
 
-	auto op = [&t](std::size_t i){ return t(i)+1;};
-	auto lambda = ublas::detail::lambda<tensor_type, decltype(op)>(op);
+//	auto op = [&t](std::size_t i){ return t(i)+1;};
+//	auto lambda = ublas::detail::lambda<tensor_type, decltype(op)>(op);
 
-	for(auto i = 0ul; i < t.size(); ++i)
-		BOOST_CHECK_EQUAL( lambda(i), t(i)+1  );
+//	for(auto i = 0ul; i < t.size(); ++i)
+//		BOOST_CHECK_EQUAL( lambda(i), t(i)+1  );
 
-	auto lambda2 = ublas::detail::make_lambda<tensor_type>( [&t](std::size_t i){ return t(i)+1;}  );
-	auto lambda3 = ublas::detail::make_lambda<tensor_type>( [&lambda2](std::size_t i){ return lambda2(i)+1;}  );
+//	auto lambda2 = ublas::detail::make_lambda<tensor_type>( [&t](std::size_t i){ return t(i)+1;}  );
+//	auto lambda3 = ublas::detail::make_lambda<tensor_type>( [&lambda2](std::size_t i){ return lambda2(i)+1;}  );
 
-	auto t2 = tensor_type(t.extents());
-	t2 = lambda2;
+//	auto t2 = tensor_type(t.extents());
+//	t2 = lambda2;
 
-	for(auto i = 0ul; i < t.size(); ++i)
-		BOOST_CHECK_EQUAL( t2(i), t(i)+1  );
+//	for(auto i = 0ul; i < t.size(); ++i)
+//		BOOST_CHECK_EQUAL( t2(i), t(i)+1  );
 
-	auto t3 = tensor_type(t.extents());
-	t3 = lambda3;
+//	auto t3 = tensor_type(t.extents());
+//	t3 = lambda3;
 
-	for(auto i = 0ul; i < t.size(); ++i)
-		BOOST_CHECK_EQUAL( t3(i), t(i)+2  );
+//	for(auto i = 0ul; i < t.size(); ++i)
+//		BOOST_CHECK_EQUAL( t3(i), t(i)+2  );
 
-}
+//}

@@ -110,35 +110,35 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_unary_operations, value
 		std::iota(t.begin(), t.end(), v);
 		std::iota(t2.begin(), t2.end(), v+2);
 
-		r = t + 2 + t + 2;
+		tensor_type r1 = t + 2 + t + 2;
 
 		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
+			BOOST_CHECK_EQUAL ( r1(i), 2*t(i) + 4 );
 
-		r = 2 + t + 2 + t;
-
-		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL ( r(i), 2*t(i) + 4 );
-
-		r = (t-2) + (t-2);
+		tensor_type r2 = 2 + t + 2 + t;
 
 		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL ( r(i), 2*t(i) - 4 );
+			BOOST_CHECK_EQUAL ( r2(i), 2*t(i) + 4 );
 
-		r = (t*2) * (3*t);
-
-		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL ( r(i), 2*3*t(i)*t(i) );
-
-		r = (t2*2) / (2*t2) * t2;
+		tensor_type r3 = (t-2) + (t-2);
 
 		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL ( r(i), (t2(i)*2) / (2*t2(i)) * t2(i) );
+			BOOST_CHECK_EQUAL ( r3(i), 2*t(i) - 4 );
 
-		r = (t2/2+1) / (2/t2+1) / t2;
+		tensor_type r4 = (t*2) * (3*t);
 
 		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL ( r(i), (t2(i)/2+1) / (2/t2(i)+1) / t2(i) );
+			BOOST_CHECK_EQUAL ( r4(i), 2*3*t(i)*t(i) );
+
+		tensor_type r5 = (t2*2) / (2*t2) * t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r5(i), (t2(i)*2) / (2*t2(i)) * t2(i) );
+
+		tensor_type r6 = (t2/2+1) / (2/t2+1) / t2;
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( r6(i), (t2(i)/2+1) / (2/t2(i)+1) / t2(i) );
 
 	};
 
@@ -207,7 +207,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_assign_operations, valu
 		for(auto i = 0ul; i < t.size(); ++i)
 			BOOST_CHECK_EQUAL ( r(i), (t2(i)*2) / (2*t2(i)) * t2(i) );
 
-//		r = (t2/2+1) / (2/t2+1) / t2;
 		r  = (t2/2+1);
 		r /= (2/t2+1);
 		r /= t2;
