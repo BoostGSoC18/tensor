@@ -14,7 +14,8 @@ While the tensor template class and its auxiliary classes inherits the implement
 * Function `operator()` will be used to select/project sections of tensors.
 * Functions `insert_element()` and `erase_element()` will not be used.
 * Function `resize()` will be renamed to `reshape()` using extents.
-* Proxy shortcuts for tensor expressions will not be used. It does not make user code more readible or convenient.
+* Proxy shortcuts for tensor expressions are not used. It does not make user code more readible or convenient.
+* Expression templates include tensor types as an additional template parameter.
 
 
 
@@ -30,3 +31,4 @@ While the tensor template class and its auxiliary classes inherits the implement
 * Pragmas not included for unit testing.
 
 ## Documentation [Tensor]
+* README for a better view changed.
