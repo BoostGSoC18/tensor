@@ -460,33 +460,55 @@ public:
 	/// \return a reference to the resulting tensor
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
-	tensor &operator += (const tensor_expression_type<derived_type> &expr)
-	{
+	tensor &operator += (const tensor_expression_type<derived_type> &expr) {
 		this->eval(expr, [](reference l, const_reference r) { l+=r; } );
 		return *this;
 	}
 
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
-	tensor &operator -= (const tensor_expression_type<derived_type> &expr)
-	{
+	tensor &operator -= (const tensor_expression_type<derived_type> &expr) {
 		this->eval(expr, [](reference l, const_reference r) { l-=r; } );
 		return *this;
 	}
 
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
-	tensor &operator *= (const tensor_expression_type<derived_type> &expr)
-	{
+	tensor &operator *= (const tensor_expression_type<derived_type> &expr) {
 		this->eval(expr, [](reference l, const_reference r) { l*=r; } );
 		return *this;
 	}
 
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
-	tensor &operator /= (const tensor_expression_type<derived_type> &expr)
-	{
+	tensor &operator /= (const tensor_expression_type<derived_type> &expr) {
 		this->eval(expr, [](reference l, const_reference r) { l/=r; } );
+		return *this;
+	}
+
+
+
+	BOOST_UBLAS_INLINE
+	tensor &operator += (const_reference r) {
+		this->eval([r](reference l) { l+=r; } );
+		return *this;
+	}
+
+	BOOST_UBLAS_INLINE
+	tensor &operator -= (const_reference r) {
+		this->eval([r](reference l) { l-=r; } );
+		return *this;
+	}
+
+	BOOST_UBLAS_INLINE
+	tensor &operator *= (const_reference r) {
+		this->eval([r](reference l) { l*=r; } );
+		return *this;
+	}
+
+	BOOST_UBLAS_INLINE
+	tensor &operator /= (const_reference r) {
+		this->eval([r](reference l) { l/=r; } );
 		return *this;
 	}
 
@@ -654,6 +676,13 @@ private:
 //		#pragma omp parallel for
 		for(auto i = 0u; i < this->size(); ++i)
 			fn(data_[i], expr(i));
+	}
+
+	template<class unary_fn>
+	void eval(unary_fn const fn)
+	{
+		for(auto i = 0u; i < this->size(); ++i)
+			fn(data_[i]);
 	}
 
 

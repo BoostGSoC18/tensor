@@ -65,14 +65,12 @@ auto operator/(typename T::const_reference lhs, boost::numeric::ublas::detail::t
 
 
 template<class T, class L>
-auto operator+(
-		boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs)
+auto operator+(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs)
 {	
 	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l + rhs; } );
 }
 template<class T, class L>
-auto operator-(
-		boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs)
+auto operator-(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs)
 {
 	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l - rhs; } );
 }
@@ -86,27 +84,6 @@ auto operator/(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
 {
 	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l / rhs; } );
 }
-
-
-
-
-// Overloaded Assignment Operators
-template<class E, class F, class A>
-decltype(auto) operator+=(boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference rhs)
-{ return lhs = lhs + rhs;  }
-
-template<class E, class F, class A>
-decltype(auto) operator-=(boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference rhs)
-{ return lhs = lhs - rhs;  }
-
-template<class E, class F, class A>
-decltype(auto) operator*=(boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference rhs)
-{ return lhs = lhs * rhs;  }
-
-template<class E, class F, class A>
-decltype(auto) operator/=(boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference rhs)
-{ return lhs = lhs / rhs;  }
-
 
 
 #endif
