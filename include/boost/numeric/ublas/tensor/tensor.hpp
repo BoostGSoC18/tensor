@@ -88,11 +88,11 @@ class tensor:
 public:
 
 	template<class derived_type>
-	using expression_type = detail::tensor_expression<self_type,derived_type>;
+	using tensor_expression_type = detail::tensor_expression<self_type,derived_type>;
 
-	using super_type = expression_type<self_type>;
+	using super_type = tensor_expression_type<self_type>;
 
-//	static_assert(std::is_same_v<expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "expression_type<self_type>");
+//	static_assert(std::is_same_v<tensor_expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "tensor_expression_type<self_type>");
 
 	using array_type  = A;
 	using layout_type = F;
@@ -126,7 +126,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	constexpr tensor ()
-		: expression_type<self_type>() // container_type
+		: tensor_expression_type<self_type>() // container_type
 		, extents_()
 		, strides_()
 		, data_()
@@ -145,7 +145,7 @@ public:
 	 */
 	explicit BOOST_UBLAS_INLINE
 	tensor (std::initializer_list<size_type> l)
-		: expression_type<self_type>()
+		: tensor_expression_type<self_type>()
 		, extents_ (std::move(l))
 		, strides_ (extents_)
 		, data_    (extents_.product())
@@ -164,7 +164,7 @@ public:
 		*/
 	explicit BOOST_UBLAS_INLINE
 	tensor (shape const& e)
-		: expression_type<self_type>() //tensor_container<self_type>()
+		: tensor_expression_type<self_type>() //tensor_container<self_type>()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (extents_.product())
@@ -181,7 +181,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (shape const& e, const array_type &data)
-		: expression_type<self_type>() //tensor_container<self_type>()
+		: tensor_expression_type<self_type>() //tensor_container<self_type>()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (data)
@@ -199,7 +199,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (shape const& e, const value_type &i)
-		: expression_type<self_type>() //tensor_container<self_type> ()
+		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (extents_.product(), i)
@@ -213,7 +213,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (const tensor &v)
-		: expression_type<self_type>() //tensor_container<self_type> ()
+		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (v.extents_)
 		, strides_ (v.strides_)
 		, data_    (v.data_   )
@@ -238,7 +238,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (tensor &&v)
-		: expression_type<self_type>() //tensor_container<self_type> ()
+		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
 		, extents_ (std::move(v.extents_))
 		, strides_ (std::move(v.strides_))
 		, data_    (std::move(v.data_   ))
@@ -251,13 +251,13 @@ public:
 	/// \param ae the tensor_expression which values will be duplicated into the tensor
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
-	tensor (const expression_type<derived_type> &e)
-		: expression_type<self_type> ()
+	tensor (const tensor_expression_type<derived_type> &e)
+		: tensor_expression_type<self_type> ()
 		, extents_ ( detail::retrieve_extents(e) )
 		, strides_ ( extents_ )
 		, data_    ( extents_.product() )
 	{
-		static_assert( detail::has_tensor_types<self_type, expression_type<derived_type>>::value,
+		static_assert( detail::has_tensor_types<self_type, tensor_expression_type<derived_type>>::value,
 									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
 		this->eval( e );
 	}
@@ -460,7 +460,7 @@ public:
 	/// \return a reference to the resulting tensor
 	template<class derived_type>
 	BOOST_UBLAS_INLINE
-	tensor &operator = (const expression_type<derived_type> &e)
+	tensor &operator = (const tensor_expression_type<derived_type> &e)
 	{
 		this->eval(e);
 		return *this;
@@ -734,7 +734,7 @@ private:
 
 
 	template<class derive_type>
-	void eval(expression_type<derive_type> const& expr)
+	void eval(tensor_expression_type<derive_type> const& expr)
 	{
 //		using expr_type = detail::tensor_expression<self_type,derive_type>;
 //		static_assert(detail::has_tensor_types<self_type,expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
@@ -745,7 +745,7 @@ private:
 	}
 
 //	template<class derive_type>
-//	const shape& retrieve_extents(expression_type<derive_type> const& expr)
+//	const shape& retrieve_extents(tensor_expression_type<derive_type> const& expr)
 //	{
 //		using expr_type = detail::tensor_expression<self_type,derive_type>;
 
