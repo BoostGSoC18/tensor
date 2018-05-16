@@ -91,23 +91,6 @@ auto operator/(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
 
 
 // Overloaded Assignment Operators
-template<class T, class R>
-decltype(auto) operator+=(T& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs)
-{ return lhs = lhs + rhs;  }
-
-template<class T, class R>
-decltype(auto)operator-=(T& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs)
-{ return lhs = lhs - rhs;  }
-
-template<class T, class R>
-decltype(auto) operator*=(T& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs)
-{ return lhs = lhs * rhs;  }
-
-template<class T, class R>
-decltype(auto) operator/=(T& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs)
-{ return lhs = lhs / rhs;  }
-
-// Overloaded Assignment Operators
 template<class E, class F, class A>
 decltype(auto) operator+=(boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference rhs)
 { return lhs = lhs + rhs;  }

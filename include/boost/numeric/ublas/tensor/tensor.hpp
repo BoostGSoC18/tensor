@@ -260,10 +260,6 @@ public:
 	{
 		static_assert( detail::has_tensor_types<self_type, tensor_expression_type<derived_type>>::value,
 									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
-
-		if(!detail::all_extents_equal( expr, this->extents_, true ))
-			throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
-
 		this->eval( expr );
 	}
 
@@ -279,10 +275,6 @@ public:
 	template<class derived_type>
 	tensor &operator = (const tensor_expression_type<derived_type> &expr)
 	{
-		if constexpr (detail::has_tensor_types< self_type, tensor_expression_type<derived_type> >::value )
-			if(!detail::all_extents_equal( expr, this->extents(), true ))
-				throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
-
 		this->eval(expr);
 		return *this;
 	}
@@ -456,54 +448,6 @@ public:
 	}
 
 
-
-#if 0
-	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
-	/// Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor). This method does not create any temporary.
-	/// \param v is the source tensor container
-	/// \return a reference to a tensor (i.e. the destination tensor)
-	template<class C>          // Container assignment without temporary
-	BOOST_UBLAS_INLINE
-	tensor &operator = (const tensor_container<C> &v) {
-		resize (v ().size (), false);
-		assign (v);
-		return *this;
-	}
-
-	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
-	/// \param v is the source tensor
-	/// \return a reference to a tensor (i.e. the destination tensor)
-	BOOST_UBLAS_INLINE
-	tensor &assign_temporary (tensor &v) {
-		swap (v);
-		return *this;
-	}
-#endif
-
-	/// \brief Assign the result of a tensor_expression to the tensor
-	/// Assign the result of a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-
-
-
-#if 0
-	/// \brief Assign the result of a tensor_expression to the tensor
-	/// Assign the result of a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-	template<class AE>
-	BOOST_UBLAS_INLINE
-	tensor &assign (const tensor_expression<AE> &ae)
-	{
-//		tensor_assign<scalar_assign> (*this, ae);
-		return *this;
-	}
-#endif
-
-#if 0
 	// -------------------
 	// Computed assignment
 	// -------------------
@@ -514,107 +458,37 @@ public:
 	/// \tparam AE is the type of the tensor_expression
 	/// \param ae is a const reference to the tensor_expression
 	/// \return a reference to the resulting tensor
-	template<class AE>
 	BOOST_UBLAS_INLINE
-	tensor &operator += (const tensor_expression<AE> &ae) {
-		self_type temporary (*this + ae);
-		return assign_temporary (temporary);
-	}
-
-	/// \brief Assign the sum of the tensor and a tensor_expression to the tensor
-	/// Assign the sum of the tensor and a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// No temporary is created. Computations are done and stored directly into the resulting tensor.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-	template<class C>          // Container assignment without temporary
-	BOOST_UBLAS_INLINE
-	tensor &operator += (const tensor_container<C> &v) {
-		plus_assign (v);
-		return *this;
-	}
-
-	/// \brief Assign the sum of the tensor and a tensor_expression to the tensor
-	/// Assign the sum of the tensor and a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// No temporary is created. Computations are done and stored directly into the resulting tensor.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-	template<class AE>
-	BOOST_UBLAS_INLINE
-	tensor &plus_assign (const tensor_expression<AE> &ae)
+	template<class derived_type>
+	tensor &operator += (const tensor_expression_type<derived_type> &expr)
 	{
-//		tensor_assign<scalar_plus_assign> (*this, ae);
+		this->eval(expr, [](reference l, const_reference r) { l+=r; } );
 		return *this;
 	}
 
-	/// \brief Assign the difference of the tensor and a tensor_expression to the tensor
-	/// Assign the difference of the tensor and a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// A temporary is created for the computations.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	template<class AE>
 	BOOST_UBLAS_INLINE
-	tensor &operator -= (const tensor_expression<AE> &ae) {
-		self_type temporary (*this - ae);
-		return assign_temporary (temporary);
-	}
-
-	/// \brief Assign the difference of the tensor and a tensor_expression to the tensor
-	/// Assign the difference of the tensor and a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// No temporary is created. Computations are done and stored directly into the resulting tensor.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-	template<class C>          // Container assignment without temporary
-	BOOST_UBLAS_INLINE
-	tensor &operator -= (const tensor_container<C> &v) {
-		minus_assign (v);
-		return *this;
-	}
-
-	/// \brief Assign the difference of the tensor and a tensor_expression to the tensor
-	/// Assign the difference of the tensor and a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// No temporary is created. Computations are done and stored directly into the resulting tensor.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-	template<class AE>
-	BOOST_UBLAS_INLINE
-	tensor &minus_assign (const tensor_expression<AE> &ae)
+	template<class derived_type>
+	tensor &operator -= (const tensor_expression_type<derived_type> &expr)
 	{
-//		tensor_assign<scalar_minus_assign> (*this, ae);
+		this->eval(expr, [](reference l, const_reference r) { l-=r; } );
 		return *this;
 	}
 
-	/// \brief Assign the product of the tensor and a scalar to the tensor
-	/// Assign the product of the tensor and a scalar to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// No temporary is created. Computations are done and stored directly into the resulting tensor.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param at is a const reference to the scalar
-	/// \return a reference to the resulting tensor
-	template<class AT>
 	BOOST_UBLAS_INLINE
-	tensor &operator *= (const AT &at)
+	template<class derived_type>
+	tensor &operator *= (const tensor_expression_type<derived_type> &expr)
 	{
-//		tensor_assign_scalar<scalar_multiplies_assign> (*this, at);
+		this->eval(expr, [](reference l, const_reference r) { l*=r; } );
 		return *this;
 	}
 
-	/// \brief Assign the division of the tensor by a scalar to the tensor
-	/// Assign the division of the tensor by a scalar to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// No temporary is created. Computations are done and stored directly into the resulting tensor.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param at is a const reference to the scalar
-	/// \return a reference to the resulting tensor
-	template<class AT>
 	BOOST_UBLAS_INLINE
-	tensor &operator /= (const AT &at)
+	template<class derived_type>
+	tensor &operator /= (const tensor_expression_type<derived_type> &expr)
 	{
-//		tensor_assign_scalar<scalar_divides_assign> (*this, at);
+		this->eval(expr, [](reference l, const_reference r) { l/=r; } );
 		return *this;
 	}
-#endif
 
 
 
@@ -755,13 +629,34 @@ private:
 	}
 
 
-	template<class derive_type>
-	void eval(tensor_expression_type<derive_type> const& expr)
+	template<class derived_type>
+	void eval(tensor_expression_type<derived_type> const& expr)
 	{
+		if constexpr (detail::has_tensor_types< self_type, tensor_expression_type<derived_type> >::value )
+			if(!detail::all_extents_equal( expr, this->extents_, true ))
+				throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
+
+
 //		#pragma omp parallel for
 		for(auto i = 0u; i < this->size(); ++i)
 			data_[i] = expr(i);
 	}
+
+	template<class derived_type, class unary_fn>
+	void eval(tensor_expression_type<derived_type> const& expr, unary_fn const fn)
+	{
+
+		if constexpr (detail::has_tensor_types< self_type, tensor_expression_type<derived_type> >::value )
+			if(!detail::all_extents_equal( expr, this->extents_, true ))
+				throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
+
+
+//		#pragma omp parallel for
+		for(auto i = 0u; i < this->size(); ++i)
+			fn(data_[i], expr(i));
+	}
+
+
 
 	extents_type extents_;
 	strides_type strides_;
