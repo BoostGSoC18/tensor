@@ -191,5 +191,41 @@ auto all_extents_equal(unary_tensor_expression<T,E,OP> const& expr, basic_extent
 }
 
 
+
+
+template<class tensor_type, class derived_type>
+void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& expr)
+{
+	if constexpr (detail::has_tensor_types<tensor_type, tensor_expression<tensor_type,derived_type> >::value )
+		if(!detail::all_extents_equal(expr, lhs.extents(), true ))
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
+
+//		#pragma omp parallel for
+	for(auto i = 0u; i < lhs.size(); ++i)
+		lhs[i] = expr(i);
+}
+
+template<class tensor_type, class derived_type, class unary_fn>
+void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& expr, unary_fn const fn)
+{
+
+	if constexpr (detail::has_tensor_types< tensor_type, tensor_expression<tensor_type,derived_type> >::value )
+		if(!detail::all_extents_equal( expr, lhs.extents(), true ))
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
+
+//		#pragma omp parallel for
+	for(auto i = 0u; i < lhs.size(); ++i)
+		fn(lhs[i], expr(i));
+}
+
+template<class tensor_type, class unary_fn>
+void eval(tensor_type& lhs, unary_fn const fn)
+{
+//		#pragma omp parallel for
+	for(auto i = 0u; i < lhs.size(); ++i)
+		fn(lhs[i]);
+}
+
+
 }
 #endif

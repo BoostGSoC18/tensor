@@ -260,7 +260,7 @@ public:
 	{
 		static_assert( detail::has_tensor_types<self_type, tensor_expression_type<derived_type>>::value,
 									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
-		this->eval( expr );
+		detail::eval( *this, expr );
 	}
 
 	/** @brief Evaluates the tensor_expression and assigns the results to the tensor
@@ -275,7 +275,7 @@ public:
 	template<class derived_type>
 	tensor &operator = (const tensor_expression_type<derived_type> &expr)
 	{
-		this->eval(expr);
+		detail::eval(*this, expr);
 		return *this;
 	}
 
@@ -448,69 +448,6 @@ public:
 	}
 
 
-	// -------------------
-	// Computed assignment
-	// -------------------
-
-	/// \brief Assign the sum of the tensor and a tensor_expression to the tensor
-	/// Assign the sum of the tensor and a tensor_expression to the tensor. This is lazy-compiled and will be optimized out by the compiler on any type of expression.
-	/// A temporary is created for the computations.
-	/// \tparam AE is the type of the tensor_expression
-	/// \param ae is a const reference to the tensor_expression
-	/// \return a reference to the resulting tensor
-	BOOST_UBLAS_INLINE
-	template<class derived_type>
-	tensor &operator += (const tensor_expression_type<derived_type> &expr) {
-		this->eval(expr, [](reference l, const_reference r) { l+=r; } );
-		return *this;
-	}
-
-	BOOST_UBLAS_INLINE
-	template<class derived_type>
-	tensor &operator -= (const tensor_expression_type<derived_type> &expr) {
-		this->eval(expr, [](reference l, const_reference r) { l-=r; } );
-		return *this;
-	}
-
-	BOOST_UBLAS_INLINE
-	template<class derived_type>
-	tensor &operator *= (const tensor_expression_type<derived_type> &expr) {
-		this->eval(expr, [](reference l, const_reference r) { l*=r; } );
-		return *this;
-	}
-
-	BOOST_UBLAS_INLINE
-	template<class derived_type>
-	tensor &operator /= (const tensor_expression_type<derived_type> &expr) {
-		this->eval(expr, [](reference l, const_reference r) { l/=r; } );
-		return *this;
-	}
-
-
-
-	BOOST_UBLAS_INLINE
-	tensor &operator += (const_reference r) {
-		this->eval([r](reference l) { l+=r; } );
-		return *this;
-	}
-
-	BOOST_UBLAS_INLINE
-	tensor &operator -= (const_reference r) {
-		this->eval([r](reference l) { l-=r; } );
-		return *this;
-	}
-
-	BOOST_UBLAS_INLINE
-	tensor &operator *= (const_reference r) {
-		this->eval([r](reference l) { l*=r; } );
-		return *this;
-	}
-
-	BOOST_UBLAS_INLINE
-	tensor &operator /= (const_reference r) {
-		this->eval([r](reference l) { l/=r; } );
-		return *this;
-	}
 
 
 
@@ -649,42 +586,6 @@ private:
 		else
 			return access<r+1>(sum,std::forward<size_type>(is)...);
 	}
-
-
-	template<class derived_type>
-	void eval(tensor_expression_type<derived_type> const& expr)
-	{
-		if constexpr (detail::has_tensor_types< self_type, tensor_expression_type<derived_type> >::value )
-			if(!detail::all_extents_equal( expr, this->extents_, true ))
-				throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
-
-
-//		#pragma omp parallel for
-		for(auto i = 0u; i < this->size(); ++i)
-			data_[i] = expr(i);
-	}
-
-	template<class derived_type, class unary_fn>
-	void eval(tensor_expression_type<derived_type> const& expr, unary_fn const fn)
-	{
-
-		if constexpr (detail::has_tensor_types< self_type, tensor_expression_type<derived_type> >::value )
-			if(!detail::all_extents_equal( expr, this->extents_, true ))
-				throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
-
-
-//		#pragma omp parallel for
-		for(auto i = 0u; i < this->size(); ++i)
-			fn(data_[i], expr(i));
-	}
-
-	template<class unary_fn>
-	void eval(unary_fn const fn)
-	{
-		for(auto i = 0u; i < this->size(); ++i)
-			fn(data_[i]);
-	}
-
 
 
 	extents_type extents_;
