@@ -233,6 +233,8 @@ void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& 
 		fn(lhs(i), expr(i));
 }
 
+
+
 /** @brief Evaluates expression for a tensor
  *
  * Applies a unary function to the results of the expressions before the assignment.
