@@ -154,6 +154,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_unary_operat
 	BOOST_CHECK_NO_THROW ( tensor_type t = tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(0))  );
 	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
 	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(1)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(2)) + 2 + tensor_type(extents.at(2)) + tensor_type(extents.at(1)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(2)) + 2 + tensor_type(extents.at(2)) + 2 + tensor_type(extents.at(1)), std::runtime_error  );
 }
 
 
@@ -241,6 +243,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_assign_opera
 	BOOST_CHECK_NO_THROW ( r += tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(0))  );
 	BOOST_CHECK_THROW    ( r += tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
 	BOOST_CHECK_THROW    ( r += tensor_type(extents.at(1)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( r += tensor_type(extents.at(2)) + 2 + tensor_type(extents.at(2)) + tensor_type(extents.at(1)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( r += tensor_type(extents.at(2)) + 2 + tensor_type(extents.at(2)) + 2 + tensor_type(extents.at(1)), std::runtime_error  );
 }
 
 

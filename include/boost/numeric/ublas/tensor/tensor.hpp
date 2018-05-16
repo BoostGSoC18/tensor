@@ -11,7 +11,7 @@
 //
 //  And we acknowledge the support from all contributors.
 
-/// \file tensor.hpp Definition for the class vector and its derivative
+/// \file tensor.hpp Definition for the tensor template class
 
 #ifndef _BOOST_UBLAS_TENSOR_IMPL_
 #define _BOOST_UBLAS_TENSOR_IMPL_
@@ -25,15 +25,6 @@
 #include "expression_evaluation.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
-
-
-/** \brief Base class for Vector container models
- *
- * it does not model the Vector concept but all derived types should.
- * The class defines a common base type and some common interface for all
- * statically derived Vector classes
- * We implement the casts to the statically derived type.
- */
 
 
 
@@ -140,7 +131,7 @@ public:
 	 * Layout or storage format is automatically set to first-order.
 	 * By default, its elements are initialized to 0.
 	 *
-	 * @code tensor A{4,2,3}; @endcode
+	 * @code tensor<float> A{4,2,3}; @endcode
 	 *
 	 * @param l initializer list for setting the dimension extents of the tensor
 	 */
@@ -159,7 +150,7 @@ public:
 		* Layout or storage format is automatically set to first-order.
 		* By default, its elements are initialized to 0.
 		*
-		* @code tensor A{extents{4,2,3}}; @endcode
+		* @code tensor<float> A{extents{4,2,3}}; @endcode
 		*
 		* @param e initial tensor dimension extents
 		*/
@@ -175,7 +166,7 @@ public:
 	/** @brief Constructor of the tensor template class
 	 *
 	 *
-	 *  @code tensor A{extents{4,2,3}, array }; @endcode
+	 *  @code tensor<float> A{extents{4,2,3}, array }; @endcode
 	 *
 	 *  @param e initial tensor dimension extents
 	 *  @param data container of \c array_type
@@ -194,6 +185,8 @@ public:
 
 
 	/** @brief Constructor of the tensor template class
+	 *
+	 *  @code tensor<float> A{extents{4,2,3}, 1 }; @endcode
 	 *
 	 *  @param e initial tensor dimension extents
 	 *  @param i initial value of all elements of type \c value_type
@@ -376,7 +369,7 @@ public:
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
-			return this->data_[ access<0>(0,i,is...)];
+			return this->data_[detail::access<0>(0ul,this->strides_,i,is...)];
 	}
 
 	/** @brief Element access using a multi-index or single-index.
@@ -394,7 +387,7 @@ public:
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
-			return this->data_[ access<0>(0,i,is...)];
+			return this->data_[detail::access<0ul>(0ul,i,is...)];
 	}
 
 
@@ -548,45 +541,6 @@ public:
 
 
 private:
-
-	/** @brief Memory access function with multi-indices
-	 *
-	 * @code auto m = access(0, 3,4,5); @endcode
-	 *
-	 * @param[in] i multi-index vector of length p
-	 * @returns relative memory location depending on \c i
-	*/
-	BOOST_UBLAS_INLINE
-	size_type access(std::vector<size_type> const& i)
-	{
-		const auto p = this->rank();
-		size_type sum = 0u;
-		for(auto r = 0u; r < p; ++r)
-			sum += i[r]*strides_[r];
-		return sum;
-	}
-
-	/** @brief Memory access function with multi-indices
-	 *
-	 * @code auto m = access(0, 3,4,5); @endcode
-	 *
-	 *
-	 * @param[in] i   first element of the partial multi-index
-	 * @param[in] is  the following elements of the partial multi-index
-	 * @param[in] sum the current
-	 * @returns relative memory location depending on \c i
-	*/
-	BOOST_UBLAS_INLINE
-	template<std::size_t r, class ... size_types>
-	size_type access(size_type sum, size_type i, size_types ... is) const
-	{
-		sum+=i*strides_[r];
-		if constexpr (sizeof...(is) == 0)
-			return sum;
-		else
-			return access<r+1>(sum,std::forward<size_type>(is)...);
-	}
-
 
 	extents_type extents_;
 	strides_type strides_;

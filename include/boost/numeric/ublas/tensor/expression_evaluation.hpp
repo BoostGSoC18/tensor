@@ -193,6 +193,13 @@ auto all_extents_equal(unary_tensor_expression<T,E,OP> const& expr, basic_extent
 
 
 
+/** @brief Evaluates expression for a tensor
+ *
+ * Assigns the results of the expression to the tensor.
+ *
+ *
+ * \note Checks if shape of the tensor matches those of all tensors within the expression.
+*/
 template<class tensor_type, class derived_type>
 void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& expr)
 {
@@ -200,11 +207,19 @@ void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& 
 		if(!detail::all_extents_equal(expr, lhs.extents(), true ))
 			throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
 
-//		#pragma omp parallel for
+	#pragma omp parallel for
 	for(auto i = 0u; i < lhs.size(); ++i)
 		lhs(i) = expr(i);
 }
 
+/** @brief Evaluates expression for a tensor
+ *
+ * Applies a unary function to the results of the expressions before the assignment.
+ *
+ * Usually applied needed for unary operators such as A += C;
+ *
+ * \note Checks if shape of the tensor matches those of all tensors within the expression.
+*/
 template<class tensor_type, class derived_type, class unary_fn>
 void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& expr, unary_fn const fn)
 {
@@ -213,15 +228,23 @@ void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& 
 		if(!detail::all_extents_equal( expr, lhs.extents(), true ))
 			throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
 
-//		#pragma omp parallel for
+	#pragma omp parallel for
 	for(auto i = 0u; i < lhs.size(); ++i)
 		fn(lhs(i), expr(i));
 }
 
+/** @brief Evaluates expression for a tensor
+ *
+ * Applies a unary function to the results of the expressions before the assignment.
+ *
+ * Usually applied needed for unary operators such as A += C;
+ *
+ * \note Checks if shape of the tensor matches those of all tensors within the expression.
+*/
 template<class tensor_type, class unary_fn>
 void eval(tensor_type& lhs, unary_fn const fn)
 {
-//		#pragma omp parallel for
+	#pragma omp parallel for
 	for(auto i = 0u; i < lhs.size(); ++i)
 		fn(lhs(i));
 }
