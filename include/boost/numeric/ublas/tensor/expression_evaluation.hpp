@@ -202,7 +202,7 @@ void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& 
 
 //		#pragma omp parallel for
 	for(auto i = 0u; i < lhs.size(); ++i)
-		lhs[i] = expr(i);
+		lhs(i) = expr(i);
 }
 
 template<class tensor_type, class derived_type, class unary_fn>
@@ -215,7 +215,7 @@ void eval(tensor_type& lhs, tensor_expression<tensor_type, derived_type> const& 
 
 //		#pragma omp parallel for
 	for(auto i = 0u; i < lhs.size(); ++i)
-		fn(lhs[i], expr(i));
+		fn(lhs(i), expr(i));
 }
 
 template<class tensor_type, class unary_fn>
@@ -223,7 +223,7 @@ void eval(tensor_type& lhs, unary_fn const fn)
 {
 //		#pragma omp parallel for
 	for(auto i = 0u; i < lhs.size(); ++i)
-		fn(lhs[i]);
+		fn(lhs(i));
 }
 
 

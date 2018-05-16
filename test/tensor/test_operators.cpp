@@ -41,7 +41,7 @@ struct fixture {
 };
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_binary_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_binary_operations, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_binary_operations, valu
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_unary_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_unary_operations, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -160,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_unary_operations, value
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_assign_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_assign_operations, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -224,6 +224,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_assign_operations, valu
 		for(auto i = 0ul; i < t.size(); ++i)
 			BOOST_CHECK_EQUAL ( r(i), (t2(i)/2+1) / (2/t2(i)+1) / t2(i) );
 
+		tensor_type q = -r;
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( q(i), -r(i) );
+
+		tensor_type p = +r;
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL ( p(i), r(i) );
 	};
 
 	for(auto const& e : extents)
