@@ -88,6 +88,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_binary_operations, valu
 
 	for(auto const& e : extents)
 		check(e);
+
+
+	BOOST_CHECK_NO_THROW ( tensor_type t = tensor_type(extents.at(0)) + tensor_type(extents.at(0))  );
+	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(0)) + tensor_type(extents.at(2)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(1)) + tensor_type(extents.at(2)), std::runtime_error  );
+
+
 }
 
 
@@ -104,7 +111,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_unary_operations, value
 	{
 		auto t  = tensor_type (e);
 		auto t2 = tensor_type (e);
-		auto r  = tensor_type (e);
 		auto v  = value_type  {};
 
 		std::iota(t.begin(), t.end(), v);
@@ -144,6 +150,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_unary_operations, value
 
 	for(auto const& e : extents)
 		check(e);
+
+	BOOST_CHECK_NO_THROW ( tensor_type t = tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(0))  );
+	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( tensor_type t = tensor_type(extents.at(1)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
 }
 
 
@@ -218,6 +228,12 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_assign_operations, valu
 
 	for(auto const& e : extents)
 		check(e);
+
+	auto r  = tensor_type (extents.at(0));
+
+	BOOST_CHECK_NO_THROW ( r += tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(0))  );
+	BOOST_CHECK_THROW    ( r += tensor_type(extents.at(0)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
+	BOOST_CHECK_THROW    ( r += tensor_type(extents.at(1)) + 2 + tensor_type(extents.at(2)), std::runtime_error  );
 }
 
 

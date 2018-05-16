@@ -22,6 +22,7 @@
 #include <initializer_list>
 
 #include "expression.hpp"
+#include "expression_evaluation.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
 
@@ -251,15 +252,45 @@ public:
 	/// \param ae the tensor_expression which values will be duplicated into the tensor
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
-	tensor (const tensor_expression_type<derived_type> &e)
+	tensor (const tensor_expression_type<derived_type> &expr)
 		: tensor_expression_type<self_type> ()
-		, extents_ ( detail::retrieve_extents(e) )
+		, extents_ ( detail::retrieve_extents(expr) )
 		, strides_ ( extents_ )
 		, data_    ( extents_.product() )
 	{
 		static_assert( detail::has_tensor_types<self_type, tensor_expression_type<derived_type>>::value,
 									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
-		this->eval( e );
+
+		if(!detail::all_extents_equal( expr, this->extents_, true ))
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
+
+		this->eval( expr );
+	}
+
+	/** @brief Evaluates the tensor_expression and assigns the results to the tensor
+	 *
+	 * @code A = B + C * 2;  @endcode
+	 *
+	 * @note rank and dimension extents of the tensors in the expressions must conform with this tensor.
+	 *
+	 * @param expr expression that is evaluated.
+	 */
+	BOOST_UBLAS_INLINE
+	template<class derived_type>
+	tensor &operator = (const tensor_expression_type<derived_type> &expr)
+	{
+		if constexpr (detail::has_tensor_types< self_type, tensor_expression_type<derived_type> >::value )
+			if(!detail::all_extents_equal( expr, this->extents(), true ))
+				throw std::runtime_error("Error in boost::numeric::ublas::tensor: expression contains tensors with different shapes.");
+
+		this->eval(expr);
+		return *this;
+	}
+
+	tensor& operator=(tensor other)
+	{
+		swap (*this, other);
+		return *this;
 	}
 
 
@@ -425,11 +456,7 @@ public:
 	}
 
 
-	tensor& operator=(tensor other)
-	{
-		swap (*this, other);
-		return *this;
-	}
+
 #if 0
 	/// \brief Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor)
 	/// Assign a full tensor (\e RHS-tensor) to the current tensor (\e LHS-tensor). This method does not create any temporary.
@@ -458,13 +485,8 @@ public:
 	/// \tparam AE is the type of the tensor_expression
 	/// \param ae is a const reference to the tensor_expression
 	/// \return a reference to the resulting tensor
-	template<class derived_type>
-	BOOST_UBLAS_INLINE
-	tensor &operator = (const tensor_expression_type<derived_type> &e)
-	{
-		this->eval(e);
-		return *this;
-	}
+
+
 
 #if 0
 	/// \brief Assign the result of a tensor_expression to the tensor
@@ -736,34 +758,10 @@ private:
 	template<class derive_type>
 	void eval(tensor_expression_type<derive_type> const& expr)
 	{
-//		using expr_type = detail::tensor_expression<self_type,derive_type>;
-//		static_assert(detail::has_tensor_types<self_type,expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
-
 //		#pragma omp parallel for
 		for(auto i = 0u; i < this->size(); ++i)
 			data_[i] = expr(i);
 	}
-
-//	template<class derive_type>
-//	const shape& retrieve_extents(tensor_expression_type<derive_type> const& expr)
-//	{
-//		using expr_type = detail::tensor_expression<self_type,derive_type>;
-
-//		static_assert(detail::has_tensor_types<self_type,expr_type>::value, "Error in boost::numeric::ublas::tensor: Expression to evaluate should contain tensors.");
-
-
-
-////		if constexpr ( std::is_same<derive_type,self_type>::value )
-////			return static_cast<self_type const&>(expr).extents();
-////		else
-////			retrieve_extents(derive_type)
-
-
-//	}
-
-
-
-
 
 	extents_type extents_;
 	strides_type strides_;
