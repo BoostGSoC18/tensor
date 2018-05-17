@@ -35,6 +35,10 @@ bool compare(tensor<T,F,A> const& lhs, tensor<T,F,A> const& rhs, BinaryPred pred
 			return false;
 	}
 
+	if constexpr(std::is_same<BinaryPred,std::greater<>>::value || std::is_same<BinaryPred,std::less<>>::value)
+		if(lhs.empty())
+			return false;
+
 	for(auto i = 0u; i < lhs.size(); ++i)
 		if(!pred(lhs(i), rhs(i)))
 			return false;
@@ -58,13 +62,13 @@ bool compare(tensor_expression<T,L> const& lhs, tensor_expression<T,R> const& rh
 	constexpr bool rhs_is_tensor = std::is_same<T,R>::value;
 
 	if constexpr (lhs_is_tensor && rhs_is_tensor)
-			return compare(static_cast<T const&>( lhs ), static_cast<T const&>( rhs ), pred);
+		return compare(static_cast<T const&>( lhs ), static_cast<T const&>( rhs ), pred);
 	else if constexpr (lhs_is_tensor && !rhs_is_tensor)
-			return compare(static_cast<T const&>( lhs ), T( rhs ), pred);
+		return compare(static_cast<T const&>( lhs ), T( rhs ), pred);
 	else if constexpr (!lhs_is_tensor && rhs_is_tensor)
-			return compare(T( lhs ), static_cast<T const&>( rhs ), pred);
+		return compare(T( lhs ), static_cast<T const&>( rhs ), pred);
 	else
-	return compare(T( lhs ), T( rhs ), pred);
+		return compare(T( lhs ), T( rhs ), pred);
 
 }
 
