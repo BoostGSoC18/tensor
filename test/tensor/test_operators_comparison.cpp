@@ -12,6 +12,7 @@
 
 
 #include <boost/numeric/ublas/tensor/operators_comparison.hpp>
+#include <boost/numeric/ublas/tensor/operators_arithmetic.hpp>
 #include <boost/numeric/ublas/tensor/tensor.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -72,6 +73,14 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_comparison_binary_opera
 		BOOST_CHECK( t2 > t );
 		BOOST_CHECK( t2 >= t2 );
 		BOOST_CHECK( t2 >= t );
+
+		BOOST_CHECK(!(t < t) );
+		BOOST_CHECK( t < (t2+t) );
+		BOOST_CHECK( t <= (t+t) );
+		BOOST_CHECK( t <= (t2+t2+t2) );
+		BOOST_CHECK( 2*t2 > t );
+		BOOST_CHECK( 2*t2 >= t2 );
+		BOOST_CHECK( 3*t2 >= t );
 
 	};
 

@@ -31,139 +31,74 @@ namespace detail {
  * \note Checks if shape of the tensor matches those of all tensors within the expression.
 */
 template<class T, class F, class A, class BinaryPred>
-bool compare(tensor<T,F,A> const& lhs, tensor<T,F,A> const& rhs, BinaryPred pred)
+bool compare(boost::numeric::ublas::tensor<T,F,A> const& lhs,
+			 boost::numeric::ublas::tensor<T,F,A> const& rhs,
+			 BinaryPred pred)
 {
 	for(auto i = 0u; i < lhs.size(); ++i)
 		if(!pred(lhs(i), rhs(i)))
 			return false;
 	return true;
 }
+
+
+template<class T, class L, class R, class BinaryPred>
+bool compare(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+			 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs,
+			 BinaryPred pred)
+{
+	constexpr auto lhs_is_tensor = std::is_same<T,L>::value;
+	constexpr auto rhs_is_tensor = std::is_same<T,R>::value;
+
+	if constexpr (lhs_is_tensor && rhs_is_tensor)
+		return compare(static_cast<T const&>( lhs ), static_cast<T const&>( rhs ), pred);
+	else if constexpr (lhs_is_tensor && !rhs_is_tensor)
+		return compare(static_cast<T const&>( lhs ), T( rhs ), pred);
+	else if constexpr (!lhs_is_tensor && rhs_is_tensor)
+		return compare(T( lhs ), static_cast<T const&>( rhs ), pred);
+	else
+		return compare(T( lhs ), T( rhs ), pred);
+
+}
 }
 }
 
 
 template<class T, class L, class R>
-bool operator==( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::compare( T(lhs), T(rhs),  [](auto const& l, auto const& r){ return l == r; } );
+bool operator==( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+				 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
+	return boost::numeric::ublas::detail::compare( lhs, rhs,
+												   [](auto const& l, auto const& r){ return l == r; } );
 }
 template<class T, class L, class R>
-auto operator!=( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::compare( T(lhs), T(rhs),  [](auto const& l, auto const& r){ return l != r; } );
+auto operator!=( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+				 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
+	return boost::numeric::ublas::detail::compare( lhs, rhs,
+												   [](auto const& l, auto const& r){ return l != r; } );
 }
 template<class T, class L, class R>
-auto operator< ( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::compare( T(lhs), T(rhs),  [](auto const& l, auto const& r){ return l <  r; } );
+auto operator< ( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+				 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
+	return boost::numeric::ublas::detail::compare( lhs, rhs,
+												   [](auto const& l, auto const& r){ return l <  r; } );
 }
 template<class T, class L, class R>
-auto operator<=( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::compare( T(lhs), T(rhs),  [](auto const& l, auto const& r){ return l <= r; } );
+auto operator<=( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+				 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
+	return boost::numeric::ublas::detail::compare( lhs, rhs,
+												   [](auto const& l, auto const& r){ return l <= r; } );
 }
 template<class T, class L, class R>
-auto operator> ( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::compare( T(lhs), T(rhs),  [](auto const& l, auto const& r){ return l >  r; } );
+auto operator> ( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+				 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
+	return boost::numeric::ublas::detail::compare( lhs, rhs,
+												   [](auto const& l, auto const& r){ return l >  r; } );
 }
 template<class T, class L, class R>
-auto operator>=( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::compare( T(lhs), T(rhs),  [](auto const& l, auto const& r){ return l >= r; } );
+auto operator>=( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs,
+				 boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
+	return boost::numeric::ublas::detail::compare( lhs, rhs,
+												   [](auto const& l, auto const& r){ return l >= r; } );
 }
-
-
-
-#if 0
-// Overloaded Arithmetic Operators with Scalars
-template<class T, class R>
-auto operator+(typename T::const_reference lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (rhs, [lhs](auto const& r){ return lhs + r; });
-	//return boost::numeric::ublas::detail::make_lambda<T>( [&lhs,&rhs](std::size_t i) {return lhs + rhs(i); } );
-}
-template<class T, class R>
-auto operator-(typename T::const_reference lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (rhs, [lhs](auto const& r){ return lhs - r; });
-}
-template<class T, class R>
-auto operator*(typename T::const_reference lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (rhs, [lhs](auto const& r){ return lhs * r; });
-}
-template<class T, class R>
-auto operator/(typename T::const_reference lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (rhs, [lhs](auto const& r){ return lhs / r; });
-}
-
-
-template<class T, class L>
-auto operator+(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l + rhs; } );
-}
-template<class T, class L>
-auto operator-(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l - rhs; } );
-}
-template<class T, class L>
-auto operator*(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l * rhs; } );
-}
-template<class T, class L>
-auto operator/(boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, typename T::const_reference rhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [rhs] (auto const& l) { return l / rhs; } );
-}
-
-
-
-template<class T, class D>
-auto& operator += (T& lhs, const boost::numeric::ublas::detail::tensor_expression<T,D> &expr) {
-	boost::numeric::ublas::detail::eval(lhs, expr, [](auto& l, auto const& r) { l+=r; } );
-	return lhs;
-}
-
-template<class T, class D>
-auto& operator -= (T& lhs, const boost::numeric::ublas::detail::tensor_expression<T,D> &expr) {
-	boost::numeric::ublas::detail::eval(lhs, expr, [](auto& l, auto const& r) { l-=r; } );
-	return lhs;
-}
-
-template<class T, class D>
-auto& operator *= (T& lhs, const boost::numeric::ublas::detail::tensor_expression<T,D> &expr) {
-	boost::numeric::ublas::detail::eval(lhs, expr, [](auto& l, auto const& r) { l*=r; } );
-	return lhs;
-}
-
-template<class T, class D>
-auto& operator /= (T& lhs, const boost::numeric::ublas::detail::tensor_expression<T,D> &expr) {
-	boost::numeric::ublas::detail::eval(lhs, expr, [](auto& l, auto const& r) { l/=r; } );
-	return lhs;
-}
-
-
-
-template<class E, class F, class A>
-auto& operator += (boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference r) {
-	boost::numeric::ublas::detail::eval(lhs, [r](auto& l) { l+=r; } );
-	return lhs;
-}
-
-template<class E, class F, class A>
-auto& operator -= (boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference r) {
-	boost::numeric::ublas::detail::eval(lhs, [r](auto& l) { l-=r; } );
-	return lhs;
-}
-
-template<class E, class F, class A>
-auto& operator *= (boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference r) {
-	boost::numeric::ublas::detail::eval(lhs, [r](auto& l) { l*=r; } );
-	return lhs;
-}
-
-template<class E, class F, class A>
-auto& operator /= (boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference r) {
-	boost::numeric::ublas::detail::eval(lhs, [r](auto& l) { l/=r; } );
-	return lhs;
-}
-
-template<class T, class D>
-auto operator !(boost::numeric::ublas::detail::tensor_expression<T,D> const& lhs) {
-	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs, [] (auto const& l) { return -l; } );
-}
-
-#endif
 
 #endif
