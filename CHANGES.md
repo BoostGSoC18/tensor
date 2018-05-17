@@ -16,6 +16,8 @@ While the tensor template class and its auxiliary classes inherits the implement
 * Function `resize()` will be renamed to `reshape()` using extents.
 * Proxy shortcuts for tensor expressions are not used. It does not make user code more readible or convenient.
 * Expression templates include tensor types as an additional template parameter.
+* Arithmetic assignment operators are placed outside the tensor template class.
+
 
 
 

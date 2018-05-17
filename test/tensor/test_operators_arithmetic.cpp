@@ -41,7 +41,7 @@ struct fixture {
 };
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_binary_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_binary_arithmetic_operations, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_binary_opera
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_unary_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_unary_arithmetic_operations, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_unary_operat
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_entry_wise_arithmetic_assign_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_assign_arithmetic_operations, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
