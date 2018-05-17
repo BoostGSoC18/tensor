@@ -41,6 +41,8 @@ struct fixture {
 	std::vector<extents_type> extents;
 };
 
+BOOST_AUTO_TEST_SUITE(test_tensor_comparison, * boost::unit_test::depends_on("test_tensor"));
+
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison, value,  test_types, fixture)
 {
@@ -239,3 +241,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison_with_scalar, value,  te
 		check(e);
 
 }
+
+
+BOOST_AUTO_TEST_SUITE_END();

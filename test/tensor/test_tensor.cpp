@@ -12,7 +12,7 @@
 
 
 #include <random>
-#include <boost/numeric/ublas/tensor.hpp>
+#include <boost/numeric/ublas/tensor/tensor.hpp>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TestTensor

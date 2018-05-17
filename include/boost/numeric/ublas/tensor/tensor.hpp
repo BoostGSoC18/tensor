@@ -79,6 +79,8 @@ class tensor:
 	using self_type  = tensor<T, F, A>;
 public:
 
+
+
 	template<class derived_type>
 	using tensor_expression_type = detail::tensor_expression<self_type,derived_type>;
 
@@ -88,6 +90,7 @@ public:
 
 	using array_type  = A;
 	using layout_type = F;
+
 
 	using size_type       = typename array_type::size_type;
 	using difference_type = typename array_type::difference_type;
@@ -111,6 +114,7 @@ public:
 	using strides_type = basic_strides<std::size_t,layout_type>;
 	using extents_type = shape;
 
+	using matrix_type     = matrix<value_type,layout_type,array_type>;
 
 	/** @brief Standard constructor of the tensor template class
 	 *
@@ -207,11 +211,45 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (const tensor &v)
-		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
+		: tensor_expression_type<self_type>()
 		, extents_ (v.extents_)
 		, strides_ (v.strides_)
 		, data_    (v.data_   )
 	{}
+
+	/** @brief Constructor of the tensor template class
+	 *
+	 *  @param v matrix to be copied.
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (const matrix_type &v)
+		: tensor_expression_type<self_type>()
+		, extents_ ()
+		, strides_ ()
+		, data_    (v.data())
+	{
+		if(v.size1()*v.size2() != 0){
+			extents_ = extents_type{v.size1(),v.size2()};
+			strides_ = strides_type(extents_);
+		}
+	}
+
+	/** @brief Constructor of the tensor template class
+	 *
+	 *  @param v matrix to be moved.
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (matrix_type &&v)
+		: tensor_expression_type<self_type>()
+		, extents_ {}
+		, strides_ {}
+		, data_    (std::move(v.data()))
+	{
+		if(v.size1()*v.size2() != 0){
+			extents_ = extents_type{v.size1(),v.size2()};
+			strides_ = strides_type(extents_);
+		}
+	}
 
 //	/** @brief Copy Constructor of the tensor template class
 //	 *

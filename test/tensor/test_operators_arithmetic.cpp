@@ -40,6 +40,9 @@ struct fixture {
 	std::vector<extents_type> extents;
 };
 
+BOOST_AUTO_TEST_SUITE(test_tensor_arithmetic_operations, * boost::unit_test::depends_on("test_tensor"));
+
+
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_binary_arithmetic_operations, value,  test_types, fixture)
 {
@@ -248,3 +251,4 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_assign_arithmetic_operations, valu
 }
 
 
+BOOST_AUTO_TEST_SUITE_END();
