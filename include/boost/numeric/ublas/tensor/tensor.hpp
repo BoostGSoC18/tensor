@@ -449,7 +449,7 @@ public:
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
-			return this->data_[detail::access<0ul>(0ul,i,is...)];
+			return this->data_[detail::access<0ul>(0ul,this->strides_,i,is...)];
 	}
 
 
