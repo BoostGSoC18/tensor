@@ -88,10 +88,10 @@ auto retrieve_extents(binary_tensor_expression<T,EL,ER,OP> const& expr)
 								"Error in boost::numeric::ublas::detail::retrieve_extents: Expression to evaluate should contain tensors.");
 
 	if constexpr ( std::is_same<T,EL>::value )
-		return expr.derived_left().extents();
+		return expr.el.extents();
 
 	if constexpr ( std::is_same<T,ER>::value )
-		return expr.derived_right().extents();
+		return expr.er.extents();
 
 	else if constexpr ( detail::has_tensor_types<T,EL>::value )
 			return retrieve_extents(expr.el);
@@ -109,7 +109,7 @@ auto retrieve_extents(unary_tensor_expression<T,E,OP> const& expr)
 								"Error in boost::numeric::ublas::detail::retrieve_extents: Expression to evaluate should contain tensors.");
 
 	if constexpr ( std::is_same<T,E>::value )
-		return expr.derived().extents();
+		return expr.e.extents();
 
 	else if constexpr ( detail::has_tensor_types<T,E>::value  )
 			return retrieve_extents(expr.e);

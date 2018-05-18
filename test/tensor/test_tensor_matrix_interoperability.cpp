@@ -12,7 +12,7 @@
 
 
 #include <random>
-#include <boost/numeric/ublas/tensor/tensor.hpp>
+#include <boost/numeric/ublas/tensor.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -169,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_move_assig
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_expression, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_expressions, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -185,6 +185,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_exp
 		std::iota(r.data().begin(),r.data().end(), 1);
 		t = r + 3*r;
 		tensor_type s = r + 3*r;
+		tensor_type q = s + tensor_type(r + 3*r) + s; // + 3*r
+
 
 		BOOST_CHECK_EQUAL (  t.extents().at(0) , e.at(0) );
 		BOOST_CHECK_EQUAL (  t.extents().at(1) , e.at(1) );
@@ -200,10 +202,19 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_exp
 		BOOST_CHECK       ( !s.empty()    );
 		BOOST_CHECK_NE    (  s.data() , nullptr);
 
+		BOOST_CHECK_EQUAL (  q.extents().at(0) , e.at(0) );
+		BOOST_CHECK_EQUAL (  q.extents().at(1) , e.at(1) );
+		BOOST_CHECK_EQUAL (  q.size() , e.product() );
+		BOOST_CHECK_EQUAL (  q.rank() , e.size() );
+		BOOST_CHECK       ( !q.empty()    );
+		BOOST_CHECK_NE    (  q.data() , nullptr);
+
+
 		for(auto j = 0ul; j < t.size(1); ++j){
 			for(auto i = 0ul; i < t.size(0); ++i){
 				BOOST_CHECK_EQUAL( t.at(i,j), 4*r(i,j)  );
-				BOOST_CHECK_EQUAL( s.at(i,j), 4*r(i,j)  );
+				BOOST_CHECK_EQUAL( s.at(i,j), t.at(i,j)  );
+				BOOST_CHECK_EQUAL( q.at(i,j), 3*s.at(i,j)  );
 			}
 		}
 	};

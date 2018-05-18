@@ -12,6 +12,7 @@
 #ifndef _BOOST_UBLAS_TENSOR_OPERATORS_ARITHMETIC_
 #define _BOOST_UBLAS_TENSOR_OPERATORS_ARITHMETIC_
 
+//#include <boost/numeric/ublas/matrix_expression.hpp>
 #include <boost/numeric/ublas/tensor/expression.hpp>
 #include <boost/numeric/ublas/tensor/expression_evaluation.hpp>
 #include <type_traits>
@@ -20,6 +21,9 @@
 namespace boost::numeric::ublas {
 template<class element_type, class storage_format, class storage_type>
 class tensor;
+
+template<class E>
+class matrix_expression;
 }
 
 
@@ -40,6 +44,7 @@ template<class T, class L, class R>
 auto operator/( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
 	return boost::numeric::ublas::detail::make_binary_tensor_expression<T> (lhs, rhs, [](auto const& l, auto const& r){ return l / r; });
 }
+
 
 // Overloaded Arithmetic Operators with Scalars
 template<class T, class R>
@@ -106,6 +111,7 @@ auto& operator /= (T& lhs, const boost::numeric::ublas::detail::tensor_expressio
 
 
 
+
 template<class E, class F, class A>
 auto& operator += (boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::numeric::ublas::tensor<E,F,A>::const_reference r) {
 	boost::numeric::ublas::detail::eval(lhs, [r](auto& l) { l+=r; } );
@@ -129,6 +135,10 @@ auto& operator /= (boost::numeric::ublas::tensor<E,F,A>& lhs, typename boost::nu
 	boost::numeric::ublas::detail::eval(lhs, [r](auto& l) { l/=r; } );
 	return lhs;
 }
+
+
+
+
 
 
 template<class T, class D>

@@ -68,6 +68,8 @@ struct tensor_expression
 
 protected :
 	explicit tensor_expression() = default;
+	tensor_expression(const tensor_expression&) = delete;
+	tensor_expression& operator=(const tensor_expression&) = delete;
 };
 
 
@@ -91,14 +93,14 @@ struct binary_tensor_expression
 	binary_tensor_expression(binary_tensor_expression&& l) = delete;
 
 	BOOST_UBLAS_INLINE
-	const derived_type_left &derived_left() const { return *static_cast<const derived_type_left *> (this); }
+	const derived_type_left &derived_left() const { return static_cast<const derived_type_left&> (*this); }
 	BOOST_UBLAS_INLINE
-				derived_type_left &derived_left()       { return *static_cast<      derived_type_left *> (this); }
+				derived_type_left &derived_left()       { return static_cast<      derived_type_left&> (*this); }
 
 	BOOST_UBLAS_INLINE
-	const derived_type_right &derived_right() const { return *static_cast<const derived_type_left *> (this); }
+	const derived_type_right &derived_right() const { return static_cast<const derived_type_right&> (*this); }
 	BOOST_UBLAS_INLINE
-				derived_type_right &derived_right()       { return *static_cast<      derived_type_left *> (this); }
+				derived_type_right &derived_right()       { return static_cast<      derived_type_right&> (*this); }
 
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i) const { return op(el(i), er(i)); }
@@ -137,9 +139,9 @@ struct unary_tensor_expression
 
 
 	BOOST_UBLAS_INLINE
-	const derived_type &derived() const { return *static_cast<const derived_type *> (this); }
+	const derived_type &derived() const { return static_cast<const derived_type&> (*this); }
 	BOOST_UBLAS_INLINE
-				derived_type &derived()       { return *static_cast<      derived_type *> (this); }
+				derived_type &derived()       { return static_cast<      derived_type&> (*this); }
 
 
 	BOOST_UBLAS_INLINE

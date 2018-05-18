@@ -17,7 +17,8 @@ While the tensor template class and its auxiliary classes inherits the implement
 * Proxy shortcuts for tensor expressions are not used. It does not make user code more readible or convenient.
 * Expression templates include tensor types as an additional template parameter.
 * Arithmetic assignment operators are placed outside the tensor template class.
-* Single index access for fast access included.
+* Single-index access for fast tensor access included.
+* Single-index access for tensor expression templates used instead of multi-index.
 
 
 
