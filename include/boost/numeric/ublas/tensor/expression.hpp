@@ -51,14 +51,14 @@ struct tensor_expression
 		: public ublas_expression<D>
 {
 //	static const unsigned complexity = 0;
-	using expression_type = D;
+	using derived_type = D;
 	using type_category = tensor_tag;
 	using tensor_type = T;	
 
 	BOOST_UBLAS_INLINE
-	const expression_type &operator () () const { return *static_cast<const expression_type *> (this); }
+	const derived_type &derived() const { return *static_cast<const derived_type *> (this); }
 	BOOST_UBLAS_INLINE
-				expression_type &operator () ()       { return *static_cast<      expression_type *> (this); }
+				derived_type &derived()       { return *static_cast<      derived_type *> (this); }
 
 	BOOST_UBLAS_INLINE
 	decltype(auto) operator()(std::size_t i) const { return static_cast<const D&>(*this)(i); }
@@ -77,13 +77,28 @@ struct binary_tensor_expression
 {
 	using self_type = binary_tensor_expression<T,EL,ER,OP>;
 	using tensor_type  = T;
-	using expression_type = tensor_expression <tensor_type,self_type>;
+
+	using derived_type_left = EL;
+	using derived_type_right = ER;
+
 	using size_type = typename tensor_type::size_type;
 
-	explicit binary_tensor_expression(EL const& l, ER const& r, OP o) : el(l) , er(r) , op(o) {}
+	explicit binary_tensor_expression(derived_type_left  const& l,
+																		derived_type_right const& r, OP o)
+		: el(l) , er(r) , op(o) {}
 	binary_tensor_expression() = delete;
 	binary_tensor_expression(const binary_tensor_expression& l) = delete;
 	binary_tensor_expression(binary_tensor_expression&& l) = delete;
+
+	BOOST_UBLAS_INLINE
+	const derived_type_left &derived_left() const { return *static_cast<const derived_type_left *> (this); }
+	BOOST_UBLAS_INLINE
+				derived_type_left &derived_left()       { return *static_cast<      derived_type_left *> (this); }
+
+	BOOST_UBLAS_INLINE
+	const derived_type_right &derived_right() const { return *static_cast<const derived_type_left *> (this); }
+	BOOST_UBLAS_INLINE
+				derived_type_right &derived_right()       { return *static_cast<      derived_type_left *> (this); }
 
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i) const { return op(el(i), er(i)); }
@@ -91,8 +106,8 @@ struct binary_tensor_expression
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i)       { return op(el(i), er(i)); }
 
-	EL const& el;
-	ER const& er;
+	derived_type_left const& el;
+	derived_type_right const& er;
 	OP op;
 };
 
@@ -112,13 +127,20 @@ struct unary_tensor_expression
 
 	using self_type = unary_tensor_expression<T,E,OP>;
 	using tensor_type  = T;
-	using expression_type = tensor_expression <tensor_type,self_type>;
+	using derived_type = E;
 	using size_type = typename tensor_type::size_type;
 
 	explicit unary_tensor_expression(E const& ee, OP o) : e(ee) , op(o) {}
 	unary_tensor_expression() = delete;
 	unary_tensor_expression(const unary_tensor_expression& l) = delete;
 	unary_tensor_expression(unary_tensor_expression&& l) = delete;
+
+
+	BOOST_UBLAS_INLINE
+	const derived_type &derived() const { return *static_cast<const derived_type *> (this); }
+	BOOST_UBLAS_INLINE
+				derived_type &derived()       { return *static_cast<      derived_type *> (this); }
+
 
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i) const { return op(e(i)); }

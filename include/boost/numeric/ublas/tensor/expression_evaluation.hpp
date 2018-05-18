@@ -88,7 +88,10 @@ auto retrieve_extents(binary_tensor_expression<T,EL,ER,OP> const& expr)
 								"Error in boost::numeric::ublas::detail::retrieve_extents: Expression to evaluate should contain tensors.");
 
 	if constexpr ( std::is_same<T,EL>::value )
-		return static_cast<T const&>(expr.el).extents();
+		return expr.derived_left().extents();
+
+	if constexpr ( std::is_same<T,ER>::value )
+		return expr.derived_right().extents();
 
 	else if constexpr ( detail::has_tensor_types<T,EL>::value )
 			return retrieve_extents(expr.el);
@@ -106,7 +109,7 @@ auto retrieve_extents(unary_tensor_expression<T,E,OP> const& expr)
 								"Error in boost::numeric::ublas::detail::retrieve_extents: Expression to evaluate should contain tensors.");
 
 	if constexpr ( std::is_same<T,E>::value )
-		return static_cast<T const&>(expr.e).extents();
+		return expr.derived().extents();
 
 	else if constexpr ( detail::has_tensor_types<T,E>::value  )
 			return retrieve_extents(expr.e);
@@ -154,7 +157,11 @@ auto all_extents_equal(binary_tensor_expression<T,EL,ER,OP> const& expr, basic_e
 		return false;
 
 	if constexpr ( std::is_same<T,EL>::value )
-		if(extents != static_cast<T const&>(expr.el).extents())
+		if(extents != expr.derived_left().extents())
+			return false;
+
+	if constexpr ( std::is_same<T,ER>::value )
+		if(extents != expr.derived_right().extents())
 			return false;
 
 	if constexpr ( detail::has_tensor_types<T,EL>::value )
@@ -180,7 +187,7 @@ auto all_extents_equal(unary_tensor_expression<T,E,OP> const& expr, basic_extent
 		return false;
 
 	if constexpr ( std::is_same<T,E>::value )
-		if(extents != static_cast<T const&>(expr.e).extents())
+		if(extents != expr.derived().extents())
 			return false;
 
 	if constexpr ( detail::has_tensor_types<T,E>::value )

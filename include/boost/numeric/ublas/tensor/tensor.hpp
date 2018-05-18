@@ -84,6 +84,9 @@ public:
 	template<class derived_type>
 	using tensor_expression_type = detail::tensor_expression<self_type,derived_type>;
 
+	template<class derived_type>
+	using matrix_expression_type = matrix_expression<derived_type>;
+
 	using super_type = tensor_expression_type<self_type>;
 
 //	static_assert(std::is_same_v<tensor_expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "tensor_expression_type<self_type>");
@@ -115,6 +118,8 @@ public:
 	using extents_type = shape;
 
 	using matrix_type     = matrix<value_type,layout_type,array_type>;
+
+
 
 	/** @brief Standard constructor of the tensor template class
 	 *
@@ -217,6 +222,21 @@ public:
 		, data_    (v.data_   )
 	{}
 
+
+
+	/** @brief Move Constructor of the tensor template class
+	 *
+	 *  @param v tensor to be moved.
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (tensor &&v)
+		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
+		, extents_ (std::move(v.extents_))
+		, strides_ (std::move(v.strides_))
+		, data_    (std::move(v.data_   ))
+	{}
+
+
 	/** @brief Constructor of the tensor template class
 	 *
 	 *  @param v matrix to be copied.
@@ -251,6 +271,7 @@ public:
 		}
 	}
 
+
 //	/** @brief Copy Constructor of the tensor template class
 //	 *
 //	 *  @param v tensor to be copied.
@@ -263,19 +284,6 @@ public:
 //		, strides_ (v.strides_)
 //		, data_    (v.data_   )
 //	{}
-
-	/** @brief Move Constructor of the tensor template class
-	 *
-	 *  @param v tensor to be moved.
-	 */
-	BOOST_UBLAS_INLINE
-	tensor (tensor &&v)
-		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
-		, extents_ (std::move(v.extents_))
-		, strides_ (std::move(v.strides_))
-		, data_    (std::move(v.data_   ))
-	{}
-
 
 	/// \brief Copy-constructor of a tensor from a tensor_expression
 	/// Depending on the tensor_expression, this constructor can have the cost of the computations
@@ -293,6 +301,22 @@ public:
 									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
 		detail::eval( *this, expr );
 	}
+
+//	/// Depending on the tensor_expression, this constructor can have the cost of the computations
+//	/// of the expression (trivial to say it, but it is to take into account in your complexity calculations).
+//	/// \param ae the tensor_expression which values will be duplicated into the tensor
+//	BOOST_UBLAS_INLINE
+//	template<class derived_type>
+//	tensor (const matrix_expression_type<derived_type> &expr)
+//		: tensor_expression_type<self_type> ()
+//		, extents_ (  )
+//		, strides_ ( extents_ )
+//		, data_    ( extents_.product() )
+//	{
+//		static_assert( detail::has_tensor_types<self_type, tensor_expression_type<derived_type>>::value,
+//									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
+//		detail::eval( *this, expr );
+//	}
 
 	/** @brief Evaluates the tensor_expression and assigns the results to the tensor
 	 *
