@@ -302,21 +302,15 @@ public:
 		detail::eval( *this, expr );
 	}
 
-//	/// Depending on the tensor_expression, this constructor can have the cost of the computations
-//	/// of the expression (trivial to say it, but it is to take into account in your complexity calculations).
-//	/// \param ae the tensor_expression which values will be duplicated into the tensor
-//	BOOST_UBLAS_INLINE
-//	template<class derived_type>
-//	tensor (const matrix_expression_type<derived_type> &expr)
-//		: tensor_expression_type<self_type> ()
-//		, extents_ (  )
-//		, strides_ ( extents_ )
-//		, data_    ( extents_.product() )
-//	{
-//		static_assert( detail::has_tensor_types<self_type, tensor_expression_type<derived_type>>::value,
-//									 "Error in boost::numeric::ublas::tensor: expression does not contain a tensor. cannot retrieve shape.");
-//		detail::eval( *this, expr );
-//	}
+	/// Depending on the tensor_expression, this constructor can have the cost of the computations
+	/// of the expression (trivial to say it, but it is to take into account in your complexity calculations).
+	/// \param ae the tensor_expression which values will be duplicated into the tensor
+	BOOST_UBLAS_INLINE
+	template<class derived_type>
+	tensor (const matrix_expression_type<derived_type> &expr)
+		: tensor(  matrix_type ( expr )  )
+	{
+	}
 
 	/** @brief Evaluates the tensor_expression and assigns the results to the tensor
 	 *

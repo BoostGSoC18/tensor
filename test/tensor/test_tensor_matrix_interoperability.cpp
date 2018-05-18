@@ -130,7 +130,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_assig
 		check(e);
 }
 
-#if 0
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_move_assignment, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
@@ -144,20 +143,74 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_move_assig
 		assert(e.size() == 2);
 		auto t = tensor_type{};
 		auto r = matrix_type(e[0],e[1]);
+		std::iota(r.data().begin(),r.data().end(), 1);
+		auto q = r;
 		t = std::move(r);
+
+		BOOST_CHECK_EQUAL (  t.extents().at(0) , e.at(0) );
+		BOOST_CHECK_EQUAL (  t.extents().at(1) , e.at(1) );
 		BOOST_CHECK_EQUAL (  t.size() , e.product() );
 		BOOST_CHECK_EQUAL (  t.rank() , e.size() );
-
 		BOOST_CHECK       ( !t.empty()    );
 		BOOST_CHECK_NE    (  t.data() , nullptr);
 
+		for(auto j = 0ul; j < t.size(1); ++j){
+			for(auto i = 0ul; i < t.size(0); ++i){
+				BOOST_CHECK_EQUAL( t.at(i,j), q(i,j)  );
+			}
+		}
 	};
 
 	for(auto const& e : extents)
 		check(e);
 }
 
-#endif
+
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_expression, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using matrix_type = typename tensor_type::matrix_type;
+
+	auto check = [](auto const& e)
+	{
+		assert(e.size() == 2);
+		auto t = tensor_type{};
+		auto r = matrix_type(e[0],e[1]);
+		std::iota(r.data().begin(),r.data().end(), 1);
+		t = r + 3*r;
+		tensor_type s = r + 3*r;
+
+		BOOST_CHECK_EQUAL (  t.extents().at(0) , e.at(0) );
+		BOOST_CHECK_EQUAL (  t.extents().at(1) , e.at(1) );
+		BOOST_CHECK_EQUAL (  t.size() , e.product() );
+		BOOST_CHECK_EQUAL (  t.rank() , e.size() );
+		BOOST_CHECK       ( !t.empty()    );
+		BOOST_CHECK_NE    (  t.data() , nullptr);
+
+		BOOST_CHECK_EQUAL (  s.extents().at(0) , e.at(0) );
+		BOOST_CHECK_EQUAL (  s.extents().at(1) , e.at(1) );
+		BOOST_CHECK_EQUAL (  s.size() , e.product() );
+		BOOST_CHECK_EQUAL (  s.rank() , e.size() );
+		BOOST_CHECK       ( !s.empty()    );
+		BOOST_CHECK_NE    (  s.data() , nullptr);
+
+		for(auto j = 0ul; j < t.size(1); ++j){
+			for(auto i = 0ul; i < t.size(0); ++i){
+				BOOST_CHECK_EQUAL( t.at(i,j), 4*r(i,j)  );
+				BOOST_CHECK_EQUAL( s.at(i,j), 4*r(i,j)  );
+			}
+		}
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
 
 
 BOOST_AUTO_TEST_SUITE_END();
