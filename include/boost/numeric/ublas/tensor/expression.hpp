@@ -16,7 +16,10 @@
 #include <boost/numeric/ublas/expression_types.hpp>
 
 
-namespace boost::numeric::ublas {
+namespace boost   {
+namespace numeric {
+namespace ublas   {
+
 
 template<class element_type, class storage_format, class storage_type>
 class tensor;
@@ -29,8 +32,13 @@ class basic_extents;
 struct tensor_tag {};
 
 }
+}
+}
 
-namespace boost::numeric::ublas::detail {
+namespace boost   {
+namespace numeric {
+namespace ublas   {
+namespace detail  {
 
 ///** \brief Base class for Tensor Expression models
 // *
@@ -58,7 +66,7 @@ struct tensor_expression
 	BOOST_UBLAS_INLINE
 	const derived_type &derived() const { return *static_cast<const derived_type *> (this); }
 	BOOST_UBLAS_INLINE
-				derived_type &derived()       { return *static_cast<      derived_type *> (this); }
+	derived_type &derived()             { return *static_cast<      derived_type *> (this); }
 
 	BOOST_UBLAS_INLINE
 	decltype(auto) operator()(std::size_t i) const { return static_cast<const D&>(*this)(i); }
@@ -86,7 +94,7 @@ struct binary_tensor_expression
 	using size_type = typename tensor_type::size_type;
 
 	explicit binary_tensor_expression(derived_type_left  const& l,
-																		derived_type_right const& r, OP o)
+									  derived_type_right const& r, OP o)
 		: el(l) , er(r) , op(o) {}
 	binary_tensor_expression() = delete;
 	binary_tensor_expression(const binary_tensor_expression& l) = delete;
@@ -141,7 +149,7 @@ struct unary_tensor_expression
 	BOOST_UBLAS_INLINE
 	const derived_type &derived() const { return static_cast<const derived_type&> (*this); }
 	BOOST_UBLAS_INLINE
-				derived_type &derived()       { return static_cast<      derived_type&> (*this); }
+	derived_type &derived()             { return static_cast<      derived_type&> (*this); }
 
 
 	BOOST_UBLAS_INLINE
@@ -162,10 +170,8 @@ auto make_unary_tensor_expression( E const& e, OP op)
 }
 
 
-
-
-
-
-
+}
+}
+}
 }
 #endif

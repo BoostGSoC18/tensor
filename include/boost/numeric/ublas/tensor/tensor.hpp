@@ -17,7 +17,6 @@
 #define _BOOST_UBLAS_TENSOR_IMPL_
 
 #include <boost/config.hpp>
-#include <boost/numeric/ublas/storage.hpp>
 
 #include <initializer_list>
 
@@ -32,6 +31,12 @@ namespace boost { namespace numeric { namespace ublas {
 
 template<class T, class F, class A>
 class tensor;
+
+template<class T, class F, class A>
+class matrix;
+
+template<class T, class A>
+class vector;
 
 ///** \brief Base class for Tensor container models
 // *
@@ -87,6 +92,9 @@ public:
 	template<class derived_type>
 	using matrix_expression_type = matrix_expression<derived_type>;
 
+	template<class derived_type>
+	using vector_expression_type = vector_expression<derived_type>;
+
 	using super_type = tensor_expression_type<self_type>;
 
 //	static_assert(std::is_same_v<tensor_expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "tensor_expression_type<self_type>");
@@ -118,12 +126,15 @@ public:
 	using extents_type = shape;
 
 	using matrix_type     = matrix<value_type,layout_type,array_type>;
+	using vector_type     = vector<value_type,array_type>;
 
 
 
-	/** @brief Standard constructor of the tensor template class
+	/** @brief Constructs a tensor.
 	 *
-	 * By default it is empty, i.e. \c size()==0.
+	 * @note the tensor is empty.
+	 * @note the tensor needs to reshaped for further use.
+	 *
 	 */
 	BOOST_UBLAS_INLINE
 	constexpr tensor ()
@@ -135,9 +146,8 @@ public:
 	}
 
 
-	/** @brief Constructor of the tensor template class with a predefined size
+	/** @brief Constructs a tensor with an initializer list
 	 *
-	 * Layout or storage format is automatically set to first-order.
 	 * By default, its elements are initialized to 0.
 	 *
 	 * @code tensor<float> A{4,2,3}; @endcode
@@ -154,38 +164,37 @@ public:
 	}
 
 
-	/** @brief Constructor of the tensor template class
-		*
-		* Layout or storage format is automatically set to first-order.
-		* By default, its elements are initialized to 0.
-		*
-		* @code tensor<float> A{extents{4,2,3}}; @endcode
-		*
-		* @param e initial tensor dimension extents
-		*/
+	/** @brief Constructs a tensor with a \c shape
+	 *
+	 * By default, its elements are initialized to 0.
+	 *
+	 * @code tensor<float> A{extents{4,2,3}}; @endcode
+	 *
+	 * @param s initial tensor dimension extents
+	 */
 	explicit BOOST_UBLAS_INLINE
-	tensor (shape const& e)
+	tensor (shape const& s)
 		: tensor_expression_type<self_type>() //tensor_container<self_type>()
-		, extents_ (e)
+		, extents_ (s)
 		, strides_ (extents_)
 		, data_    (extents_.product())
 	{}
 
 
-	/** @brief Constructor of the tensor template class
+	/** @brief Constructs a tensor with a \c shape and initiates it with one-dimensional data
+	 *
+	 * @code tensor<float> A{extents{4,2,3}, array }; @endcode
 	 *
 	 *
-	 *  @code tensor<float> A{extents{4,2,3}, array }; @endcode
-	 *
-	 *  @param e initial tensor dimension extents
-	 *  @param data container of \c array_type
+	 *  @param s initial tensor dimension extents
+	 *  @param a container of \c array_type that is copied according to the storage layout
 	 */
 	BOOST_UBLAS_INLINE
-	tensor (shape const& e, const array_type &data)
+	tensor (shape const& s, const array_type &a)
 		: tensor_expression_type<self_type>() //tensor_container<self_type>()
-		, extents_ (e)
+		, extents_ (s)
 		, strides_ (extents_)
-		, data_    (data)
+		, data_    (a)
 	{
 		if(this->extents_.product() != this->data_.size())
 			throw std::runtime_error("Error in boost::numeric::ublas::tensor: size of provided data and specified extents do not match.");
@@ -193,7 +202,7 @@ public:
 
 
 
-	/** @brief Constructor of the tensor template class
+	/** @brief Constructs a tensor using a shape tuple and initiates it with a value.
 	 *
 	 *  @code tensor<float> A{extents{4,2,3}, 1 }; @endcode
 	 *
@@ -210,7 +219,7 @@ public:
 
 
 
-	/** @brief Copy Constructor of the tensor template class
+	/** @brief Constructs a tensor from another tensor
 	 *
 	 *  @param v tensor to be copied.
 	 */
@@ -224,7 +233,7 @@ public:
 
 
 
-	/** @brief Move Constructor of the tensor template class
+	/** @brief Constructs a tensor from another tensor
 	 *
 	 *  @param v tensor to be moved.
 	 */
@@ -237,7 +246,9 @@ public:
 	{}
 
 
-	/** @brief Constructor of the tensor template class
+	/** @brief Constructs a tensor with a matrix
+	 *
+	 * \note Initially the tensor will be two-dimensional.
 	 *
 	 *  @param v matrix to be copied.
 	 */
@@ -254,7 +265,9 @@ public:
 		}
 	}
 
-	/** @brief Constructor of the tensor template class
+	/** @brief Constructs a tensor with a matrix
+	 *
+	 * \note Initially the tensor will be two-dimensional.
 	 *
 	 *  @param v matrix to be moved.
 	 */
@@ -267,6 +280,43 @@ public:
 	{
 		if(v.size1()*v.size2() != 0){
 			extents_ = extents_type{v.size1(),v.size2()};
+			strides_ = strides_type(extents_);
+		}
+	}
+
+	/** @brief Constructs a tensor using a \c vector
+	 *
+	 * @note It is assumed that vector is column vector
+	 * @note Initially the tensor will be one-dimensional.
+	 *
+	 *  @param v vector to be copied.
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (const vector_type &v)
+		: tensor_expression_type<self_type>()
+		, extents_ ()
+		, strides_ ()
+		, data_    (v.data())
+	{
+		if(v.size() != 0){
+			extents_ = extents_type{v.size(),1};
+			strides_ = strides_type(extents_);
+		}
+	}
+
+	/** @brief Constructs a tensor using a \c vector
+	 *
+	 *  @param v vector to be moved.
+	 */
+	BOOST_UBLAS_INLINE
+	tensor (vector_type &&v)
+		: tensor_expression_type<self_type>()
+		, extents_ {}
+		, strides_ {}
+		, data_    (std::move(v.data()))
+	{
+		if(v.size() != 0){
+			extents_ = extents_type{v.size(),1};
 			strides_ = strides_type(extents_);
 		}
 	}
@@ -285,10 +335,15 @@ public:
 //		, data_    (v.data_   )
 //	{}
 
-	/// \brief Copy-constructor of a tensor from a tensor_expression
-	/// Depending on the tensor_expression, this constructor can have the cost of the computations
-	/// of the expression (trivial to say it, but it is to take into account in your complexity calculations).
-	/// \param ae the tensor_expression which values will be duplicated into the tensor
+	/** @brief Constructs a tensor with an tensor expression
+	 *
+	 * @code tensor<float> A = B + 3 * C; @endcode
+	 *
+	 * @note type must be specified of tensor must be specified.
+	 * @note dimension extents are extracted from tensors within the expression.
+	 *
+	 * @param expr tensor expression
+	 */
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
 	tensor (const tensor_expression_type<derived_type> &expr)
@@ -302,13 +357,35 @@ public:
 		detail::eval( *this, expr );
 	}
 
-	/// Depending on the tensor_expression, this constructor can have the cost of the computations
-	/// of the expression (trivial to say it, but it is to take into account in your complexity calculations).
-	/// \param ae the tensor_expression which values will be duplicated into the tensor
+	/** @brief Constructs a tensor with a matrix expression
+	 *
+	 * @code tensor<float> A = B + 3 * C; @endcode
+	 *
+	 * @note matrix expression is evaluated and pushed into a temporary matrix before assignment.
+	 * @note extents are automatically extracted from the temporary matrix
+	 *
+	 * @param expr matrix expression
+	 */
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
 	tensor (const matrix_expression_type<derived_type> &expr)
 		: tensor(  matrix_type ( expr )  )
+	{
+	}
+
+	/** @brief Constructs a tensor with a vector expression
+	 *
+	 * @code tensor<float> A = b + 3 * b; @endcode
+	 *
+	 * @note matrix expression is evaluated and pushed into a temporary matrix before assignment.
+	 * @note extents are automatically extracted from the temporary matrix
+	 *
+	 * @param expr vector expression
+	 */
+	BOOST_UBLAS_INLINE
+	template<class derived_type>
+	tensor (const vector_expression_type<derived_type> &expr)
+		: tensor(  vector_type ( expr )  )
 	{
 	}
 

@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_SUITE ( test_tensor_matrix_interoperability, * boost::unit_test:
 using test_types = zip<int,long,float,double>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_ctor, value,  test_types)
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_matrix_copy_ctor, value,  test_types)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -59,9 +59,44 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_ctor, va
 }
 
 
-struct fixture {
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_vector_copy_ctor, value,  test_types)
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using vector_type = typename tensor_type::vector_type;
+
+	tensor_type a1 = vector_type();
+	BOOST_CHECK_EQUAL( a1.size() , 0ul );
+	BOOST_CHECK( a1.empty() );
+	BOOST_CHECK_EQUAL( a1.data() , nullptr);
+
+	tensor_type a2 = vector_type(1);
+	BOOST_CHECK_EQUAL(  a2.size() , 1 );
+	BOOST_CHECK( !a2.empty() );
+	BOOST_CHECK_NE(  a2.data() , nullptr);
+
+	tensor_type a3 = vector_type(2);
+	BOOST_CHECK_EQUAL(  a3.size() , 2 );
+	BOOST_CHECK( !a3.empty() );
+	BOOST_CHECK_NE(  a3.data() , nullptr);
+
+	tensor_type a4 = vector_type(2);
+	BOOST_CHECK_EQUAL(  a4.size() , 2 );
+	BOOST_CHECK( !a4.empty() );
+	BOOST_CHECK_NE(  a4.data() , nullptr);
+
+	tensor_type a5 = vector_type(3);
+	BOOST_CHECK_EQUAL(  a5.size() , 3 );
+	BOOST_CHECK( !a5.empty() );
+	BOOST_CHECK_NE(  a5.data() , nullptr);
+}
+
+
+struct fixture_matrix {
 	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;
-	fixture() : extents{
+	fixture_matrix() : extents{
 				extents_type{1,1}, // 1
 				extents_type{1,2}, // 2
 				extents_type{2,1}, // 3
@@ -72,8 +107,23 @@ struct fixture {
 	std::vector<extents_type> extents;
 };
 
+struct fixture_vector {
+	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;
+	fixture_vector() : extents{
+				extents_type{1,1}, // 1
+				extents_type{1,2}, // 2
+				extents_type{2,1}, // 3
+				extents_type{1,3}, // 4
+				extents_type{4,1}, // 5
+				}
+	{}
+	std::vector<extents_type> extents;
+};
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_ctor_extents, value,  test_types, fixture )
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_copy_ctor_extents, value,  test_types, fixture_matrix )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -95,8 +145,32 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_ctor_
 }
 
 
+//BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_copy_ctor_extents, value,  test_types, fixture_vector )
+//{
+//	using namespace boost::numeric;
+//	using value_type  = typename value::first_type;
+//	using layout_type = typename value::second_type;
+//	using tensor_type = ublas::tensor<value_type, layout_type>;
+//	using vector_type = typename tensor_type::vector_type;
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_assignment, value,  test_types, fixture )
+//	auto check = [](auto const& e) {
+//		assert(e.size()==2);
+//		if(e.empty())
+//			return;
+//		tensor_type t = vector_type(e.product());
+//		BOOST_CHECK_EQUAL (  t.size() , e.product() );
+//		BOOST_CHECK_EQUAL (  t.rank() , e.size() );
+//		BOOST_CHECK       ( !t.empty()    );
+//		BOOST_CHECK_NE    (  t.data() , nullptr);
+//	};
+
+//	for(auto const& e : extents)
+//		check(e);
+//}
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_assignment, value,  test_types, fixture_matrix )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -130,7 +204,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_copy_assig
 		check(e);
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_move_assignment, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_move_assignment, value,  test_types, fixture_matrix )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -169,7 +243,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_move_assig
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_expressions, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_interoperability_matrix_expressions, value,  test_types, fixture_matrix )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
