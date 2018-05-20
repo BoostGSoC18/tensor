@@ -35,7 +35,7 @@ SOURCES += \
 	../../../test/tensor/test_expression.cpp \
 	../../../test/tensor/test_operators_comparison.cpp \	
 	../../../test/tensor/test_operators_arithmetic.cpp \
-    ../../../test/tensor/test_tensor_matrix_interoperability.cpp
+    ../../../test/tensor/test_tensor_matrix_vector.cpp
 
 
 INCLUDEPATH += \

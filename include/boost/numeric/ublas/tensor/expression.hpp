@@ -103,12 +103,12 @@ struct binary_tensor_expression
 	BOOST_UBLAS_INLINE
 	const derived_type_left &derived_left() const { return static_cast<const derived_type_left&> (*this); }
 	BOOST_UBLAS_INLINE
-				derived_type_left &derived_left()       { return static_cast<      derived_type_left&> (*this); }
+	derived_type_left &derived_left()             { return static_cast<      derived_type_left&> (*this); }
 
 	BOOST_UBLAS_INLINE
 	const derived_type_right &derived_right() const { return static_cast<const derived_type_right&> (*this); }
 	BOOST_UBLAS_INLINE
-				derived_type_right &derived_right()       { return static_cast<      derived_type_right&> (*this); }
+	derived_type_right &derived_right()             { return static_cast<      derived_type_right&> (*this); }
 
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i) const { return op(el(i), er(i)); }
