@@ -259,7 +259,7 @@ public:
 		, strides_ ()
 		, data_    (v.data())
 	{
-		if(v.size1()*v.size2() != 0){
+		if(!data_.empty()){
 			extents_ = extents_type{v.size1(),v.size2()};
 			strides_ = strides_type(extents_);
 		}
@@ -276,11 +276,12 @@ public:
 		: tensor_expression_type<self_type>()
 		, extents_ {}
 		, strides_ {}
-		, data_    (std::move(v.data()))
+		, data_    {}
 	{
 		if(v.size1()*v.size2() != 0){
 			extents_ = extents_type{v.size1(),v.size2()};
 			strides_ = strides_type(extents_);
+			data_    = std::move(v.data());
 		}
 	}
 
@@ -298,8 +299,8 @@ public:
 		, strides_ ()
 		, data_    (v.data())
 	{
-		if(v.size() != 0){
-			extents_ = extents_type{v.size(),1};
+		if(!data_.empty()){
+			extents_ = extents_type{data_.size(),1};
 			strides_ = strides_type(extents_);
 		}
 	}
@@ -313,11 +314,12 @@ public:
 		: tensor_expression_type<self_type>()
 		, extents_ {}
 		, strides_ {}
-		, data_    (std::move(v.data()))
+		, data_    {}
 	{
 		if(v.size() != 0){
 			extents_ = extents_type{v.size(),1};
 			strides_ = strides_type(extents_);
+			data_    = std::move(v.data());
 		}
 	}
 
