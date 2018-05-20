@@ -78,8 +78,8 @@ class tensor:
 		public detail::tensor_expression<tensor<T, F, A>,tensor<T, F, A>>
 {
 
-	static_assert( std::is_same_v<F,first_order> ||
-								 std::is_same_v<F,last_order >, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
+	static_assert( std::is_same<F,first_order>::value ||
+								 std::is_same<F,last_order >::value, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
 
 	using self_type  = tensor<T, F, A>;
 public:

@@ -10,7 +10,7 @@
 //  And we acknowledge the support from all contributors.
 
 
-
+#include <iostream>
 #include <random>
 #include <boost/numeric/ublas/tensor.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -438,7 +438,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_vector_expressions, value, 
 		std::fill(A.data().begin(),A.data().end(), 1);
 		std::fill(Q.begin(),Q.end(), 2);
 
-		tensor_type T = Q + ublas::prod(A , b) + 2*b + 3*Q; // + 3*FIRST_ORDER_OPERATOR_RIGHTr
+		tensor_type T = Q + ublas::prod(A , b) + 2*b + 3*Q;
 
 		BOOST_CHECK_EQUAL (  T.extents().at(0) , Q.extents().at(0) );
 		BOOST_CHECK_EQUAL (  T.extents().at(1) , Q.extents().at(1));

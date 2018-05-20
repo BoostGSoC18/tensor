@@ -20,6 +20,8 @@
 #include "tensor/operators_arithmetic.hpp"
 #include "tensor/extents.hpp"
 #include "tensor/strides.hpp"
+#include "tensor/ostream.hpp"
 #include "tensor/tensor.hpp"
+
 
 #endif
