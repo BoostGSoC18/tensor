@@ -309,19 +309,19 @@ public:
 	 *
 	 *  @param v vector to be moved.
 	 */
-	BOOST_UBLAS_INLINE
-	tensor (vector_type &&v)
-		: tensor_expression_type<self_type>()
-		, extents_ {}
-		, strides_ {}
-		, data_    {}
-	{
-		if(v.size() != 0){
-			extents_ = extents_type{v.size(),1};
-			strides_ = strides_type(extents_);
-			data_    = std::move(v.data());
-		}
-	}
+//	BOOST_UBLAS_INLINE
+//	tensor (vector_type &&v)
+//		: tensor_expression_type<self_type>()
+//		, extents_ {}
+//		, strides_ {}
+//		, data_    {}
+//	{
+//		if(v.size() != 0){
+//			extents_ = extents_type{v.size(),1};
+//			strides_ = strides_type(extents_);
+//			data_    = std::move(v.data());
+//		}
+//	}
 
 
 //	/** @brief Copy Constructor of the tensor template class

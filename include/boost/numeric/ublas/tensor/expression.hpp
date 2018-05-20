@@ -69,6 +69,11 @@ struct tensor_expression
 	derived_type &derived()             { return *static_cast<      derived_type *> (this); }
 
 	BOOST_UBLAS_INLINE
+	const derived_type &operator()() const { return *static_cast<const derived_type *> (this); }
+	BOOST_UBLAS_INLINE
+	derived_type &operator()()             { return *static_cast<      derived_type *> (this); }
+
+	BOOST_UBLAS_INLINE
 	decltype(auto) operator()(std::size_t i) const { return static_cast<const D&>(*this)(i); }
 
 	BOOST_UBLAS_INLINE

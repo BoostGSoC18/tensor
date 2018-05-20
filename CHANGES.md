@@ -20,8 +20,11 @@ While the tensor template class and its auxiliary classes inherits the implement
 * Single-index access for fast tensor access included.
 * Single-index access for tensor expression templates used instead of multi-index.
 
+## Implementation [Matrix Expression]
+* Single-Index Access included.
 
-
+## Implementation [Matrix]
+* Single-Index Access included.
 
 ## Implementation [Unbounded Array]
 * Included move copy constructor.

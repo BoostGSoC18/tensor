@@ -97,11 +97,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_vector_copy_ctor, value,  test_types)
 struct fixture {
 	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;
 	fixture() : extents{
-				extents_type{1,1}, // 1
-				extents_type{1,2}, // 2
-				extents_type{2,1}, // 3
-				extents_type{2,3}, // 4
-				extents_type{9,7}, // 5
+				extents_type{1,1},  // 1
+				extents_type{1,2},  // 2
+				extents_type{2,1},  // 3
+				extents_type{2,3},  // 4
+				extents_type{9,7},  // 5
+				extents_type{9,11}, // 6
+				extents_type{12,12}, // 7
+				extents_type{15,17}, // 8
 				}
 	{}
 	std::vector<extents_type> extents;
@@ -316,7 +319,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_expressions, value,  test_t
 		std::iota(r.data().begin(),r.data().end(), 1);
 		t = r + 3*r;
 		tensor_type s = r + 3*r;
-		tensor_type q = s + tensor_type(r + 3*r) + s; // + 3*r
+		tensor_type q = s + r + 3*r + s; // + 3*r
 
 
 		BOOST_CHECK_EQUAL (  t.extents().at(0) , e.at(0) );
@@ -375,7 +378,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_expressions, value,  test_t
 		std::iota(r.data().begin(),r.data().end(), 1);
 		t = r + 3*r;
 		tensor_type s = r + 3*r;
-		tensor_type q = s + tensor_type(r + 3*r) + s; // + 3*r
+		tensor_type q = s + r + 3*r + s; // + 3*r
 
 
 		BOOST_CHECK_EQUAL (  t.extents().at(0) , e.at(0)*e.at(1) );
@@ -407,6 +410,52 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_expressions, value,  test_t
 			BOOST_CHECK_EQUAL( q.at(i), 3*s.at(i)  );
 		}
 	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_vector_expressions, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using matrix_type = typename tensor_type::matrix_type;
+	using vector_type = typename tensor_type::vector_type;
+
+	auto check = [](auto const& e)
+	{
+		if(e.product() <= 2)
+			return;
+		assert(e.size() == 2);
+		auto Q = tensor_type{e[0],1};
+		auto A = matrix_type(e[0],e[1]);
+		auto b = vector_type(e[1]);
+		std::iota(b.data().begin(),b.data().end(), 1);
+		std::fill(A.data().begin(),A.data().end(), 1);
+		std::fill(Q.begin(),Q.end(), 2);
+
+		tensor_type T = Q + ublas::prod(A , b) + 2*b + 3*Q; // + 3*FIRST_ORDER_OPERATOR_RIGHTr
+
+		BOOST_CHECK_EQUAL (  T.extents().at(0) , Q.extents().at(0) );
+		BOOST_CHECK_EQUAL (  T.extents().at(1) , Q.extents().at(1));
+		BOOST_CHECK_EQUAL (  T.size() , Q.size() );
+		BOOST_CHECK_EQUAL (  T.rank() , Q.rank() );
+		BOOST_CHECK       ( !T.empty()    );
+		BOOST_CHECK_NE    (  T.data() , nullptr);
+
+		for(auto i = 0ul; i < T.size(); ++i){
+			auto n = e[1];
+			auto ab = n * (n+1) / 2;
+			BOOST_CHECK_EQUAL( T(i), ab+4*Q(0)+2*b(i)  );
+		}
+
+	};
+
+
 
 	for(auto const& e : extents)
 		check(e);
