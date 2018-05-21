@@ -13,11 +13,25 @@
 #define _BOOST_UBLAS_TENSOR_OSTREAM_
 
 #include <ostream>
+#include <complex>
 
 namespace boost {
 namespace numeric {
 namespace ublas {
 namespace detail {
+
+template <class value_type>
+void print(std::ostream& out, value_type const& p)
+{
+	out << p << " ";
+}
+
+template <class value_type>
+void print(std::ostream& out, const std::complex<value_type>& p)
+{
+	out << std::real(p) << "+" << std::imag(p) << "i ";
+}
+
 
 template <class size_type, class value_type>
 void print(std::ostream& out, size_type r, const value_type* p, const size_type* w, const size_type* n)
@@ -25,17 +39,17 @@ void print(std::ostream& out, size_type r, const value_type* p, const size_type*
 
 	if(r < 2)
 	{
-		out << "[ ";
+		out << "[ ... " << std::endl;
 
 		for(size_t row = 0u; row < n[0]; p += w[0], ++row) // iterate over one column
 		{
 			auto p1 = p;
 			for(size_t col = 0u; col < n[1]; p1 += w[1], ++col) // iterate over first row
 			{
-				out << *p1 << " ";
+				print(out,*p1);
 			}
 			if(row < n[0]-1)
-				out << "; ";
+				out << "; " << std::endl;
 		}
 		out << "]";
 	}
@@ -81,16 +95,22 @@ std::ostream& operator << (std::ostream& out, boost::numeric::ublas::tensor<V,F,
 {
 
 	if(t.extents().is_scalar()){
-		out << "[" << *t.begin() << "]";
+		out << "[";
+		boost::numeric::ublas::detail::print(out,t[0]);
+		out << "]";
 	}
 	else if(t.extents().is_vector()) {
 		std::string cat = t.extents().at(0) > t.extents().at(1) ? "; " : ", ";
 		out << "[";
-		std::copy(t.begin(), --t.end(), std::ostream_iterator<V>(out, cat.c_str()));
-		out << *(--t.end()) << "]";
+		for(auto i = 0u; i < t.size()-1; ++i){
+			boost::numeric::ublas::detail::print(out,t[i]);
+			out << cat;
+		}
+		boost::numeric::ublas::detail::print(out,t[t.size()-1]);
+		out << "]";
 	}
 	else{
-		boost::numeric::ublas::detail::print(out, t.rank(), t.data(), t.strides().data(), t.extents().data());
+		boost::numeric::ublas::detail::print(out, t.rank()-1, t.data(), t.strides().data(), t.extents().data());
 	}
 	return out;
 }

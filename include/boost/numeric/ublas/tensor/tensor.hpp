@@ -309,19 +309,19 @@ public:
 	 *
 	 *  @param v vector to be moved.
 	 */
-//	BOOST_UBLAS_INLINE
-//	tensor (vector_type &&v)
-//		: tensor_expression_type<self_type>()
-//		, extents_ {}
-//		, strides_ {}
-//		, data_    {}
-//	{
-//		if(v.size() != 0){
-//			extents_ = extents_type{v.size(),1};
-//			strides_ = strides_type(extents_);
-//			data_    = std::move(v.data());
-//		}
-//	}
+	BOOST_UBLAS_INLINE
+	tensor (vector_type &&v)
+		: tensor_expression_type<self_type>()
+		, extents_ {}
+		, strides_ {}
+		, data_    {}
+	{
+		if(v.size() != 0){
+			extents_ = extents_type{v.size(),1};
+			strides_ = strides_type(extents_);
+			data_    = std::move(v.data());
+		}
+	}
 
 
 //	/** @brief Copy Constructor of the tensor template class
@@ -413,6 +413,11 @@ public:
 		return *this;
 	}
 
+	tensor& operator=(const_reference v)
+	{
+		std::fill(this->begin(), this->end(), v);
+		return *this;
+	}
 
 	/** @brief Returns true if the tensor is empty (\c size==0) */
 	BOOST_UBLAS_INLINE
@@ -683,7 +688,11 @@ private:
 };
 
 
+using tensorf = tensor<float>;
+using tensord = tensor<double>;
 
+using tensorcf = tensor<std::complex<float>>;
+using tensorcd = tensor<std::complex<float>>;
 
 }}} // namespaces
 
