@@ -27,17 +27,19 @@ namespace boost { namespace numeric { namespace ublas {
 template<class __int_type>
 class basic_extents
 {
-	using base_type = std::vector<__int_type>;
-	static_assert( std::numeric_limits<typename base_type::value_type>::is_integer, "Static error in basic_layout: type must be of type integer.");
-	static_assert(!std::numeric_limits<typename base_type::value_type>::is_signed,  "Static error in basic_layout: type must be of type unsigned integer.");
+	static_assert( std::numeric_limits<typename std::vector<__int_type>::value_type>::is_integer, "Static error in basic_layout: type must be of type integer.");
+	static_assert(!std::numeric_limits<typename std::vector<__int_type>::value_type>::is_signed,  "Static error in basic_layout: type must be of type unsigned integer.");
 
 public:
+	using base_type = std::vector<__int_type>;
 	using value_type = typename base_type::value_type;
 	using const_reference = typename base_type::const_reference;
 	using reference = typename base_type::reference;
 	using size_type = typename base_type::size_type;
 	using const_pointer = typename base_type::const_pointer;
 	using const_iterator = typename base_type::const_iterator;
+
+
 
 	constexpr explicit basic_extents()
 		: _base{}
