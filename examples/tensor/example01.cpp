@@ -33,7 +33,9 @@ int main()
 		A[i] = vf;
 
 	// formatted output
-	std::cout << "A=" << A << ";" << std::endl;
+	std::cout << "% --------------------------- " << std::endl;
+	std::cout << "% --------------------------- " << std::endl << std::endl;
+	std::cout << "A=" << A << ";" << std::endl << std::endl;
 
 	// creates a four-dimensional tensor with extents 5,4,3 and 2
 	// tensor A stores complex floating-point extended double precision numbers
@@ -41,7 +43,6 @@ int main()
 	// and initializes it with the default value.
 	using ctype = std::complex<cpp_bin_float_double_extended>;
 	auto B = tensor<ctype,last_order>(shape{5,4,3,2},ctype{});
-	auto C = tensor<ctype,last_order>(B.extents());
 
 	// initializes the tensor with increasing values along the last-index
 	// using a single-index
@@ -50,14 +51,39 @@ int main()
 		B[i] = vc;
 
 	// formatted output
-	std::cout << "B=" << B << ";" << std::endl;
+	std::cout << "% --------------------------- " << std::endl;
+	std::cout << "% --------------------------- " << std::endl << std::endl;
+	std::cout << "B=" << B << ";" << std::endl << std::endl;
 
-	// computes the complex conjugate
+
+
+	auto C = tensor<ctype,last_order>(B.extents());
+	// computes the complex conjugate of elements of B
+	// using multi-index notation.
 	for(auto i = 0u; i < B.size(0); ++i)
 		for(auto j = 0u; j < B.size(1); ++j)
 			for(auto k = 0u; k < B.size(2); ++k)
 				for(auto l = 0u; l < B.size(3); ++l)
 					C.at(i,j,k,l) = std::conj(B.at(i,j,k,l));
 
-	std::cout << "C=" << C << ";" << std::endl;
+	std::cout << "% --------------------------- " << std::endl;
+	std::cout << "% --------------------------- " << std::endl << std::endl;
+	std::cout << "C=" << C << ";" << std::endl << std::endl;
+
+
+	// computes the complex conjugate of elements of B
+	// using iterators.
+	auto D = tensor<ctype,last_order>(B.extents());
+	std::transform(B.begin(), B.end(), D.begin(), [](auto const& b){ return std::conj(b); });
+	std::cout << "% --------------------------- " << std::endl;
+	std::cout << "% --------------------------- " << std::endl << std::endl;
+	std::cout << "D=" << D << ";" << std::endl << std::endl;
+
+	// reshaping tensors.
+	auto new_extents = B.extents().base();
+	std::next_permutation( new_extents.begin(), new_extents.end() );
+	D.reshape( shape(new_extents)  );
+	std::cout << "% --------------------------- " << std::endl;
+	std::cout << "% --------------------------- " << std::endl << std::endl;
+	std::cout << "newD=" << D << ";" << std::endl << std::endl;
 }
