@@ -23,7 +23,7 @@
 BOOST_AUTO_TEST_SUITE ( test_tensor, * boost::unit_test::depends_on("test_extents") ) ;
 
 
-using test_types = zip<int,long,float,double>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
@@ -215,10 +215,16 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_t
 
 	auto check = [](auto const& e) {
 		auto a = array_type(e.product());
-		std::iota(a.begin(), a.end(), value_type{});
-		auto t = tensor_type{e, a};
 		auto v = value_type {};
-		for(auto i = 0ul; i < t.size(); ++i, ++v)
+
+		for(auto& aa : a){
+			aa = v;
+			v += value_type{1};
+		}
+		auto t = tensor_type{e, a};
+		v = value_type{};
+
+		for(auto i = 0ul; i < t.size(); ++i, v+=value_type{1})
 			BOOST_CHECK_EQUAL( t[i], v);
 	};
 
@@ -238,7 +244,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_single_index_access, va
 	auto check = [](auto const& e) {
 		auto t = tensor_type{e};
 		auto v = value_type {};
-		for(auto i = 0ul; i < t.size(); ++i, ++v){
+		for(auto i = 0ul; i < t.size(); ++i, v+=value_type{1}){
 			t[i] = v;
 			BOOST_CHECK_EQUAL( t[i], v );
 
@@ -263,8 +269,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 	auto check1 = [](const tensor_type& t)
 	{
 		auto v = value_type{};
-		for(auto k = 0ul; k < t.size(); ++k)
-			BOOST_CHECK_EQUAL(t[k], v++);
+		for(auto k = 0ul; k < t.size(); ++k){
+			BOOST_CHECK_EQUAL(t[k], v);
+			v+=value_type{1};
+		}
 	};
 
 	auto check2 = [](const tensor_type& t)
@@ -273,9 +281,12 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 		auto r = std::is_same_v<layout_type,ublas::first_order> ? 1 : 0;
 		auto q = std::is_same_v<layout_type,ublas::last_order > ? 1 : 0;
 		auto v = value_type{};
-		for(k[r] = 0ul; k[r] < t.size(r); ++k[r])
-			for(k[q] = 0ul; k[q] < t.size(q); ++k[q])
-				BOOST_CHECK_EQUAL(t.at(k[0],k[1]), v++);
+		for(k[r] = 0ul; k[r] < t.size(r); ++k[r]){
+			for(k[q] = 0ul; k[q] < t.size(q); ++k[q]){
+				BOOST_CHECK_EQUAL(t.at(k[0],k[1]), v);
+				v+=value_type{1};
+			}
+		}
 	};
 
 	auto check3 = [](const tensor_type& t)
@@ -285,10 +296,14 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 		auto r = std::is_same_v<layout_type,ublas::first_order> ? 2 : 0;
 		auto o = op_type{};
 		auto v = value_type{};
-		for(k[r] = 0ul; k[r] < t.size(r); ++k[r])
-			for(k[o(r,1)] = 0ul; k[o(r,1)] < t.size(o(r,1)); ++k[o(r,1)])
-				for(k[o(r,2)] = 0ul; k[o(r,2)] < t.size(o(r,2)); ++k[o(r,2)])
-					BOOST_CHECK_EQUAL(t.at(k[0],k[1],k[2]), v++);
+		for(k[r] = 0ul; k[r] < t.size(r); ++k[r]){
+			for(k[o(r,1)] = 0ul; k[o(r,1)] < t.size(o(r,1)); ++k[o(r,1)]){
+				for(k[o(r,2)] = 0ul; k[o(r,2)] < t.size(o(r,2)); ++k[o(r,2)]){
+					BOOST_CHECK_EQUAL(t.at(k[0],k[1],k[2]), v);
+					v+=value_type{1};
+				}
+			}
+		}
 	};
 
 	auto check4 = [](const tensor_type& t)
@@ -298,18 +313,25 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 		auto r = std::is_same_v<layout_type,ublas::first_order> ? 3 : 0;
 		auto o = op_type{};
 		auto v = value_type{};
-		for(k[r] = 0ul; k[r] < t.size(r); ++k[r])
-			for(k[o(r,1)] = 0ul; k[o(r,1)] < t.size(o(r,1)); ++k[o(r,1)])
-				for(k[o(r,2)] = 0ul; k[o(r,2)] < t.size(o(r,2)); ++k[o(r,2)])
-					for(k[o(r,3)] = 0ul; k[o(r,3)] < t.size(o(r,3)); ++k[o(r,3)])
-						BOOST_CHECK_EQUAL(t.at(k[0],k[1],k[2],k[3]), v++);
+		for(k[r] = 0ul; k[r] < t.size(r); ++k[r]){
+			for(k[o(r,1)] = 0ul; k[o(r,1)] < t.size(o(r,1)); ++k[o(r,1)]){
+				for(k[o(r,2)] = 0ul; k[o(r,2)] < t.size(o(r,2)); ++k[o(r,2)]){
+					for(k[o(r,3)] = 0ul; k[o(r,3)] < t.size(o(r,3)); ++k[o(r,3)]){
+						BOOST_CHECK_EQUAL(t.at(k[0],k[1],k[2],k[3]), v);
+						v+=value_type{1};
+					}
+				}
+			}
+		}
 	};
 
 	auto check = [check1,check2,check3,check4](auto const& e) {
 		auto t = tensor_type{e};
 		auto v = value_type {};
-		for(auto i = 0ul; i < t.size(); ++i)
-			t[i] = v++;
+		for(auto i = 0ul; i < t.size(); ++i){
+			t[i] = v;
+			v+=value_type{1};
+		}
 
 			 if(t.rank() == 1) check1(t);
 		else if(t.rank() == 2) check2(t);
@@ -335,7 +357,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixtu
 	auto check = [](auto const& efrom, auto const& eto)
 	{
 		auto v = value_type {};
-		++v;
+		v+=value_type{1};
 		auto t = tensor_type{efrom, v};
 		for(auto i = 0ul; i < t.size(); ++i)
 			BOOST_CHECK_EQUAL( t[i], v );
@@ -369,8 +391,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)
 
 	auto check = [](auto const& e_t, auto const& e_r)
 	{
-		auto v = value_type {} + 1;
-		auto w = value_type {} + 2;
+		auto v = value_type {} + value_type{1};
+		auto w = value_type {} + value_type{2};
 		auto t = tensor_type{e_t, v};
 		auto r = tensor_type{e_r, w};
 
@@ -411,7 +433,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_ty
 
 	auto check = [](auto const& e)
 	{
-		auto v = value_type {} + 1;
+		auto v = value_type {} + value_type{1};
 		auto t = tensor_type{e, v};
 
 		BOOST_CHECK_EQUAL( std::distance(t.begin(),  t.end ()), t.size()  );
