@@ -38,14 +38,26 @@ int main()
 	// creates a four-dimensional tensor with extents 5,4,3 and 2
 	// tensor A stores complex floating-point extended double precision numbers
 	// according to the last-order storage format
+	// and initializes it with the default value.
 	using ctype = std::complex<cpp_bin_float_double_extended>;
 	auto B = tensor<ctype,last_order>(shape{5,4,3,2},ctype{});
+	auto C = tensor<ctype,last_order>(B.extents());
 
 	// initializes the tensor with increasing values along the last-index
+	// using a single-index
 	auto vc = ctype(0,0);
 	for(auto i = 0u; i < B.size(); ++i, vc += ctype(1,1))
 		B[i] = vc;
 
 	// formatted output
 	std::cout << "B=" << B << ";" << std::endl;
+
+	// computes the complex conjugate
+	for(auto i = 0u; i < B.size(0); ++i)
+		for(auto j = 0u; j < B.size(1); ++j)
+			for(auto k = 0u; k < B.size(2); ++k)
+				for(auto l = 0u; l < B.size(3); ++l)
+					C.at(i,j,k,l) = std::conj(B.at(i,j,k,l));
+
+	std::cout << "C=" << C << ";" << std::endl;
 }
