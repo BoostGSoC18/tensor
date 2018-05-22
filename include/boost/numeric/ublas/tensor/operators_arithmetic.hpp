@@ -12,7 +12,6 @@
 #ifndef _BOOST_UBLAS_TENSOR_OPERATORS_ARITHMETIC_
 #define _BOOST_UBLAS_TENSOR_OPERATORS_ARITHMETIC_
 
-//#include <boost/numeric/ublas/matrix_expression.hpp>
 #include <boost/numeric/ublas/tensor/expression.hpp>
 #include <boost/numeric/ublas/tensor/expression_evaluation.hpp>
 #include <type_traits>

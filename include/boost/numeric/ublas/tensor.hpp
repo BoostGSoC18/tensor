@@ -16,6 +16,8 @@
 #ifndef _BOOST_UBLAS_TENSOR_
 #define _BOOST_UBLAS_TENSOR_
 
+#include "tensor/tensor_matrix_product.hpp"
+#include "tensor/tensor_vector_product.hpp"
 #include "tensor/operators_comparison.hpp"
 #include "tensor/operators_arithmetic.hpp"
 #include "tensor/extents.hpp"
