@@ -687,13 +687,6 @@ private:
 	array_type data_;
 };
 
-
-using tensorf = tensor<float>;
-using tensord = tensor<double>;
-
-using tensorcf = tensor<std::complex<float>>;
-using tensorcd = tensor<std::complex<float>>;
-
 }}} // namespaces
 
 

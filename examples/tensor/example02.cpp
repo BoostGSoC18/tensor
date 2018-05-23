@@ -18,6 +18,8 @@
 int main()
 {
 	using namespace boost::numeric::ublas;
+
+	using tensorf = tensor<float>;
 	using matrixf = matrix<float>;
 	using vectorf = vector<float>;
 
