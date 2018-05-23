@@ -41,10 +41,10 @@ void print(std::ostream& out, size_type r, const value_type* p, const size_type*
 	{
 		out << "[ ... " << std::endl;
 
-		for(size_t row = 0u; row < n[0]; p += w[0], ++row) // iterate over one column
+		for(auto row = 0u; row < n[0]; p += w[0], ++row) // iterate over one column
 		{
 			auto p1 = p;
-			for(size_t col = 0u; col < n[1]; p1 += w[1], ++col) // iterate over first row
+			for(auto col = 0u; col < n[1]; p1 += w[1], ++col) // iterate over first row
 			{
 				print(out,*p1);
 			}
@@ -56,7 +56,7 @@ void print(std::ostream& out, size_type r, const value_type* p, const size_type*
 	else
 	{
 		out << "cat("<< r+1 <<",..." << std::endl;
-		for(size_type d = 0u; d < n[r]-1; p += w[r], ++d){
+		for(auto d = 0u; d < n[r]-1; p += w[r], ++d){
 			print(out, r-1, p, w, n);
 			out << ",..." << std::endl;
 		}
@@ -78,6 +78,7 @@ void print(std::ostream& out, size_type r, const value_type* p, const size_type*
 namespace boost {
 namespace numeric {
 namespace ublas {
+
 template<class T, class F, class A>
 class tensor;
 
@@ -86,6 +87,7 @@ class matrix;
 
 template<class T, class A>
 class vector;
+
 }
 }
 }
@@ -95,19 +97,19 @@ std::ostream& operator << (std::ostream& out, boost::numeric::ublas::tensor<V,F,
 {
 
 	if(t.extents().is_scalar()){
-		out << "[";
+		out << '[';
 		boost::numeric::ublas::detail::print(out,t[0]);
-		out << "]";
+		out << ']';
 	}
 	else if(t.extents().is_vector()) {
-		std::string cat = t.extents().at(0) > t.extents().at(1) ? "; " : ", ";
-		out << "[";
+		const auto& cat = t.extents().at(0) > t.extents().at(1) ? ';' : ',';
+		out << '[';
 		for(auto i = 0u; i < t.size()-1; ++i){
 			boost::numeric::ublas::detail::print(out,t[i]);
-			out << cat;
+			out << cat << ' ';
 		}
 		boost::numeric::ublas::detail::print(out,t[t.size()-1]);
-		out << "]";
+		out << ']';
 	}
 	else{
 		boost::numeric::ublas::detail::print(out, t.rank()-1, t.data(), t.strides().data(), t.extents().data());

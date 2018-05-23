@@ -52,7 +52,14 @@ auto prod(const std::size_t m, tensor<V,F,A1> const& a, vector<V,A2> const& b)
 	if( p == 0)
 		throw std::length_error("Error in boost::numeric::ublas::prod: Rank must be greater than zero.");
 
-	auto nc = ebase_type(std::max(p-1,2ul)     ,1);
+	if( a.empty() )
+		throw std::length_error("Error in boost::numeric::ublas::prod: tensor should not be empty.");
+
+	if( b.size() == 0)
+		throw std::length_error("Error in boost::numeric::ublas::prod: vector should not be empty.");
+
+
+	auto nc = ebase_type(std::max(p-1,2ul) ,1);
 	auto nb = ebase_type{b.size(),1};
 
 
@@ -89,11 +96,18 @@ auto prod(const std::size_t m, tensor<V,F,A1> const& a, matrix<V,F,A2> const& b)
 	if( m == 0)
 		throw std::length_error("Error in boost::numeric::ublas::prod: Contraction mode must be greater than zero.");
 
-	if( p < m )
+	if( p < m || m > a.extents().size())
 		throw std::length_error("Error in boost::numeric::ublas::prod: Rank must be greater equal the modus.");
 
 	if( p == 0)
 		throw std::length_error("Error in boost::numeric::ublas::prod: Rank must be greater than zero.");
+
+	if( a.empty() )
+		throw std::length_error("Error in boost::numeric::ublas::prod: tensor should not be empty.");
+
+	if( b.size1()*b.size2() == 0)
+		throw std::length_error("Error in boost::numeric::ublas::prod: matrix should not be empty.");
+
 
 	auto nc = a.extents().base();
 	auto nb = extents_type {b.size1(),b.size2()};
