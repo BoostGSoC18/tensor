@@ -231,7 +231,7 @@ void ttv0(size_t const r,
 */
 template <class pointer_t_c, class pointer_t_a, class pointer_t_b, class size_t>
 void mtv(size_t const m,
-				 pointer_t_c c,       size_t const*const   , size_t const*const wc,
+				 pointer_t_c c, size_t const*const   , size_t const*const wc,
 				 pointer_t_a a, size_t const*const na, size_t const*const wa,
 				 pointer_t_b b)
 {
@@ -244,6 +244,83 @@ void mtv(size_t const m,
 						*c1 += *a1 * *b1;
 		}
 }
+
+
+
+
+template <class pointer_t_a, class pointer_t_b, class value_t>
+value_t inner(size_t const r, size_t const*const n,
+					 pointer_t_a  a, size_t const*const wa,
+					 pointer_t_b  b, size_t const*const wb,
+					 value_t sum)
+{
+		if(r == 0)
+				for(size_t i0 = 0u; i0 < n[0]; a += wa[0], b += wb[0], ++i0)
+						sum += *a * *b;
+		else
+				for(size_t ir = 0u; ir < n[r]; a += wa[r], b += wb[r], ++ir)
+						 sum = inner(r-1, n,   a, wa,    b, wb, sum);
+		return sum;
+}
+
+
+//template <class pointer_t_c, class pointer_t_a, class pointer_t_b>
+//void
+//outer_2x2(
+//				size_t const pa,
+//				size_t const rc, pointer_t_c c, const size_t*   , const size_t* wc,
+//				size_t const ra, pointer_t_a a, const size_t* na, const size_t* wa,
+//				size_t const rb, pointer_t_b b, const size_t* nb, const size_t* wb)
+//{
+//		assert(rc == 3);
+//		assert(ra == 1);
+//		assert(rb == 1);
+
+//	for(size_t ib1 = 0u; ib1 < nb[1]; b += wb[1], c += wc[pa+1], ++ib1)
+//		{
+//				auto c2 = c;
+//				auto b0 = b;
+//		for(size_t ib0 = 0u; ib0 < nb[0]; b0 += wb[0], c2 += wc[pa], ++ib0)
+//				{
+//						const auto b = *b0;
+//						auto c1 = c2;
+//						auto a1 = a;
+//						for(size_t ia1 = 0u; ia1 < na[1]; a1 += wa[1], c1 += wc[1], ++ia1)
+//						{
+//								auto a0 = a1;
+//								auto c0 = c1;
+//								for(size_t ia0 = 0u; ia0 < na[0]; a0 += wa[0], c0 += wc[0], ++ia0){
+//										*c0 = *a0 * b;
+//								}
+//						}
+//				}
+//		}
+//}
+
+//template<class pointer_t_c, class pointer_t_a, class pointer_t_b>
+//void
+//outer_recursion(
+//				size_t const pa,
+//				size_t const rc, pointer_t_c c, const size_t* nc, const size_t* wc,
+//				size_t const ra, pointer_t_a a, const size_t* na, const size_t* wa,
+//				size_t const rb, pointer_t_b b, const size_t* nb, const size_t* wb)
+//{
+//		if(rb > 1) // ra > 1 &&
+//		{
+//				for(size_t ib = 0u; ib < nb[rb]; b += wb[rb], c += wc[rc], ++ib)
+//			 outer_recursion(pa, rc-1, c, nc, wc,    ra, a, na, wa,    rb-1, b, nb, wb);
+//		}
+//		else if(ra > 1) //  && rb == 1
+//		{
+//				for(size_t ia = 0u; ia < na[ra]; a += wa[ra], c += wc[ra], ++ia)
+//			 outer_recursion(pa, rc-1, c, nc, wc,   ra-1, a, na, wa,   rb, b, nb, wb);
+//		}
+//		else
+//		{
+//				assert(ra == 1 && rb == 1 && rc == 3);
+//		outer_2x2(pa, rc, c, nc, wc,   ra, a, na, wa,    rb, b, nb, wb);
+//		}
+//}
 
 } // namespace detail
 } // namespace ublas
@@ -354,7 +431,7 @@ void ttv(std::size_t const m, std::size_t const p,
  * @param wb pointer to the strides of input tensor b
 */
 
-template <class pointer_t_c, class pointer_t_a, class pointer_t_b>
+template <class pointer_t_a, class pointer_t_b, class pointer_t_c>
 void ttm(size_t const m, size_t const p,
 				 pointer_t_c c,       size_t const*const nc, size_t const*const wc,
 				 const pointer_t_a a, size_t const*const na, size_t const*const wa,
@@ -398,6 +475,25 @@ void ttm(size_t const m, size_t const p,
 }
 
 
+
+template <class pointer_t_a, class pointer_t_b, class value_t>
+auto inner(size_t const p, size_t const*const n,
+					 pointer_t_a  a, size_t const*const wa,
+					 pointer_t_b  b, size_t const*const wb,
+					 value_t sum)
+{
+	static_assert( std::is_pointer<pointer_t_a>::value && std::is_pointer<pointer_t_b>::value,
+								 "Static error in boost::numeric::ublas::inner: argument types for pointers must be pointer types.");
+
+		if(p<2)
+				throw std::length_error("Error in boost::numeric::ublas::inner: Rank must be greater than zero.");
+
+		if(a == nullptr || b == nullptr)
+				throw std::length_error("Error in boost::numeric::ublas::inner: Pointers shall not be null pointers.");
+
+		return detail::inner(p-1, n, a, wa, b, wb, sum);
+
+}
 
 
 }

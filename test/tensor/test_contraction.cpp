@@ -47,7 +47,7 @@ struct fixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_contraction, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_contraction, value,  test_t
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_contraction, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -132,6 +132,38 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_contraction, value,  test_t
 	for(auto const& e : extents)
 		check(e);
 }
+
+
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using strides_type = ublas::strides<layout_type>;
+	using vector_type  = std::vector<value_type>;
+
+
+	auto check = [](auto const& n) {
+
+		auto a = vector_type(n.product(), value_type{2});
+		auto b = vector_type(n.product(), value_type{3});
+		auto w = strides_type(n);
+
+		auto c = ublas::inner(n.size(), n.data(), a.data(), w.data(), b.data(), w.data(), value_type(0));
+		auto cref = std::inner_product(a.begin(), a.end(), b.begin(), value_type(0));
+
+
+		BOOST_CHECK_EQUAL( c , cref );
+
+	};
+
+	for(auto const& e : extents)
+		check(e);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END();
 
