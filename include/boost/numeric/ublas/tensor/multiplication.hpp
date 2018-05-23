@@ -10,14 +10,15 @@
 //
 
 
-#ifndef _BOOST_UBLAS_TENSOR_CONTRACTION_
-#define _BOOST_UBLAS_TENSOR_CONTRACTION_
+#ifndef _BOOST_UBLAS_TENSOR_MULTIPLICATION_
+#define _BOOST_UBLAS_TENSOR_MULTIPLICATION_
 
 
 namespace boost {
 namespace numeric {
 namespace ublas {
 namespace detail {
+namespace recursive {
 
 
 
@@ -190,14 +191,14 @@ void ttv0(SizeType const r,
 {
 
 		if(r > 1){
-				for(SizeType i = 0u; i < na[r]; c += wc[r-1], a += wa[r], ++i)
+				for(auto i = 0u; i < na[r]; c += wc[r-1], a += wa[r], ++i)
 						ttv0(r-1, c, nc, wc,    a, na, wa,    b);
 		}
 		else{
-				for(SizeType i1 = 0u; i1 < na[1]; c += wc[0], a += wa[1], ++i1)
+				for(auto i1 = 0u; i1 < na[1]; c += wc[0], a += wa[1], ++i1)
 				{
 						auto c1 = c; auto a1 = a; auto b1 = b;
-						for(SizeType i0 = 0u; i0 < na[0]; a1 += wa[0], ++b1, ++i0)
+						for(auto i0 = 0u; i0 < na[0]; a1 += wa[0], ++b1, ++i0)
 								*c1 += *a1 * *b1;
 				}
 		}
@@ -296,21 +297,23 @@ void outer_2x2(SizeType const pa,
 }
 
 template<class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
-void outer_recursion(SizeType const pa,
-										 SizeType const rc, PointerOut c, SizeType const*const nc, SizeType const*const wc,
-										 SizeType const ra, PointerIn1 a, SizeType const*const na, SizeType const*const wa,
-										 SizeType const rb, PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+void outer(SizeType const pa,
+					 SizeType const rc, PointerOut c, SizeType const*const nc, SizeType const*const wc,
+					 SizeType const ra, PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+					 SizeType const rb, PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
 	if(rb > 1)
 		for(auto ib = 0u; ib < nb[rb]; b += wb[rb], c += wc[rc], ++ib)
-			outer_recursion(pa, rc-1, c, nc, wc,    ra, a, na, wa,    rb-1, b, nb, wb);
+			outer(pa, rc-1, c, nc, wc,    ra, a, na, wa,    rb-1, b, nb, wb);
 	else if(ra > 1)
 		for(auto ia = 0u; ia < na[ra]; a += wa[ra], c += wc[ra], ++ia)
-			outer_recursion(pa, rc-1, c, nc, wc,   ra-1, a, na, wa,   rb, b, nb, wb);
+			outer(pa, rc-1, c, nc, wc,   ra-1, a, na, wa,   rb, b, nb, wb);
 	else
 		outer_2x2(pa, c, nc, wc,   a, na, wa,    b, nb, wb); //assert(ra==1 && rb==1 && rc==3);
 }
 
+
+} // namespace recursive
 } // namespace detail
 } // namespace ublas
 } // namespace numeric
@@ -363,39 +366,39 @@ void ttv(SizeType const m, SizeType const p,
 				 const PointerIn2 b, SizeType const*const nb, SizeType const*const /*wb*/)
 {
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
-										 "Static error in boost::numeric::ublas::tensor_times_vector: Argument types for pointers are not pointer types.");
+										 "Static error in boost::numeric::ublas::ttv: Argument types for pointers are not pointer types.");
 
 	if( m == 0)
-		throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Contraction mode must be greater than zero.");
+		throw std::length_error("Error in boost::numeric::ublas::ttv: Contraction mode must be greater than zero.");
 
 	if( p < m )
-		throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Rank must be greater equal the modus.");
+		throw std::length_error("Error in boost::numeric::ublas::ttv: Rank must be greater equal the modus.");
 
 	if( p == 0)
-		throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Rank must be greater than zero.");
+		throw std::length_error("Error in boost::numeric::ublas::ttv: Rank must be greater than zero.");
 
 	if(c == nullptr || a == nullptr || b == nullptr)
-		throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Pointers shall not be null pointers.");
+		throw std::length_error("Error in boost::numeric::ublas::ttv: Pointers shall not be null pointers.");
 
-	for(SizeType i = 0; i < m-1; ++i)
+	for(auto i = 0u; i < m-1; ++i)
 		if(na[i] != nc[i])
-			throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Extents (except of dimension mode) of A and C must be equal.");
+			throw std::length_error("Error in boost::numeric::ublas::ttv: Extents (except of dimension mode) of A and C must be equal.");
 
-	for(SizeType i = m; i < p; ++i)
+	for(auto i = m; i < p; ++i)
 		if(na[i] != nc[i-1])
-			throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Extents (except of dimension mode) of A and C must be equal.");
+			throw std::length_error("Error in boost::numeric::ublas::ttv: Extents (except of dimension mode) of A and C must be equal.");
 
 	const auto max = std::max(nb[0], nb[1]);
 	if(  na[m-1] != max)
-		throw std::length_error("Error in boost::numeric::ublas::tensor_times_vector: Extent of dimension mode of A and b must be equal.");
+		throw std::length_error("Error in boost::numeric::ublas::ttv: Extent of dimension mode of A and b must be equal.");
 
 
 	if((m != 1) && (p > 2))
-		detail::ttv(m-1, p-1, p-2, c, nc, wc,    a, na, wa,   b);
+		detail::recursive::ttv(m-1, p-1, p-2, c, nc, wc,    a, na, wa,   b);
 	else if ((m == 1) && (p > 2))
-		detail::ttv0(p-1, c, nc, wc,  a, na, wa,   b);
+		detail::recursive::ttv0(p-1, c, nc, wc,  a, na, wa,   b);
 	else
-		detail::mtv(m-1, c, nc, wc,  a, na, wa,   b);
+		detail::recursive::mtv(m-1, c, nc, wc,  a, na, wa,   b);
 
 }
 
@@ -430,38 +433,38 @@ void ttm(SizeType const m, SizeType const p,
 {
 
 		static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
-											 "Static error in boost::numeric::ublas::tensor_times_matrix: Argument types for pointers are not pointer types.");
+											 "Static error in boost::numeric::ublas::ttm: Argument types for pointers are not pointer types.");
 
 		if( m == 0 )
-				throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: Contraction mode must be greater than zero.");
+				throw std::length_error("Error in boost::numeric::ublas::ttm: Contraction mode must be greater than zero.");
 
 		if( p < m )
-				throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: Rank must be greater equal than the specified mode.");
+				throw std::length_error("Error in boost::numeric::ublas::ttm: Rank must be greater equal than the specified mode.");
 
 		if( p == 0)
-				throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix:Rank must be greater than zero.");
+				throw std::length_error("Error in boost::numeric::ublas::ttm:Rank must be greater than zero.");
 
 		if(c == nullptr || a == nullptr || b == nullptr)
-				throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: Pointers shall not be null pointers.");
+				throw std::length_error("Error in boost::numeric::ublas::ttm: Pointers shall not be null pointers.");
 
-		for(SizeType i = 0; i < m-1; ++i)
+		for(auto i = 0u; i < m-1; ++i)
 				if(na[i] != nc[i])
-						throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: Extents (except of dimension mode) of A and C must be equal.");
+						throw std::length_error("Error in boost::numeric::ublas::ttm: Extents (except of dimension mode) of A and C must be equal.");
 
-		for(SizeType i = m; i < p; ++i)
+		for(auto i = m; i < p; ++i)
 				if(na[i] != nc[i])
-						throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: Extents (except of dimension mode) of A and C must be equal.");
+						throw std::length_error("Error in boost::numeric::ublas::ttm: Extents (except of dimension mode) of A and C must be equal.");
 
 		if(na[m-1] != nb[1])
-				throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: 2nd Extent of B and M-th Extent of A must be the equal.");
+				throw std::length_error("Error in boost::numeric::ublas::ttm: 2nd Extent of B and M-th Extent of A must be the equal.");
 
 		if(nc[m-1] != nb[0])
-				throw std::length_error("Error in boost::numeric::ublas::tensor_times_matrix: 1nd Extent of B and M-th Extent of C must be the equal.");
+				throw std::length_error("Error in boost::numeric::ublas::ttm: 1nd Extent of B and M-th Extent of C must be the equal.");
 
 		if(m != 1)
-				detail::ttm(m-1, p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
+				detail::recursive::ttm(m-1, p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
 		else
-				detail::ttm0(p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
+				detail::recursive::ttm0(p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
 
 }
 
@@ -495,7 +498,7 @@ auto inner(const SizeType    p, SizeType const*const n,
 	if(a == nullptr || b == nullptr)
 		throw std::length_error("Error in boost::numeric::ublas::inner: Pointers shall not be null pointers.");
 
-	return detail::inner(p-1, n, a, wa, b, wb, v);
+	return detail::recursive::inner(p-1, n, a, wa, b, wb, v);
 
 }
 
@@ -521,8 +524,8 @@ auto inner(const SizeType    p, SizeType const*const n,
 */
 template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
 void outer(PointerOut c, SizeType const pc, SizeType const*const nc, SizeType const*const wc,
-					 PointerIn1 a, SizeType const pa, SizeType const*const na, SizeType const*const wa,
-					 PointerIn2 b, SizeType const pb, SizeType const*const nb, SizeType const*const wb)
+					 const PointerIn1 a, SizeType const pa, SizeType const*const na, SizeType const*const wa,
+					 const PointerIn2 b, SizeType const pb, SizeType const*const nb, SizeType const*const wb)
 {
 	static_assert( std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value & std::is_pointer<PointerOut>::value,
 								 "Static error in boost::numeric::ublas::outer: Argument types for pointers must be pointer types.");
@@ -533,7 +536,7 @@ void outer(PointerOut c, SizeType const pc, SizeType const*const nc, SizeType co
 	if(a == nullptr || b == nullptr || c == nullptr)
 		throw std::length_error("Error when performing outer product: Pointers shall not be null pointers.");
 
-	detail::outer_recursion(pa, pc-1, c, nc, wc,   pa-1, a, na, wa,   pb-1, b, nb, wb);
+	detail::recursive::outer(pa, pc-1, c, nc, wc,   pa-1, a, na, wa,   pb-1, b, nb, wb);
 
 }
 

@@ -132,17 +132,17 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer_prod, value,  test_types, fi
 	using layout_type  = typename value::second_type;
 	using tensor_type  = ublas::tensor<value_type,layout_type>;
 
-	for(auto const& n : extents) {
+	for(auto const& n1 : extents) {
+		auto a  = tensor_type(n1, value_type(2));
+		for(auto const& n2 : extents) {
 
-		auto a  = tensor_type(n, value_type(2));
-		auto b  = tensor_type(n, value_type(1));
-		auto c  = ublas::outer_prod(a, b);
+			auto b  = tensor_type(n2, value_type(1));
+			auto c  = ublas::outer_prod(a, b);
 
-		for(auto const& cc : c)
-			BOOST_CHECK_EQUAL( cc , a[0] );
-
-	};
-
+			for(auto const& cc : c)
+				BOOST_CHECK_EQUAL( cc , a[0]*b[0] );
+		}
+	}
 }
 
 

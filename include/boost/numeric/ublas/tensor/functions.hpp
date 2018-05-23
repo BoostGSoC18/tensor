@@ -15,7 +15,8 @@
 
 
 #include <stdexcept>
-#include "contraction.hpp"
+#include <vector>
+#include "multiplication.hpp"
 
 
 
@@ -185,16 +186,70 @@ auto outer_prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b)
 
 	auto nc = typename extents_type::base_type(a.rank() + b.rank());
 	for(auto i = 0u; i < a.rank(); ++i)
-		nc[i] = a.extents()[i];
+		nc.at(i) = a.extents().at(i);
 
 	for(auto i = 0u; i < b.rank(); ++i)
-		nc[a.rank()+i] = a.extents()[i];
+		nc.at(a.rank()+i) = b.extents().at(i);
 
-	auto c = tensor<V,F,A1>(extents_type(nc));
+	auto c = tensor_type(extents_type(nc));
 
 	outer(c.data(), c.rank(), c.extents().data(), c.strides().data(),
 				a.data(), a.rank(), a.extents().data(), a.strides().data(),
 				b.data(), b.rank(), b.extents().data(), b.strides().data());
+
+	return c;
+}
+
+
+
+/** @brief Transposes a tensor according to a permutation tuple
+ *
+ * Implements C[tau[i1],tau[i2]...,tau[ip]] = A[i1,i2,...,ip]
+ *
+ * @note calls trans function
+ *
+ * @param[in] a    tensor object of rank p
+ * @param[in] tau  one-based permutation tuple of length p
+ * @returns        a transposed tensor object with the same storage format F and allocator type A
+*/
+template<class V, class F, class A>
+auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
+{
+	using tensor_type  = tensor<V,F,A>;
+	using extents_type = typename tensor_type::extents_type;
+
+	if( a.empty() )
+		throw std::length_error("Error in boost::numeric::ublas::trans: tensor should not be empty.");
+
+	auto const   p = a.rank();
+	auto const& na = a.extents();
+
+	auto nc = typename extents_type::base_type(p);
+	for(auto i = 0u; i < p; ++i)
+		nc[i] = na[tau[i]-1];
+
+	auto c = tensor_type(extents_type(nc));
+
+//	SizeType const p,  SizeType const*const n, SizeType const*const pi,
+//							PointerOut c,      SizeType const*const wc,
+//							const PointerIn a, SizeType const*const wa)
+
+
+	trans(a.rank(), a.extents().data(), tau.data(), c.data(), c.strides().data(), a.data(), a.strides().data() );
+
+
+
+//	auto vc = typename strides_type::base_type(p);
+//	for(size_t i = 0u; i < p; ++i)
+//		vc[tau[i]-1] = wc[i];
+
+
+
+//	auto c = tensor<V,F,A>(extents_type(nc));
+
+//	outer(c.data(), c.rank(), c.extents().data(), c.strides().data(),
+//				a.data(), a.rank(), a.extents().data(), a.strides().data(),
+//				b.data(), b.rank(), b.extents().data(), b.strides().data());
 
 	return c;
 }

@@ -13,7 +13,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <boost/numeric/ublas/tensor/contraction.hpp>
+#include <boost/numeric/ublas/tensor/multiplication.hpp>
 #include <boost/numeric/ublas/tensor/extents.hpp>
 #include <boost/numeric/ublas/tensor/strides.hpp>
 #include "utility.hpp"
@@ -58,7 +58,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
 	using extents_type_base = typename extents_type::base_type;
 
 
-	auto check = [](auto const& na) {
+	for(auto const& na : extents) {
 
 		auto a = vector_type(na.product(), value_type{2});
 		auto wa = strides_type(na);
@@ -87,10 +87,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
 				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
 
 		}
-	};
-
-	for(auto const& e : extents)
-		check(e);
+	}
 }
 
 
@@ -104,7 +101,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 	using extents_type = ublas::shape;
 
 
-	auto check = [](auto const& na) {
+	for(auto const& na : extents) {
 
 		auto a = vector_type(na.product(), value_type{2});
 		auto wa = strides_type(na);
@@ -127,10 +124,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
 
 		}
-	};
-
-	for(auto const& e : extents)
-		check(e);
+	}
 }
 
 
@@ -146,7 +140,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner, value,  test_types, fixture
 	using vector_type  = std::vector<value_type>;
 
 
-	auto check = [](auto const& n) {
+	for(auto const& n : extents) {
 
 		auto a = vector_type(n.product(), value_type{2});
 		auto b = vector_type(n.product(), value_type{3});
@@ -158,10 +152,51 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner, value,  test_types, fixture
 
 		BOOST_CHECK_EQUAL( c , cref );
 
-	};
+	}
 
-	for(auto const& e : extents)
-		check(e);
+}
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using extents_type = ublas::shape;
+	using strides_type = ublas::strides<layout_type>;
+	using vector_type  = std::vector<value_type>;
+
+
+	for(auto const& na : extents) {
+
+		auto a = vector_type(na.product(), value_type{2});
+		auto wa = strides_type(na);
+
+		for(auto const& nb : extents) {
+
+			auto b = vector_type(nb.product(), value_type{3});
+			auto wb = strides_type(nb);
+
+			auto c = vector_type(nb.product()*na.product());
+			auto nc = typename extents_type::base_type(na.size()+nb.size());
+
+			for(auto i = 0u; i < na.size(); ++i)
+				nc[i] = na[i];
+			for(auto i = 0u; i < nb.size(); ++i)
+				nc[i+na.size()] = nb[i];
+
+			auto wc = strides_type(extents_type(nc));
+
+			ublas::outer(c.data(), nc.size(), nc.data(), wc.data(),
+									 a.data(), na.size(), na.data(), wa.data(),
+									 b.data(), nb.size(), nb.data(), wb.data());
+
+			for(auto const& cc : c)
+				BOOST_CHECK_EQUAL( cc , a[0]*b[0] );
+		}
+
+	}
+
 }
 
 
