@@ -92,6 +92,7 @@ class vector;
 }
 }
 
+
 template <class V, class F, class A>
 std::ostream& operator << (std::ostream& out, boost::numeric::ublas::tensor<V,F,A> const& t)
 {

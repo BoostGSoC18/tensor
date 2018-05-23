@@ -12,13 +12,14 @@
 
 #include <iostream>
 #include <algorithm>
-#include <boost/numeric/ublas/tensor.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
+#include <vector>
+#include <boost/numeric/ublas/tensor/contraction.hpp>
+#include <boost/numeric/ublas/tensor/extents.hpp>
+#include <boost/numeric/ublas/tensor/strides.hpp>
+#include "utility.hpp"
 
 #include <boost/test/unit_test.hpp>
 
-#include "utility.hpp"
 
 BOOST_AUTO_TEST_SUITE ( test_tensor_contraction ) ;
 
@@ -93,39 +94,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_contraction, value,  test_t
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_vector_contraction_prod, value,  test_types, fixture )
-{
-	using namespace boost::numeric;
-	using value_type   = typename value::first_type;
-	using layout_type  = typename value::second_type;
-	using tensor_type  = ublas::tensor<value_type,layout_type>;
-	using vector_type  = typename tensor_type::vector_type;
-
-
-	auto check = [](auto const& na) {
-
-		auto a = tensor_type(na, value_type{2});
-
-		for(auto m = 0u; m < na.size(); ++m){
-
-			auto b = vector_type  ( na[m], value_type{1} );
-
-			auto c = ublas::prod(m+1, a, b);
-
-			for(auto i = 0u; i < c.size(); ++i)
-				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
-
-		}
-	};
-
-	for(auto const& e : extents)
-		check(e);
-}
-
-
-
-
-
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_contraction, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
@@ -154,38 +122,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_contraction, value,  test_t
 									c.data(), nc.data(), wc.data(),
 									a.data(), na.data(), wa.data(),
 									b.data(), nb.data(), wb.data());
-
-			for(auto i = 0u; i < c.size(); ++i)
-				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
-
-		}
-	};
-
-	for(auto const& e : extents)
-		check(e);
-}
-
-
-
-
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_matrix_contraction_prod, value,  test_types, fixture )
-{
-	using namespace boost::numeric;
-	using value_type   = typename value::first_type;
-	using layout_type  = typename value::second_type;
-	using tensor_type  = ublas::tensor<value_type,layout_type>;
-	using matrix_type  = typename tensor_type::matrix_type;
-
-
-	auto check = [](auto const& na) {
-
-		auto a = tensor_type(na, value_type{2});
-
-		for(auto m = 0u; m < na.size(); ++m){
-
-			auto b  = matrix_type  ( na[m], na[m], value_type{1} );
-
-			auto c = ublas::prod(m+1, a, b);
 
 			for(auto i = 0u; i < c.size(); ++i)
 				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
