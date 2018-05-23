@@ -130,6 +130,27 @@ auto prod(const std::size_t m, tensor<V,F,A1> const& a, matrix<V,F,A2> const& b)
 
 
 
+template<class V, class F, class A1, class A2>
+auto iprod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b)
+{
+	using value_type   = typename tensor<V,F,A1>::value_type;
+
+	if( a.rank() != b.rank() )
+		throw std::length_error("Error in boost::numeric::ublas::iprod: Rank of both tensors must be the same.");
+
+	if( a.empty() || b.empty())
+		throw std::length_error("Error in boost::numeric::ublas::iprod: Tensors should not be empty.");
+
+	if( a.extents() != b.extents())
+		throw std::length_error("Error in boost::numeric::ublas::iprod: Tensor extents should be the same.");
+
+	return inner(a.rank(), a.extents().data(),
+							 a.data(), a.strides().data(),
+							 b.data(), b.strides().data(), value_type{0});
+}
+
+
+
 }
 }
 }
