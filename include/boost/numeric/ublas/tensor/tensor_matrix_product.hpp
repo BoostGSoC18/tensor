@@ -221,8 +221,8 @@ template<class Value, class Format, class Allocator>
 class matrix;
 
 
-template<class V, class F, class A>
-tensor<V,F,A> prod(const std::size_t m, tensor<V,F,A> const& a, matrix<V,F,A> const& b)
+template<class V, class F, class A1, class A2>
+tensor<V,F,A1> prod(const std::size_t m, tensor<V,F,A1> const& a, matrix<V,F,A2> const& b)
 {
 
 	auto const p = a.rank();
@@ -242,12 +242,14 @@ tensor<V,F,A> prod(const std::size_t m, tensor<V,F,A> const& a, matrix<V,F,A> co
 
 	nc[m-1] = nb[0];
 
-	auto c = tensor<V,F,A>(shape(nc),V{});
+	auto c = tensor<V,F,A1>(shape(nc),V{});
+
+	auto bb = &(b(0,0));
 
 	ttm(m, p,
 			c.data(), c.extents().data(), c.strides().data(),
 			a.data(), a.extents().data(), a.strides().data(),
-			b.data().data(), nb.data(), wb.data());
+			bb, nb.data(), wb.data());
 
 
 	return c;

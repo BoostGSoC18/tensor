@@ -220,8 +220,8 @@ class vector;
 
 
 
-template<class V, class F, class A>
-tensor<V,F,A> prod(const std::size_t m, tensor<V,F,A> const& a, vector<V,A> const& b)
+template<class V, class F, class A1, class A2>
+tensor<V,F,A1> prod(const std::size_t m, tensor<V,F,A1> const& a, vector<V,A2> const& b)
 {
 
 	auto const p = a.rank();
@@ -243,12 +243,14 @@ tensor<V,F,A> prod(const std::size_t m, tensor<V,F,A> const& a, vector<V,A> cons
 		if(i != m-1)
 			nc[j++] = a.extents().at(i);
 
-	auto c = tensor<V,F,A>(shape(nc),V{});
+	auto c = tensor<V,F,A1>(shape(nc),V{});
+
+	auto bb = &(b(0));
 
 	ttv(m, p,
 			c.data(), c.extents().data(), c.strides().data(),
 			a.data(), a.extents().data(), a.strides().data(),
-			b.data().data(), nb.data(), nb.data());
+			bb, nb.data(), nb.data());
 
 
 	return c;
