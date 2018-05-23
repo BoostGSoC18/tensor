@@ -13,7 +13,7 @@
 #include <boost/numeric/ublas/tensor.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
-#include <ostream>
+#include <iostream>
 
 int main()
 {

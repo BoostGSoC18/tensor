@@ -55,24 +55,21 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_vector, value,  test_types, f
 	using vector_type  = typename tensor_type::vector_type;
 
 
-	auto check = [](auto const& na) {
+	for(auto const& n : extents){
 
-		auto a = tensor_type(na, value_type{2});
+		auto a = tensor_type(n, value_type{2});
 
-		for(auto m = 0u; m < na.size(); ++m){
+		for(auto m = 0u; m < n.size(); ++m){
 
-			auto b = vector_type  ( na[m], value_type{1} );
+			auto b = vector_type  (n[m], value_type{1} );
 
 			auto c = ublas::prod(m+1, a, b);
 
 			for(auto i = 0u; i < c.size(); ++i)
-				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
+				BOOST_CHECK_EQUAL( c[i] , value_type(n[m]) * a[i] );
 
 		}
-	};
-
-	for(auto const& e : extents)
-		check(e);
+	}
 }
 
 
@@ -87,28 +84,25 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_matrix, value,  test_types, f
 	using matrix_type  = typename tensor_type::matrix_type;
 
 
-	auto check = [](auto const& na) {
+	for(auto const& n : extents) {
 
-		auto a = tensor_type(na, value_type{2});
+		auto a = tensor_type(n, value_type{2});
 
-		for(auto m = 0u; m < na.size(); ++m){
+		for(auto m = 0u; m < n.size(); ++m){
 
-			auto b  = matrix_type  ( na[m], na[m], value_type{1} );
+			auto b  = matrix_type  ( n[m], n[m], value_type{1} );
 
 			auto c = ublas::prod(m+1, a, b);
 
 			for(auto i = 0u; i < c.size(); ++i)
-				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
+				BOOST_CHECK_EQUAL( c[i] , value_type(n[m]) * a[i] );
 
 		}
-	};
-
-	for(auto const& e : extents)
-		check(e);
+	}
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_iprod, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner_prod, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -116,20 +110,39 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_iprod, value,  test_types, fixture
 	using tensor_type  = ublas::tensor<value_type,layout_type>;
 
 
-	auto check = [](auto const& n) {
+	for(auto const& n : extents) {
 
 		auto a  = tensor_type(n, value_type(2));
 		auto b  = tensor_type(n, value_type(1));
 
-		auto c = ublas::iprod(a, b);
+		auto c = ublas::inner_prod(a, b);
 		auto r = std::inner_product(a.begin(),a.end(), b.begin(),value_type(0));
 
 		BOOST_CHECK_EQUAL( c , r );
 
+	}
+}
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer_prod, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using tensor_type  = ublas::tensor<value_type,layout_type>;
+
+	for(auto const& n : extents) {
+
+		auto a  = tensor_type(n, value_type(2));
+		auto b  = tensor_type(n, value_type(1));
+		auto c  = ublas::outer_prod(a, b);
+
+		for(auto const& cc : c)
+			BOOST_CHECK_EQUAL( cc , a[0] );
+
 	};
 
-	for(auto const& e : extents)
-		check(e);
 }
 
 

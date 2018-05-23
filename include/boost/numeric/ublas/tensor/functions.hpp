@@ -32,6 +32,10 @@ class matrix;
 template<class Value, class Allocator>
 class vector;
 
+
+
+
+
 template<class V, class F, class A1, class A2>
 auto prod(const std::size_t m, tensor<V,F,A1> const& a, vector<V,A2> const& b)
 {
@@ -129,26 +133,71 @@ auto prod(const std::size_t m, tensor<V,F,A1> const& a, matrix<V,F,A2> const& b)
 }
 
 
-
+/** @brief Computes the inner product of two tensors
+ *
+ * Implements c = sum(A[i1,i2,...,ip] * B[i1,i2,...,jp])
+ *
+ * @note calls inner function
+ *
+ * @param[in] a tensor object A
+ * @param[in] b tensor object B
+ *
+ * @returns a value type.
+*/
 template<class V, class F, class A1, class A2>
-auto iprod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b)
+auto inner_prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b)
 {
 	using value_type   = typename tensor<V,F,A1>::value_type;
 
 	if( a.rank() != b.rank() )
-		throw std::length_error("Error in boost::numeric::ublas::iprod: Rank of both tensors must be the same.");
+		throw std::length_error("Error in boost::numeric::ublas::inner_prod: Rank of both tensors must be the same.");
 
 	if( a.empty() || b.empty())
-		throw std::length_error("Error in boost::numeric::ublas::iprod: Tensors should not be empty.");
+		throw std::length_error("Error in boost::numeric::ublas::inner_prod: Tensors should not be empty.");
 
 	if( a.extents() != b.extents())
-		throw std::length_error("Error in boost::numeric::ublas::iprod: Tensor extents should be the same.");
+		throw std::length_error("Error in boost::numeric::ublas::inner_prod: Tensor extents should be the same.");
 
 	return inner(a.rank(), a.extents().data(),
 							 a.data(), a.strides().data(),
 							 b.data(), b.strides().data(), value_type{0});
 }
 
+/** @brief Computes the outer product of two tensors
+ *
+ * Implements C[i1,...,ip,j1,...,jq] = A[i1,i2,...,ip] * B[j1,j2,...,jq]
+ *
+ * @note calls outer function
+ *
+ * @param[in] a tensor object A
+ * @param[in] b tensor object B
+ *
+ * @returns tensor object C with the same storage format F and allocator type A1
+*/
+template<class V, class F, class A1, class A2>
+auto outer_prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b)
+{
+	using tensor_type  = tensor<V,F,A1>;
+	using extents_type = typename tensor_type::extents_type;
+
+	if( a.empty() || b.empty() )
+		throw std::length_error("Error in boost::numeric::ublas::outer_prod: tensors should not be empty.");
+
+	auto nc = typename extents_type::base_type(a.rank() + b.rank());
+	for(auto i = 0u; i < a.rank(); ++i)
+		nc[i] = a.extents()[i];
+
+	for(auto i = 0u; i < b.rank(); ++i)
+		nc[a.rank()+i] = a.extents()[i];
+
+	auto c = tensor<V,F,A1>(extents_type(nc));
+
+	outer(c.data(), c.rank(), c.extents().data(), c.strides().data(),
+				a.data(), a.rank(), a.extents().data(), a.strides().data(),
+				b.data(), b.rank(), b.extents().data(), b.strides().data());
+
+	return c;
+}
 
 
 }

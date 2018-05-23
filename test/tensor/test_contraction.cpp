@@ -62,14 +62,14 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
 
 		auto a = vector_type(na.product(), value_type{2});
 		auto wa = strides_type(na);
-		for(auto m = 0u; m < na.size(); ++m){
+		for(auto m = 0ul; m < na.size(); ++m){
 			auto b  = vector_type  ( na[m], value_type{1} );
 			auto nb = extents_type {na[m],1};
 			auto wb = strides_type (nb);
 
 			auto nc_base = extents_type_base(std::max(na.size()-1,2ul),1);
 
-			for(auto i = 0u, j = 0u; i < na.size(); ++i)
+			for(auto i = 0ul, j = 0ul; i < na.size(); ++i)
 				if(i != m)
 					nc_base[j++] = na[i];
 
@@ -108,7 +108,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 
 		auto a = vector_type(na.product(), value_type{2});
 		auto wa = strides_type(na);
-		for(auto m = 0u; m < na.size(); ++m){
+		for(auto m = 0ul; m < na.size(); ++m){
 			auto nb = extents_type { na[m], na[m] };
 			auto b  = vector_type  ( nb.product(), value_type{1} );
 			auto wb = strides_type (nb);
