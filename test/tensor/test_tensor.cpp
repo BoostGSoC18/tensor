@@ -149,6 +149,37 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor, value,  test_types, fix
 }
 
 
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor_layout, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
+	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using other_layout_type = std::conditional_t<std::is_same<ublas::first_order,layout_type>::value, ublas::last_order, ublas::first_order>;
+	using other_tensor_type = ublas::tensor<value_type, other_layout_type>;
+
+
+	for(auto const& e : extents)
+	{
+		auto r = tensor_type{e};
+		other_tensor_type t = r;
+		tensor_type q = t;
+
+		BOOST_CHECK_EQUAL (  t.size() , r.size() );
+		BOOST_CHECK_EQUAL (  t.rank() , r.rank() );
+		BOOST_CHECK ( t.extents() == r.extents() );
+
+		BOOST_CHECK_EQUAL (  q.size() , r.size() );
+		BOOST_CHECK_EQUAL (  q.rank() , r.rank() );
+		BOOST_CHECK ( q.strides() == r.strides() );
+		BOOST_CHECK ( q.extents() == r.extents() );
+
+		for(auto i = 0ul; i < t.size(); ++i)
+			BOOST_CHECK_EQUAL( q[i], r[i]  );
+	}
+}
+
+
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_move_ctor, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
@@ -370,6 +401,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixtu
 		}
 	}
 }
+
+
 
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)

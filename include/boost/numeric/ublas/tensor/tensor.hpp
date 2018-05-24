@@ -20,6 +20,7 @@
 
 #include <initializer_list>
 
+#include "algorithms.hpp"
 #include "expression.hpp"
 #include "expression_evaluation.hpp"
 #include "extents.hpp"
@@ -324,18 +325,22 @@ public:
 	}
 
 
-//	/** @brief Copy Constructor of the tensor template class
-//	 *
-//	 *  @param v tensor to be copied.
-//	 */
-//	BOOST_UBLAS_INLINE
-//	template<class other_layout>
-//	tensor (const tensor<value_type, layout_type> &v)
-//		: tensor_container<self_type> ()
-//		, extents_ (v.extents_)
-//		, strides_ (v.strides_)
-//		, data_    (v.data_   )
-//	{}
+	/** @brief Constructs a tensor with another tensor with a different layout
+	 *
+	 * @param other tensor with a different layout to be copied.
+	 */
+	BOOST_UBLAS_INLINE
+	template<class other_layout>
+	tensor (const tensor<value_type, other_layout> &other)
+		: tensor_expression_type<self_type> ()
+		, extents_ (other.extents())
+		, strides_ (other.extents())
+		, data_    (other.extents().product())
+	{
+		copy(this->rank(), this->extents().data(),
+				 this->data(), this->strides().data(),
+				 other.data(), other.strides().data());
+	}
 
 	/** @brief Constructs a tensor with an tensor expression
 	 *

@@ -93,11 +93,6 @@ public:
 		}
 	}
 
-	template<class other_layout>
-	basic_strides(basic_strides<value_type,other_layout> const& l)
-			: _base(l._base)
-	{}
-
 	basic_strides(basic_strides const& l)
 	    : _base(l._base)
 	{}
@@ -146,6 +141,16 @@ public:
 
 	size_type size() const{
 		return _base.size();
+	}
+
+	template<class other_layout>
+	bool operator == (basic_strides<value_type, other_layout> const& b) const{
+		return b.base() == this->base();
+	}
+
+	template<class other_layout>
+	bool operator != (basic_strides<value_type, other_layout> const& b) const{
+		return b.base() != this->base();
 	}
 
 	bool operator == (basic_strides const& b) const{

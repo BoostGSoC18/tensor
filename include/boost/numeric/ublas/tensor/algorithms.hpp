@@ -113,7 +113,7 @@ void copy(const SizeType p, SizeType const*const n,
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
 								 "Static error in boost::numeric::ublas::copy: Argument types for pointers are not pointer types.");
 	if( p == 0 )
-		throw std::length_error("Error in boost::numeric::ublas::copy: Rank must be greater than zero.");
+		return;
 
 	if(c == nullptr || a == nullptr)
 		throw std::length_error("Error in boost::numeric::ublas::copy: Pointers shall not be null pointers.");
@@ -147,14 +147,11 @@ void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
 								 "Static error in boost::numeric::ublas::trans: Argument types for pointers are not pointer types.");
 
-	if( p == 0 )
-		throw std::length_error("Error in boost::numeric::ublas::trans: Rank must be greater than zero.");
+	if( p < 2)
+		return;
 
 	if(c == nullptr || a == nullptr)
 		throw std::length_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");
-
-	if( p == 1 )
-		return;
 
 	detail::recursive::trans( p-1, na, pi, c, wc, a, wa );
 }
