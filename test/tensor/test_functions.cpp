@@ -146,5 +146,50 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer_prod, value,  test_types, fi
 }
 
 
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_trans, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using tensor_type  = ublas::tensor<value_type,layout_type>;
+
+	auto fak = [](std::size_t p){
+		auto f = 1ul;
+		for(auto i = 1u; i <= p; ++i)
+			f *= i;
+		return f;
+	};
+
+	for(auto const& n : extents)
+	{
+		auto const p = n.size();
+		auto aref = tensor_type(n);
+		auto v    = value_type{};
+		for(auto i = 0u; i < n.product(); ++i, v+=1)
+			aref[i] = v;
+		auto a = tensor_type(n);
+		v = value_type{};
+		for(auto i = 0u; i < n.product(); ++i, v+=1)
+			a[i] = v;
+
+		auto pi = std::vector<std::size_t>(p);
+		std::iota(pi.begin(), pi.end(), 1);
+		auto const pfak = fak(p);
+		for(auto i = 0u; i < pfak; ++i) {
+//			std::cout << "pi = ";
+//			for(auto j = 0u; j < p; ++j)
+//				std::cout << pi[j] << " ";
+//			std::cout << std::endl;
+			auto b = ublas::trans( a, pi );
+			std::next_permutation(pi.begin(), pi.end());
+		}
+//		std::cout << "--------" << std::endl;
+
+
+
+	}
+}
+
+
 BOOST_AUTO_TEST_SUITE_END();
 

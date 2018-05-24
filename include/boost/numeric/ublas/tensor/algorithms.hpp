@@ -140,12 +140,12 @@ void copy(const SizeType p, SizeType const*const n,
 
 template <class PointerOut, class PointerIn, class SizeType>
 void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
-						PointerOut c,      SizeType const*const wc,
-						PointerIn a,       SizeType const*const wa)
+			PointerOut c,      SizeType const*const wc,
+			PointerIn a,       SizeType const*const wa)
 {
 
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
-								 "Static error in boost::numeric::ublas::trans: Argument types for pointers are not pointer types.");
+				   "Static error in boost::numeric::ublas::trans: Argument types for pointers are not pointer types.");
 
 	if( p < 2)
 		return;

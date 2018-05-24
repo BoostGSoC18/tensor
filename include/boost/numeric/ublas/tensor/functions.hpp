@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <vector>
 #include "multiplication.hpp"
+#include "algorithms.hpp"
 
 
 
@@ -217,6 +218,7 @@ auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
 {
 	using tensor_type  = tensor<V,F,A>;
 	using extents_type = typename tensor_type::extents_type;
+	using strides_type = typename tensor_type::strides_type;
 
 	if( a.empty() )
 		throw std::length_error("Error in boost::numeric::ublas::trans: tensor should not be empty.");
@@ -224,32 +226,21 @@ auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
 	auto const   p = a.rank();
 	auto const& na = a.extents();
 
-	auto nc = typename extents_type::base_type(p);
+	auto nc = typename extents_type::base_type (p);
 	for(auto i = 0u; i < p; ++i)
-		nc[i] = na[tau[i]-1];
+		nc[tau[i]-1] = na[i];
+
+//	auto wc = strides_type(extents_type(nc));
 
 	auto c = tensor_type(extents_type(nc));
-
-//	SizeType const p,  SizeType const*const n, SizeType const*const pi,
-//							PointerOut c,      SizeType const*const wc,
-//							const PointerIn a, SizeType const*const wa)
-
-
-	trans(a.rank(), a.extents().data(), tau.data(), c.data(), c.strides().data(), a.data(), a.strides().data() );
+	auto wc_pi = typename strides_type::base_type (p);
+	for(auto i = 0u; i < p; ++i)
+		wc_pi[tau[i]-1] = c.strides().at(i);
 
 
-
-//	auto vc = typename strides_type::base_type(p);
-//	for(size_t i = 0u; i < p; ++i)
-//		vc[tau[i]-1] = wc[i];
-
-
-
-//	auto c = tensor<V,F,A>(extents_type(nc));
-
-//	outer(c.data(), c.rank(), c.extents().data(), c.strides().data(),
-//				a.data(), a.rank(), a.extents().data(), a.strides().data(),
-//				b.data(), b.rank(), b.extents().data(), b.strides().data());
+	copy(a.rank(), a.extents().data(),
+		 c.data(), wc_pi.data(),
+		 a.data(), a.strides().data() );
 
 	return c;
 }

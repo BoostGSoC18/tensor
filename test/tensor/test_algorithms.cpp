@@ -49,7 +49,7 @@ struct fixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy, value,  test_types2, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_copy, value,  test_types2, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = value;
@@ -82,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy, value,  test_types2, fixture
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_trans, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_trans, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
