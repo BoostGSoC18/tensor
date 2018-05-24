@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE ( test_tensor_algorithms,
 
 
 using test_types  = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
-using test_types2 = std::tuple<int,long,float,double,std::complex<float>>; //
+using test_types2 = std::tuple<int,long,float,double,std::complex<float>>;
 
 struct fixture {
 	using extents_type = boost::numeric::ublas::shape;
@@ -74,49 +74,82 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy, value,  test_types2, fixture
 		ublas::copy( n.size(), n.data(), b.data(), wb.data(), a.data(), wa.data() );
 		ublas::copy( n.size(), n.data(), c.data(), wc.data(), b.data(), wb.data() );
 
-		for(auto i = 1ul; i < c.size(); ++i){
+		for(auto i = 1ul; i < c.size(); ++i)
 			BOOST_CHECK_EQUAL( c[i], a[i] );
-		}
+
 	}
 }
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_trans, value,  test_types2, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_trans, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
-	using value_type   = value;
+	using value_type  = typename value::first_type;
+	using layout_type = typename value::second_type;
 	using vector_type  = std::vector<value_type>;
-
+	using strides_type = ublas::strides<layout_type>;
+	using extents_type = ublas::shape;
+	using permutation_type = std::vector<std::size_t>;
 
 
 
 	for(auto const& n : extents) {
 
-		auto pi = std::vector<std::size_t> (n.size());
-		auto a  = vector_type(n.product());
-		auto b  = vector_type(n.product());
-		auto c  = vector_type(n.product());
+		auto p   = n.size();
+		auto s   = n.product();
 
-		auto wa = ublas::strides<ublas::first_order>(n);
-		auto wb = ublas::strides<ublas::last_order> (n);
-		auto wc = ublas::strides<ublas::first_order>(n);
+		auto pi  = permutation_type(p);
+		auto a   = vector_type(s);
+		auto b1  = vector_type(s);
+		auto b2  = vector_type(s);
+		auto c1  = vector_type(s);
+		auto c2  = vector_type(s);
+
+		auto wa = strides_type(n);
 
 		auto v = value_type{};
-		for(auto i = 0ul; i < a.size(); ++i, v+=1){
+		for(auto i = 0ul; i < s; ++i, v+=1)
 			a[i]=v;			
-		}
 
-		for(auto i = 0ul, j = n.size(); i < n.size(); ++i, --j){
+		// so wie last-order.
+		for(auto i = 0ul, j = p; i < n.size(); ++i, --j)
 			pi[i] = j;
-		}
 
-//		ublas::trans( n.size(), n.data(), pi.data(), b.data(), wb.data(), a.data(), wa.data() );
-//		ublas::trans( n.size(), n.data(), pi.data(), c.data(), wc.data(), b.data(), wb.data() );
+		auto nc = typename extents_type::base_type (p);
+		for(auto i = 0u; i < p; ++i)
+			nc[pi[i]-1] = n[i];
 
-//		for(auto i = 1ul; i < c.size(); ++i){
-//			BOOST_CHECK_EQUAL( c[i], a[i] );
-//		}
+		auto wc = strides_type(extents_type(nc));
+		auto wc_pi = typename strides_type::base_type (p);
+		for(auto i = 0u; i < p; ++i)
+			wc_pi[pi[i]-1] = wc[i];
+
+		ublas::copy ( p, n.data(),            c1.data(), wc_pi.data(), a.data(), wa.data());
+		ublas::trans( p, n.data(), pi.data(), c2.data(), wc.data(),    a.data(), wa.data() );
+
+		for(auto i = 0ul; i < s; ++i)
+			BOOST_CHECK_EQUAL( c1[i], c2[i] );
+
+
+		auto nb = typename extents_type::base_type (p);
+		for(auto i = 0u; i < p; ++i)
+			nb[pi[i]-1] = nc[i];
+
+		auto wb = strides_type (extents_type(nb));
+		auto wb_pi = typename strides_type::base_type (p);
+		for(auto i = 0u; i < p; ++i)
+			wb_pi[pi[i]-1] = wb[i];
+
+		ublas::copy ( p, nc.data(),            b1.data(), wb_pi.data(), c1.data(), wc.data());
+		ublas::trans( p, nc.data(), pi.data(), b2.data(), wb.data(),    c1.data(), wc.data() );
+
+		for(auto i = 0ul; i < s; ++i)
+			BOOST_CHECK_EQUAL( b1[i], b2[i] );
+
+		for(auto i = 0ul; i < s; ++i)
+			BOOST_CHECK_EQUAL( a[i], b2[i] );
+
 	}
 }
 

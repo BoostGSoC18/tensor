@@ -37,6 +37,8 @@ class basic_extents;
 template<class __int_type, class __layout>
 class basic_strides
 {
+public:
+
 	using base_type = std::vector<__int_type>;
 
 	static_assert( std::numeric_limits<typename base_type::value_type>::is_integer,
@@ -46,7 +48,6 @@ class basic_strides
 	static_assert(std::is_same<__layout,first_order>::value || std::is_same<__layout,last_order>::value,
 								"Static error in boost::numeric::ublas::basic_strides: layout type must either first or last order");
 
-public:
 
 	using layout_type = __layout;
 	using value_type = typename base_type::value_type;
