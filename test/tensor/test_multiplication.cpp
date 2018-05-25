@@ -21,10 +21,12 @@
 #include <boost/test/unit_test.hpp>
 
 
-BOOST_AUTO_TEST_SUITE ( test_tensor_contraction ) ;
+BOOST_AUTO_TEST_SUITE (test_tensor_contraction) ;
 
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+
+//using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
 
 
 struct fixture {
@@ -34,17 +36,107 @@ struct fixture {
 				extents_type{1,2}, // 2
 				extents_type{2,1}, // 3
 				extents_type{2,3}, // 4
-				extents_type{2,3,1}, // 5
-				extents_type{4,1,3}, // 6
-				extents_type{1,2,3}, // 7
-				extents_type{4,2,3}, // 8
-				extents_type{4,2,3,5} // 9
+				extents_type{5,4}, // 5
+				extents_type{2,3,1}, // 6
+				extents_type{4,1,3}, // 7
+				extents_type{1,2,3}, // 8
+				extents_type{4,2,3}, // 9
+				extents_type{4,2,3,5} // 10
 				}
 	{}
 	std::vector<extents_type> extents;
 };
 
 
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(test_tensor_mtv, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using strides_type = ublas::strides<layout_type>;
+	using vector_type  = std::vector<value_type>;
+	using extents_type = ublas::shape;
+	using extents_type_base = typename extents_type::base_type;
+
+
+	for(auto const& na : extents) {
+
+		if(na.size() > 2)
+			continue;
+
+		auto a = vector_type(na.product(), value_type{2});
+		auto wa = strides_type(na);
+		for(auto m = 0ul; m < na.size(); ++m){
+			auto nb = extents_type {na[m],1};
+			auto wb = strides_type (nb);
+			auto b  = vector_type  (nb.product(), value_type{1} );
+
+			auto nc_base = extents_type_base(std::max(na.size()-1,2ul),1);
+
+			for(auto i = 0ul, j = 0ul; i < na.size(); ++i)
+				if(i != m)
+					nc_base[j++] = na[i];
+
+			auto nc = extents_type (nc_base);
+			auto wc = strides_type (nc);
+			auto c  = vector_type  (nc.product(), value_type{0});
+
+			ublas::detail::recursive::mtv(
+						m,
+						c.data(), nc.data(), wc.data(),
+						a.data(), na.data(), wa.data(),
+						b.data());
+
+
+			for(auto i = 0u; i < c.size(); ++i)
+				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
+
+		}
+	}
+}
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_mtm, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using strides_type = ublas::strides<layout_type>;
+	using vector_type  = std::vector<value_type>;
+	using extents_type = ublas::shape;
+	using extents_type_base = typename extents_type::base_type;
+
+
+	for(auto const& na : extents) {
+
+		if(na.size() != 2)
+			continue;
+
+		auto a  = vector_type  (na.product(), value_type{2});
+		auto wa = strides_type (na);
+
+		auto nb = extents_type {na[1],na[0]};
+		auto wb = strides_type (nb);
+		auto b  = vector_type  (nb.product(), value_type{1} );
+
+		auto nc = extents_type {na[0],nb[1]};
+		auto wc = strides_type (nc);
+		auto c  = vector_type  (nc.product());
+
+
+		ublas::detail::recursive::mtm(
+					c.data(), nc.data(), wc.data(),
+					a.data(), na.data(), wa.data(),
+					b.data(), nb.data(), wb.data());
+
+
+		for(auto i = 0u; i < c.size(); ++i)
+			BOOST_CHECK_EQUAL( c[i] , value_type(na[1]) * a[0] );
+
+
+	}
+}
 
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )

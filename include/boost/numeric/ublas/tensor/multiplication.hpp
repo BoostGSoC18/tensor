@@ -13,6 +13,7 @@
 #ifndef _BOOST_UBLAS_TENSOR_MULTIPLICATION_
 #define _BOOST_UBLAS_TENSOR_MULTIPLICATION_
 
+#include <cassert>
 
 namespace boost {
 namespace numeric {
@@ -21,6 +22,61 @@ namespace detail {
 namespace recursive {
 
 
+/** @brief Computes the tensor-times-tensor product for q contraction modes
+ *
+ * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
+ *
+ *
+ * @note is used in function ttt
+ *
+ * @param k  zero-based recursion level starting with 0
+ * @param r  number of non-contraction indices of A
+ * @param s  number of non-contraction indices of B
+ * @param q  number of contraction indices with q > 0
+ * @param c  pointer to the output tensor C with rank(A)=r+s
+ * @param nc pointer to the extents of tensor C
+ * @param wc pointer to the strides of tensor C
+ * @param a  pointer to the first input tensor with rank(A)=r+q
+ * @param na pointer to the extents of the first input tensor A
+ * @param wa pointer to the strides of the first input tensor A
+ * @param b  pointer to the second input tensor B with rank(B)=s+q
+ * @param nb pointer to the extents of the second input tensor B
+ * @param wb pointer to the strides of the second input tensor B
+*/
+
+template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
+void ttt(SizeType const k,
+				 SizeType const r, SizeType const s, SizeType const q,
+				 SizeType const*const phia, SizeType const*const phib,
+				 PointerOut c, SizeType const*const nc, SizeType const*const wc,
+				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+	{
+			if(k < r)
+			{
+					assert(nc[k] == na[phia[k]-1]);
+					for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
+							ttt_recursion(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+			}
+			else if(k < r+s)
+			{
+					assert(nc[k] == nb[phib[k-r]-1]);
+					for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+							ttt_recursion(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
+			}
+			else if(k < r+s+q-1)
+			{
+					assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
+					for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
+							ttt_recursion(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+			}
+			else
+			{
+					assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
+					for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
+							*c += *a * *b;
+			}
+	}
 
 
 /** @brief Computes the tensor-times-matrix product for the contraction mode m > 0
@@ -30,7 +86,7 @@ namespace recursive {
  * @note is used in function ttm
  *
  * @param m  zero-based contraction mode with 0<m<p
- * @param r  zero-based recursion level starting with r=p-1
+ * @param r  zero-based recursion level starting with p-1
  * @param c  pointer to the output tensor
  * @param nc pointer to the extents of tensor c
  * @param wc pointer to the strides of tensor c
@@ -78,7 +134,7 @@ void ttm(SizeType const m,  SizeType const r,
  * @note is used in function ttm
  *
  * @param m  zero-based contraction mode with 0<m<p
- * @param r  zero-based recursion level starting with r=p-1
+ * @param r  zero-based recursion level starting with p-1
  * @param c  pointer to the output tensor
  * @param nc pointer to the extents of tensor c
  * @param wc pointer to the strides of tensor c
@@ -132,8 +188,8 @@ void ttm0( SizeType const r,
  * @note is used in function ttv
  *
  * @param m  zero-based contraction mode with 0<m<p
- * @param r  zero-based recursion level starting with r=p-1 for tensor A
- * @param q  zero-based recursion level starting with q=p-1 for tensor C
+ * @param r  zero-based recursion level starting with p-1 for tensor A
+ * @param q  zero-based recursion level starting with p-1 for tensor C
  * @param c  pointer to the output tensor
  * @param nc pointer to the extents of tensor c
  * @param wc pointer to the strides of tensor c
@@ -174,7 +230,7 @@ void ttv( SizeType const m, SizeType const r, SizeType const q,
  * @note is used in function ttv
  *
  * @param m  zero-based contraction mode with m=0
- * @param r  zero-based recursion level starting with r=p-1
+ * @param r  zero-based recursion level starting with p-1
  * @param c  pointer to the output tensor
  * @param nc pointer to the extents of tensor c
  * @param wc pointer to the strides of tensor c
@@ -212,13 +268,13 @@ void ttv0(SizeType const r,
  * @note is used in function ttv
  *
  * @param[in]  m  zero-based contraction mode with m=0 or m=1
- * @param[out] c  pointer to the output tensor
- * @param[in]  nc pointer to the extents of tensor c
- * @param[in]  wc pointer to the strides of tensor c
- * @param[in]  a  pointer to the first input tensor
- * @param[in]  na pointer to the extents of input tensor a
- * @param[in]  wa pointer to the strides of input tensor a
- * @param[in]  b  pointer to the second input tensor
+ * @param[out] c  pointer to the output tensor C
+ * @param[in]  nc pointer to the extents of tensor C
+ * @param[in]  wc pointer to the strides of tensor C
+ * @param[in]  a  pointer to the first input tensor A
+ * @param[in]  na pointer to the extents of input tensor A
+ * @param[in]  wa pointer to the strides of input tensor A
+ * @param[in]  b  pointer to the second input tensor B
 */
 template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
 void mtv(SizeType const m,
@@ -237,6 +293,51 @@ void mtv(SizeType const m,
 }
 
 
+/** @brief Computes the matrix-times-matrix product
+ *
+ * Implements C[i1,i3] = sum(A[i1,i2] * B[i2,i3])
+ *
+ * @note is used in function ttm
+ *
+ * @param[out] c  pointer to the output tensor C
+ * @param[in]  nc pointer to the extents of tensor C
+ * @param[in]  wc pointer to the strides of tensor C
+ * @param[in]  a  pointer to the first input tensor A
+ * @param[in]  na pointer to the extents of input tensor A
+ * @param[in]  wa pointer to the strides of input tensor A
+ * @param[in]  b  pointer to the second input tensor B
+ * @param[in]  nb pointer to the extents of input tensor B
+ * @param[in]  wb pointer to the strides of input tensor B
+*/
+template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
+void mtm(PointerOut c, SizeType const*const nc, SizeType const*const wc,
+				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+{
+
+	// C(i,j) = A(i,k) * B(k,j)
+
+	assert(nc[0] == na[0]);
+	assert(nc[1] == nb[1]);
+	assert(na[1] == nb[0]);
+
+	auto cj = c; auto bj = b;
+	for(auto j = 0u; j < nc[1]; cj += wc[1], bj += wb[1], ++j) {
+
+		auto bk = bj; auto ak = a;
+		for(auto k = 0u; k < na[1]; ak += wa[1], bk += wb[0], ++k) {
+
+			auto ci = cj; auto ai = ak;
+			for(auto i = 0u; i < na[0]; ai += wa[0], ci += wc[0], ++i){
+					*ci += *ai * *bk;
+			}
+
+		}
+
+	}
+}
+
+
 
 /** @brief Computes the inner product of two tensors
  *
@@ -244,7 +345,7 @@ void mtv(SizeType const m,
  *
  * @note is used in function inner
  *
- * @param r   zero-based recursion level starting with r=p-1
+ * @param r   zero-based recursion level starting with p-1
  * @param n   pointer to the extents of input or output tensor
  * @param a   pointer to the first input tensor
  * @param wa  pointer to the strides of input tensor a
@@ -296,6 +397,30 @@ void outer_2x2(SizeType const pa,
 	}
 }
 
+/** @brief Computes the outer product of two tensors
+ *
+ * Implements C[i1,...,ip,j1,...,jq] = A[i1,i2,...,ip] * B[j1,j2,...,jq]
+ *
+ * @note called by outer
+ *
+ *
+ * @param[in]  pa number of dimensions (rank) of the first input tensor A with pa > 0
+ *
+ * @param[in]  rc recursion level for C that starts with pc-1
+ * @param[out] c  pointer to the output tensor
+ * @param[in]  nc pointer to the extents of output tensor c
+ * @param[in]  wc pointer to the strides of output tensor c
+ *
+ * @param[in]  ra recursion level for A that starts with pa-1
+ * @param[in]  a  pointer to the first input tensor
+ * @param[in]  na pointer to the extents of the first input tensor a
+ * @param[in]  wa pointer to the strides of the first input tensor a
+ *
+ * @param[in]  rb recursion level for B that starts with pb-1
+ * @param[in]  b  pointer to the second input tensor
+ * @param[in]  nb pointer to the extents of the second input tensor b
+ * @param[in]  wb pointer to the strides of the second input tensor b
+*/
 template<class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
 void outer(SizeType const pa,
 					 SizeType const rc, PointerOut c, SizeType const*const nc, SizeType const*const wc,
@@ -342,8 +467,8 @@ namespace ublas {
 /** @brief Computes the tensor-times-vector product
  *
  * Implements
- *   C[i1,i2,...,im-1,im+1,...,ip] = sum(A[i1,i2,...,im,...,ip] * b[im]) with m>1 and
- *   C[i2,...,ip]                  = sum(A[i1,...,ip]           * b[i1]) with m=1
+ *   C[i1,i2,...,im-1,im+1,...,ip] = sum(A[i1,i2,...,im,...,ip] * b[im]) for m>1 and
+ *   C[i2,...,ip]                  = sum(A[i1,...,ip]           * b[i1]) for m=1
  *
  * @note calls detail::ttv, detail::ttv0 or detail::mtv
  *
@@ -363,7 +488,7 @@ template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
 void ttv(SizeType const m, SizeType const p,
 				 PointerOut c,       SizeType const*const nc, SizeType const*const wc,
 				 const PointerIn1 a, SizeType const*const na, SizeType const*const wa,
-				 const PointerIn2 b, SizeType const*const nb, SizeType const*const /*wb*/)
+				 const PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
 										 "Static error in boost::numeric::ublas::ttv: Argument types for pointers are not pointer types.");
@@ -397,8 +522,12 @@ void ttv(SizeType const m, SizeType const p,
 		detail::recursive::ttv(m-1, p-1, p-2, c, nc, wc,    a, na, wa,   b);
 	else if ((m == 1) && (p > 2))
 		detail::recursive::ttv0(p-1, c, nc, wc,  a, na, wa,   b);
-	else
+	else if( p == 2 )
 		detail::recursive::mtv(m-1, c, nc, wc,  a, na, wa,   b);
+	else /*if( p == 1 )*/{
+		auto v = std::remove_pointer_t<std::remove_cv_t<PointerOut>>{};
+		*c = detail::recursive::inner(0ul, na, a, wa, b, wb, v);
+	}
 
 }
 
@@ -407,8 +536,8 @@ void ttv(SizeType const m, SizeType const p,
 /** @brief Computes the tensor-times-matrix product
  *
  * Implements
- *   C[i1,i2,...,im-1,j,im+1,...,ip] = sum(A[i1,i2,...,im,...,ip] * B[j,im]) with m>1 and
- *   C[j,i2,...,ip]                  = sum(A[i1,i2,...,ip]        * B[j,i1]) with m=1
+ *   C[i1,i2,...,im-1,j,im+1,...,ip] = sum(A[i1,i2,...,im,...,ip] * B[j,im]) for m>1 and
+ *   C[j,i2,...,ip]                  = sum(A[i1,i2,...,ip]        * B[j,i1]) for m=1
  *
  * @note calls detail::ttm or detail::ttm0
  *
@@ -461,11 +590,49 @@ void ttm(SizeType const m, SizeType const p,
 		if(nc[m-1] != nb[0])
 				throw std::length_error("Error in boost::numeric::ublas::ttm: 1nd Extent of B and M-th Extent of C must be the equal.");
 
-		if(m != 1)
-				detail::recursive::ttm(m-1, p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
-		else
-				detail::recursive::ttm0(p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
+		if ( m != 1 )
+			detail::recursive::ttm (m-1, p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
+		else /*if (m == 1 && p >  2)*/
+			detail::recursive::ttm0(     p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
 
+}
+
+
+/** @brief Computes the tensor-times-tensor product
+ *
+ * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
+ *
+ * @note calls detail::recursive::ttt or ttm or ttv or inner or outer
+ *
+ * @param[in]  m  contraction mode with 0 < m <= p
+ * @param[in]  p  number of dimensions (rank) of the first input tensor with p > 0
+ * @param[out] c  pointer to the output tensor with rank p-1
+ * @param[in]  nc pointer to the extents of tensor c
+ * @param[in]  wc pointer to the strides of tensor c
+ * @param[in]  a  pointer to the first input tensor
+ * @param[in]  na pointer to the extents of input tensor a
+ * @param[in]  wa pointer to the strides of input tensor a
+ * @param[in]  b  pointer to the second input tensor
+ * @param[in]  nb pointer to the extents of input tensor b
+ * @param[in]  wb pointer to the strides of input tensor b
+*/
+
+template <class PointerIn1, class PointerIn2, class PointerOut, class SizeType>
+void ttt(SizeType pa, SizeType pb, SizeType q,
+				 SizeType const*const phia, SizeType const*const phib,
+				 PointerOut c, SizeType const*const nc, SizeType const*const wc,
+				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+{
+
+		SizeType const r = pa - q;
+		SizeType const s = pb - q;
+		SizeType const pc = r+s;
+
+		if(q == 0)
+				detail::recursive::outer(pa,  pc-1,c,nc,wc, pa-1,a,na,wa,   pb-1,b,nb,wb);
+		else
+				detail::recursive::ttt(0,q,r,s,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
 }
 
 
@@ -523,7 +690,7 @@ auto inner(const SizeType    p, SizeType const*const n,
  * @param[in]  wb pointer to the strides of the second input tensor b
 */
 template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
-void outer(PointerOut c, SizeType const pc, SizeType const*const nc, SizeType const*const wc,
+void outer(PointerOut c,       SizeType const pc, SizeType const*const nc, SizeType const*const wc,
 					 const PointerIn1 a, SizeType const pa, SizeType const*const na, SizeType const*const wa,
 					 const PointerIn2 b, SizeType const pb, SizeType const*const nb, SizeType const*const wb)
 {

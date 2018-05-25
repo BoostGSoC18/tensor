@@ -19,32 +19,33 @@ int main()
 {
 	using namespace boost::numeric::ublas;
 
-	using format  = column_major;
-	using tensorf = tensor<float,format>;
-	using matrixf = matrix<float,format>;
-	using vectorf = vector<float>;
+	using format_t  = column_major;
+	using value_t   = float; // std::complex<double>;
+	using tensor_t = tensor<value_t,format_t>;
+	using matrix_t = matrix<value_t,format_t>;
+	using vector_t = vector<value_t>;
 
 	// Tensor-Vector-Multiplications - Including Transposition
 	{
 
 		auto n = shape{3,4,2};
-		auto A = tensorf(n,2);
+		auto A = tensor_t(n,2);
 		auto q = 0u; // contraction mode
 
 		// C1(j,k) = T2(j,k) + A(i,j,k)*T1(i);
 		q = 1u;
-		tensorf C1 = matrixf(n[1],n[2],2) + prod(q,A,vectorf(n[q-1],1));
+		tensor_t C1 = matrix_t(n[1],n[2],2) + prod(q,A,vector_t(n[q-1],1));
 
 		// C2(i,k) = A(i,j,k)*T1(j) + 4;
 		q = 2u;
-		tensorf C2 = prod(q,A,vectorf(n[q-1],1)) + 4;
+		tensor_t C2 = prod(q,A,vector_t(n[q-1],1)) + 4;
 
 		// C3() = A(i,j,k)*T1(i)*T2(j)*T2(k);		
-		tensorf C3 = prod(1,prod(1,prod(1,A,vectorf(n[0],1)),vectorf(n[1],1)),vectorf(n[2],1));
+		tensor_t C3 = prod(1,prod(1,prod(1,A,vector_t(n[0],1)),vector_t(n[1],1)),vector_t(n[2],1));
 
 		// C4(i,j) = A(k,i,j)*T1(k) + 4;
 		q = 1u;
-		tensorf C4 = prod(q, trans(A,{2,3,1}),vectorf(n[2],1)) + 4;
+		tensor_t C4 = prod(q, trans(A,{2,3,1}),vector_t(n[2],1)) + 4;
 
 
 		// formatted output
@@ -78,28 +79,28 @@ int main()
 	{
 
 		auto n = shape{3,4,2};
-		auto A = tensorf(n,2);
+		auto A = tensor_t(n,2);
 		auto m = 5u;
 		auto q = 0u; // contraction mode
 
 		// C1(l,j,k) = T2(l,j,k) + A(i,j,k)*T1(l,i);
 		q = 1u;
-		tensorf C1 = tensorf(shape{m,n[1],n[2]},2) + prod(q,A,matrixf(m,n[q-1],1));
+		tensor_t C1 = tensor_t(shape{m,n[1],n[2]},2) + prod(q,A,matrix_t(m,n[q-1],1));
 
 		// C2(i,l,k) = A(i,j,k)*T1(l,j) + 4;
 		q = 2u;
-		tensorf C2 = prod(q,A,matrixf(m,n[q-1],1)) + 4;
+		tensor_t C2 = prod(q,A,matrix_t(m,n[q-1],1)) + 4;
 
 		// C3(i,l1,l2) = A(i,j,k)*T1(l1,j)*T2(l2,k);
 		q = 3u;
-		tensorf C3 = prod(q,prod(q-1,A,matrixf(m+1,n[q-2],1)),matrixf(m+2,n[q-1],1));
+		tensor_t C3 = prod(q,prod(q-1,A,matrix_t(m+1,n[q-2],1)),matrix_t(m+2,n[q-1],1));
 
 		// C4(i,l1,l2) = A(i,j,k)*T2(l2,k)*T1(l1,j);
-		tensorf C4 = prod(q-1,prod(q,A,matrixf(m+2,n[q-1],1)),matrixf(m+1,n[q-2],1));
+		tensor_t C4 = prod(q-1,prod(q,A,matrix_t(m+2,n[q-1],1)),matrix_t(m+1,n[q-2],1));
 
 		// C5(i,k,l) = A(i,k,j)*T1(l,j) + 4;
 		q = 3u;
-		tensorf C5 = prod(q,trans(A,{1,3,2}),matrixf(m,n[1],1)) + 4;
+		tensor_t C5 = prod(q,trans(A,{1,3,2}),matrix_t(m,n[1],1)) + 4;
 
 		// formatted output
 		std::cout << "% --------------------------- " << std::endl;
