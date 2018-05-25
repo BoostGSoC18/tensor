@@ -15,6 +15,7 @@
 
 
 #include <stdexcept>
+#include <complex>
 
 namespace boost {
 namespace numeric {
@@ -69,13 +70,46 @@ void trans(SizeType const r,   SizeType const*const n, SizeType const*const pi,
 					 PointerOut c, SizeType const*const wc,
 					 PointerIn a,  SizeType const*const wa)
 {
+	if(r > 0){
+		for(auto d = 0u; d < n[r]; c += wc[pi[r]-1], a += wa[r], ++d){
+			trans(r-1, n, pi, c, wc, a, wa);
+		}
+	}
+	else{
+		for(auto d = 0u; d < n[0]; c += wc[pi[0]-1], a += wa[0], ++d){
+			*c = *a;
+		}
+	}
+}
+
+
+/** @brief Transposes a tensor
+ *
+ * Implements C[tau[i1],tau[i2],...,tau[ip]] = A[i1,i2,...,ip]
+ *
+ * @note is used in function trans
+ *
+ * @param[in]  r zero-based recursion level starting with r=p-1
+ * @param[in] na pointer to the extents of input tensor a of length p
+ * @param[in] pi pointer to a one-based permutation tuple of length p
+ * @param[out] c pointer to the output tensor
+ * @param[in] wc pointer to the strides of output tensor c
+ * @param[in]  a pointer to the input tensor
+ * @param[in] wa pointer to the strides of input tensor a
+*/
+template <class	ValueType, class SizeType>
+void trans(SizeType const r, SizeType const*const n, SizeType const*const pi,
+					 std::complex<ValueType>* c, SizeType const*const wc,
+					 std::complex<ValueType>* a,  SizeType const*const wa)
+{
 	if(r > 0)
 		for(auto d = 0u; d < n[r]; c += wc[pi[r]-1], a += wa[r], ++d)
 			trans(r-1, n, pi, c, wc, a, wa);
 	else
 		for(auto d = 0u; d < n[0]; c += wc[pi[0]-1], a += wa[0], ++d)
-			*c = *a;
+			*c = std::conj(*a);
 }
+
 
 } // recursive
 } // detail
@@ -146,6 +180,40 @@ void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
 
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
 				   "Static error in boost::numeric::ublas::trans: Argument types for pointers are not pointer types.");
+
+	if( p < 2)
+		return;
+
+	if(c == nullptr || a == nullptr)
+		throw std::length_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");
+
+	detail::recursive::trans( p-1, na, pi, c, wc, a, wa );
+}
+
+
+/** @brief Transposes a tensor
+ *
+ * Implements C[tau[i1],tau[i2],...,tau[ip]] = A[i1,i2,...,ip]
+ *
+ * @note is used in function trans
+ *
+ * @param[in]  p rank of input and output tensor
+ * @param[in] na pointer to the extents of the input tensor a of length p
+ * @param[in] pi pointer to a one-based permutation tuple of length p
+ * @param[out] c pointer to the output tensor
+ * @param[in] wc pointer to the strides of output tensor c
+ * @param[in]  a pointer to the input tensor
+ * @param[in] wa pointer to the strides of input tensor a
+*/
+
+template <class ValueType, class SizeType>
+void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
+			std::complex<ValueType>* c,      SizeType const*const wc,
+			std::complex<ValueType>* a,       SizeType const*const wa)
+{
+
+//	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
+//					 "Static error in boost::numeric::ublas::trans: Argument types for pointers are not pointer types.");
 
 	if( p < 2)
 		return;

@@ -10,15 +10,15 @@
 //
 
 
-#ifndef _BOOST_UBLAS_TENSOR_EXTENTS_
-#define _BOOST_UBLAS_TENSOR_EXTENTS_
+#ifndef BOOST_NUMERIC_UBLAS_TENSOR_EXTENTS_HPP
+#define BOOST_NUMERIC_UBLAS_TENSOR_EXTENTS_HPP
 
-#include <vector>
+#include <algorithm>
+#include <initializer_list>
 #include <limits>
 #include <numeric>
 #include <stdexcept>
-#include <initializer_list>
-#include <algorithm>
+#include <vector>
 
 #include <cassert>
 
@@ -48,22 +48,23 @@ public:
 
 	explicit basic_extents(base_type const& b)
 		: _base(b)
-		//: _base(eliminate_last_ones(b))
 	{
-		if (!this->valid())
+		if (!this->valid()){
 			throw std::length_error("Error in basic_extents::basic_extents() : shape tuple is not a valid permutation: has zero elements.");
+		}
 	}
 
 	explicit basic_extents(base_type && b)
-		: _base(std::move(b)) //_base(std::move(eliminate_last_ones(std::move(b))))
+		: _base(std::move(b))
 	{
-		if (!this->valid())
+		if (!this->valid()){
 			throw std::length_error("Error in basic_extents::basic_extents() : shape tuple is not a valid permutation: has zero elements.");
+		}
 	}
 
 
-	explicit basic_extents(std::initializer_list<value_type> l)
-	    : basic_extents( base_type(std::move(l)) )
+	basic_extents(std::initializer_list<value_type> l)
+			: basic_extents( base_type(std::move(l)) )
 	{
 	}
 
@@ -78,7 +79,7 @@ public:
 	{
 	}
 
-	basic_extents(basic_extents && l )
+	basic_extents(basic_extents && l ) noexcept
 	    : _base(std::move(l._base))
 	{
 	}
@@ -106,11 +107,13 @@ public:
 
 	bool is_vector() const
 	{
-		if(_base.size() == 0)
+		if(_base.size() == 0){
 			return false;
+		}
 
-		if(_base.size() == 1)
+		if(_base.size() == 1){
 			return _base.at(0) > 1;
+		}
 
 		auto greater_one = [](const_reference a){ return a >  1;};
 		auto equal_one   = [](const_reference a){ return a == 1;};
@@ -122,8 +125,9 @@ public:
 
 	bool is_matrix() const
 	{
-		if(_base.size() < 2)
+		if(_base.size() < 2){
 			return false;
+		}
 
 		auto greater_one = [](const_reference a){ return a >  1;};
 		auto equal_one   = [](const_reference a){ return a == 1;};
@@ -134,8 +138,9 @@ public:
 
 	bool is_tensor() const
 	{
-		if(_base.size() < 3)
+		if(_base.size() < 3){
 			return false;
+		}
 
 		auto greater_one = [](const_reference a){ return a > 1;};
 
@@ -197,17 +202,20 @@ public:
 
 	size_type product() const
 	{
-		if(_base.empty())
+		if(_base.empty()){
 			return 0;
-		else
-			return std::accumulate(_base.begin(), _base.end(), 1ul, std::multiplies<size_t>());
+		}
+
+		return std::accumulate(_base.begin(), _base.end(), 1ul, std::multiplies<>());
+
 	}
 
 
 	basic_extents squeeze() const
 	{
-		if(this->empty() || this->size() == 2)
+		if(this->empty() || this->size() == 2){
 			return *this;
+		}
 
 		basic_extents newb;
 		auto not_equal_one = [](const_reference a){ return a != 1;};
@@ -274,11 +282,13 @@ private:
 	static base_type
 	eliminate_last_ones(base_type const& bb)
 	{
-		if(bb.size() == 2 || bb.size() == 0)
+		if(bb.size() == 2 || bb.size() == 0){
 			return bb;
+		}
 
-		if(bb.size() == 1)
+		if(bb.size() == 1){
 			return base_type{bb[0],bb[0]};
+		}
 
 		auto not_equal_one   = [](const_reference a){ return a != 1;};
 		auto rit             = std::find_if(bb.rbegin(), bb.rend()-2, not_equal_one);
@@ -290,11 +300,13 @@ private:
 	static base_type
 	eliminate_last_ones(base_type && bb)
 	{
-		if(bb.size() == 2 || bb.size() == 0)
+		if(bb.size() == 2 || bb.size() == 0){
 			return base_type(bb);
+		}
 
-		if(bb.size() == 1)
+		if(bb.size() == 1){
 			return base_type{bb[0],bb[0]};
+		}
 
 		auto not_equal_one   = [](const_reference a){ return a != 1;};
 		auto rit             = std::find_if(bb.rbegin(), bb.rend()-2, not_equal_one);
@@ -309,7 +321,8 @@ private:
 
 using shape = basic_extents<std::size_t>;
 
-}}}
-
+} // namespace ublas
+} // namespace numeric
+} // namespace boost
 
 #endif

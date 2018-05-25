@@ -218,7 +218,7 @@ auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
 {
 	using tensor_type  = tensor<V,F,A>;
 	using extents_type = typename tensor_type::extents_type;
-	using strides_type = typename tensor_type::strides_type;
+//	using strides_type = typename tensor_type::strides_type;
 
 	if( a.empty() )
 		throw std::length_error("Error in boost::numeric::ublas::trans: tensor should not be empty.");
@@ -228,19 +228,27 @@ auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
 
 	auto nc = typename extents_type::base_type (p);
 	for(auto i = 0u; i < p; ++i)
-		nc[tau[i]-1] = na[i];
+		nc.at(tau.at(i)-1) = na.at(i);
 
 //	auto wc = strides_type(extents_type(nc));
 
 	auto c = tensor_type(extents_type(nc));
-	auto wc_pi = typename strides_type::base_type (p);
-	for(auto i = 0u; i < p; ++i)
-		wc_pi[tau[i]-1] = c.strides().at(i);
 
 
-	copy(a.rank(), a.extents().data(),
-		 c.data(), wc_pi.data(),
-		 a.data(), a.strides().data() );
+	trans( a.rank(), a.extents().data(), tau.data(),
+				 c.data(), c.strides().data(),
+				 a.data(), a.strides().data());
+
+
+//	auto wc_pi = typename strides_type::base_type (p);
+//	for(auto i = 0u; i < p; ++i)
+//		wc_pi.at(tau.at(i)-1) = c.strides().at(i);
+
+
+	//copy(a.rank(),
+	//		 a.extents().data(),
+	//		 c.data(), wc_pi.data(),
+	//		 a.data(), a.strides().data() );
 
 	return c;
 }
