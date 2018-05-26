@@ -9,13 +9,14 @@ branches:
   only:
     - master
     - develop
+    - tensor
     - doc
     - ci
 
 matrix:
   include:
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++11
+      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++17
       addons:
         apt:
           packages:
@@ -24,7 +25,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: osx
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++17
 
 
 install:
