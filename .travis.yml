@@ -17,16 +17,18 @@ matrix:
   include:
     - os: linux
       env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++17
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
 
-    - os: osx
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++17
+addons:
+  apt:
+    packages:
+      - g++-7
+    sources:
+      - ubuntu-toolchain-r-test
 
+before_install:
+  - cmake --version;
+  - ${CC} --version;
+  - ${CXX} --version;
 
 install:
   - cd ..
