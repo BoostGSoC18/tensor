@@ -11,10 +11,10 @@
 BOOST_AUTO_TEST_SUITE ( test_extents );
 
 
+//*boost::unit_test::label("extents")
+//*boost::unit_test::label("constructor")
 
-BOOST_AUTO_TEST_CASE(test_extents_ctor,
-										 *boost::unit_test::label("extents")
-										 *boost::unit_test::label("constructor"))
+BOOST_AUTO_TEST_CASE(test_extents_ctor)
 {
 	using namespace boost::numeric;
 	using extents = ublas::basic_extents<unsigned>;

@@ -15,7 +15,9 @@
 #include <boost/numeric/ublas/tensor/strides.hpp>
 #include <boost/numeric/ublas/tensor/extents.hpp>
 
-BOOST_AUTO_TEST_SUITE(test_strides, * boost::unit_test::depends_on("test_extents"));
+//BOOST_AUTO_TEST_SUITE(test_strides, * boost::unit_test::depends_on("test_extents"));
+
+BOOST_AUTO_TEST_SUITE(test_strides);
 
 using test_types = std::tuple<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 

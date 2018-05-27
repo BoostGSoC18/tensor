@@ -51,7 +51,8 @@ project
     : requirements
        <define>BOOST_UBLAS_NO_EXCEPTIONS
        <toolset>vacpp:<define>"BOOST_UBLAS_NO_ELEMENT_PROXIES"
-       <toolset>gcc:<cxxflags>"-Wall -pedantic -Wextra"
+       <toolset>gcc:<cxxflags>"-Wall -pedantic -Wextra -std=c++17"
+       <toolset>gcc:<cxxflags>"-Wno-unknown-pragmas"
        <toolset>msvc:<cxxflags>"/W4" # == all
        #  The define of macros below prevent warnings about the checked versions of SCL and CRT libraries.
        #  Most Boost code does not need these versions (as they are markedly slower).
@@ -67,6 +68,8 @@ project
        #<toolset>msvc:<cxxflags>/wd4127 # expression is constant.
        #<toolset>msvc:<cxxflags>/wd4701 # unreachable code - needed for lexical cast - temporary for Boost 1.40 & earlier.
     ;
+
+
 
 
 test-suite numeric/uBLAS
@@ -250,3 +253,5 @@ test-suite numeric/uBLAS
       [ run test_matrix_vector.cpp
       ]
     ;
+
+build-project tensor ;

@@ -18,8 +18,9 @@
 
 #include "utility.hpp"
 
-BOOST_AUTO_TEST_SUITE ( test_tensor_matrix_interoperability, * boost::unit_test::depends_on("test_tensor") ) ;
+// BOOST_AUTO_TEST_SUITE ( test_tensor_matrix_interoperability, * boost::unit_test::depends_on("test_tensor") ) ;
 
+BOOST_AUTO_TEST_SUITE ( test_tensor_matrix_interoperability ) ;
 
 using test_types = zip<int,long,float,double>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
