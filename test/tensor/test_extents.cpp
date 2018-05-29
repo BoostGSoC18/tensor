@@ -410,5 +410,40 @@ BOOST_FIXTURE_TEST_CASE(test_extents_valid, fixture, *boost::unit_test::label("e
 
 }
 
+
+BOOST_FIXTURE_TEST_CASE(test_extents_product, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("product"))
+{
+
+	auto e0  = extents[ 0].product(); // {}
+	auto e1  = extents[ 1].product(); // {1,1}
+	auto e2  = extents[ 2].product(); // {1,2}
+	auto e3  = extents[ 3].product(); // {2,1}
+	auto e4  = extents[ 4].product(); // {2,3}
+	auto e5  = extents[ 5].product(); // {2,3,1}
+	auto e6  = extents[ 6].product(); // {1,2,3}
+	auto e7  = extents[ 7].product(); // {1,1,2,3}
+	auto e8  = extents[ 8].product(); // {1,2,3,1,1}
+	auto e9  = extents[ 9].product(); // {4,2,3}
+	auto e10 = extents[10].product(); // {4,2,1,3}
+	auto e11 = extents[11].product(); // {4,2,1,3,1}
+	auto e12 = extents[12].product(); // {1,4,2,1,3,1}
+
+	BOOST_CHECK_EQUAL( e0 ,  0 );
+	BOOST_CHECK_EQUAL( e1 ,  1 );
+	BOOST_CHECK_EQUAL( e2 ,  2 );
+	BOOST_CHECK_EQUAL( e3 ,  2 );
+	BOOST_CHECK_EQUAL( e4 ,  6 );
+	BOOST_CHECK_EQUAL( e5 ,  6 );
+	BOOST_CHECK_EQUAL( e6 ,  6 );
+	BOOST_CHECK_EQUAL( e7 ,  6 );
+	BOOST_CHECK_EQUAL( e8 ,  6 );
+	BOOST_CHECK_EQUAL( e9 , 24 );
+	BOOST_CHECK_EQUAL( e10, 24 );
+	BOOST_CHECK_EQUAL( e11, 24 );
+	BOOST_CHECK_EQUAL( e12, 24 );
+
+
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
