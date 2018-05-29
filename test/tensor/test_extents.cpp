@@ -349,5 +349,47 @@ BOOST_FIXTURE_TEST_CASE(test_extents_is, fixture, *boost::unit_test::label("exte
 	BOOST_CHECK(   e12.is_tensor() );
 }
 
+
+BOOST_FIXTURE_TEST_CASE(test_extents_squeeze, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("squeeze"))
+{
+	using namespace boost::numeric;
+
+
+	BOOST_REQUIRE_EQUAL(extents.size(),13);
+
+	auto e0  = extents[ 0].squeeze(); // {}
+	auto e1  = extents[ 1].squeeze(); // {1,1}
+	auto e2  = extents[ 2].squeeze(); // {1,2}
+	auto e3  = extents[ 3].squeeze(); // {2,1}
+
+	auto e4  = extents[ 4].squeeze(); // {2,3}
+	auto e5  = extents[ 5].squeeze(); // {2,3}
+	auto e6  = extents[ 6].squeeze(); // {2,3}
+	auto e7  = extents[ 7].squeeze(); // {2,3}
+	auto e8  = extents[ 8].squeeze(); // {2,3}
+
+	auto e9  = extents[ 9].squeeze(); // {4,2,3}
+	auto e10 = extents[10].squeeze(); // {4,2,3}
+	auto e11 = extents[11].squeeze(); // {4,2,3}
+	auto e12 = extents[12].squeeze(); // {4,2,3}
+
+	BOOST_CHECK( (e0  == extents_type{}   ) );
+	BOOST_CHECK( (e1  == extents_type{1,1}) );
+	BOOST_CHECK( (e2  == extents_type{1,2}) );
+	BOOST_CHECK( (e3  == extents_type{2,1}) );
+
+	BOOST_CHECK( (e4  == extents_type{2,3}) );
+	BOOST_CHECK( (e5  == extents_type{2,3}) );
+	BOOST_CHECK( (e6  == extents_type{2,3}) );
+	BOOST_CHECK( (e7  == extents_type{2,3}) );
+	BOOST_CHECK( (e8  == extents_type{2,3}) );
+
+	BOOST_CHECK( (e9  == extents_type{4,2,3}) );
+	BOOST_CHECK( (e10 == extents_type{4,2,3}) );
+	BOOST_CHECK( (e11 == extents_type{4,2,3}) );
+	BOOST_CHECK( (e12 == extents_type{4,2,3}) );
+
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 

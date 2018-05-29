@@ -205,50 +205,40 @@ public:
 		return std::any_of(_base.begin()+2, _base.end(), greater_one);
 	}
 
-
-	const_reference back() const
-	{
-		return _base.back();
-	}
-	const_reference front() const
-	{
-		return _base.front();
-	}
-
 	const_pointer data() const
 	{
-		return &_base[0];
+		return this->_base.data();
 	}
 
 	const_reference operator[] (size_type p) const
 	{
-		return _base[p];
+		return this->_base[p];
 	}
 
 	const_reference at (size_type p) const
 	{
-		return _base.at(p);
+		return this->_base.at(p);
 	}
 
 	reference operator[] (size_type p)
 	{
-		return _base[p];
+		return this->_base[p];
 	}
 
 	reference at (size_type p)
 	{
-		return _base.at(p);
+		return this->_base.at(p);
 	}
 
 
 	bool empty() const
 	{
-		return _base.empty();
+		return this->_base.empty();
 	}
 
 	size_type size() const
 	{
-		return _base.size();
+		return this->_base.size();
 	}
 
 	/** @brief Returns true if size > 1 and all elements > 0 */
@@ -287,10 +277,10 @@ public:
 			return *this;
 		}
 
-		basic_extents newb;
-		auto not_equal_one = [](const_reference a){ return a != 1;};
-		std::remove_copy_if(this->_base.begin(), this->_base.end(), std::insert_iterator<base_type>(newb._base,newb._base.begin()),not_equal_one);
-		return newb;
+		auto new_extent = basic_extents{};
+		auto insert_iter = std::back_insert_iterator(new_extent._base);
+		std::remove_copy(this->_base.begin(), this->_base.end(), insert_iter ,value_type{1});
+		return new_extent;
 
 	}
 
@@ -307,26 +297,6 @@ public:
 	bool operator != (basic_extents const& b) const
 	{
 		return _base != b._base;
-	}
-
-	bool operator == (basic_extents && b)
-	{
-		return _base == b._base;
-	}
-
-	bool operator != (basic_extents && b)
-	{
-		return _base != b._base;
-	}
-
-	bool operator == (base_type const& b) const
-	{
-		return _base == b;
-	}
-
-	bool operator != (base_type const& b) const
-	{
-		return _base != b;
 	}
 
 	const_iterator
