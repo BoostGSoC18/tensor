@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_mtm, value,  test_types, fixture )
 	using strides_type = ublas::strides<layout_type>;
 	using vector_type  = std::vector<value_type>;
 	using extents_type = ublas::shape;
-	using extents_type_base = typename extents_type::base_type;
+//	using extents_type_base = typename extents_type::base_type;
 
 
 	for(auto const& na : extents) {

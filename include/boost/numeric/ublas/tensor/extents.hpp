@@ -24,14 +24,20 @@
 
 namespace boost { namespace numeric { namespace ublas {
 
-template<class __int_type>
+
+/** @brief Template class for storing tensor extents with runtime variable size.
+ *
+ * Proxy template class of the std::vector<int_type>.
+ *
+ */
+template<class int_type>
 class basic_extents
 {
-	static_assert( std::numeric_limits<typename std::vector<__int_type>::value_type>::is_integer, "Static error in basic_layout: type must be of type integer.");
-	static_assert(!std::numeric_limits<typename std::vector<__int_type>::value_type>::is_signed,  "Static error in basic_layout: type must be of type unsigned integer.");
+	static_assert( std::numeric_limits<typename std::vector<int_type>::value_type>::is_integer, "Static error in basic_layout: type must be of type integer.");
+	static_assert(!std::numeric_limits<typename std::vector<int_type>::value_type>::is_signed,  "Static error in basic_layout: type must be of type unsigned integer.");
 
 public:
-	using base_type = std::vector<__int_type>;
+	using base_type = std::vector<int_type>;
 	using value_type = typename base_type::value_type;
 	using const_reference = typename base_type::const_reference;
 	using reference = typename base_type::reference;
@@ -40,12 +46,23 @@ public:
 	using const_iterator = typename base_type::const_iterator;
 
 
-
+	/** @brief Default constructs basic_extents
+	 *
+	 * @code auto ex = basic_extents<unsigned>{};
+	 */
 	constexpr explicit basic_extents()
 		: _base{}
 	{
 	}
 
+	/** @brief Copy constructs basic_extents from a one-dimensional container
+	 *
+	 * @code auto ex = basic_extents<unsigned>(  std::vector<unsigned>(3u,3u) );
+	 *
+	 * @note checks if size > 1 and all elements > 0
+	 *
+	 * @param b one-dimensional std::vector<int_type> container
+	 */
 	explicit basic_extents(base_type const& b)
 		: _base(b)
 	{
@@ -54,6 +71,14 @@ public:
 		}
 	}
 
+	/** @brief Move constructs basic_extents from a one-dimensional container
+	 *
+	 * @code auto ex = basic_extents<unsigned>(  std::vector<unsigned>(3u,3u) );
+	 *
+	 * @note checks if size > 1 and all elements > 0
+	 *
+	 * @param b one-dimensional container of type std::vector<int_type>
+	 */
 	explicit basic_extents(base_type && b)
 		: _base(std::move(b))
 	{
@@ -62,23 +87,40 @@ public:
 		}
 	}
 
-
+	/** @brief Constructs basic_extents from an initializer list
+	 *
+	 * @code auto ex = basic_extents<unsigned>{3,2,4};
+	 *
+	 * @note checks if size > 1 and all elements > 0
+	 *
+	 * @param l one-dimensional list of type std::initializer<int_type>
+	 */
 	basic_extents(std::initializer_list<value_type> l)
 			: basic_extents( base_type(std::move(l)) )
 	{
 	}
 
-	template<class InputIt>
-	basic_extents(InputIt first, InputIt last)
+	/** @brief Constructs basic_extents from a range specified by two iterators
+	 *
+	 * @code auto ex = basic_extents<unsigned>(a.begin(), a.end());
+	 *
+	 * @note checks if size > 1 and all elements > 0
+	 *
+	 * @param first iterator pointing to the first element
+	 * @param last iterator pointing to the next position after the last element
+	 */
+	basic_extents(const_iterator first, const_iterator last)
 	    : basic_extents ( base_type( first,last ) )
-	{		
+	{
 	}
 
+	/** @brief Copy constructs basic_extents */
 	basic_extents(basic_extents const& l )
 	    : _base(l._base)
 	{
 	}
 
+	/** @brief Move constructs basic_extents */
 	basic_extents(basic_extents && l ) noexcept
 	    : _base(std::move(l._base))
 	{
@@ -86,7 +128,7 @@ public:
 
 	~basic_extents() = default;
 
-	basic_extents& operator=(basic_extents other)
+	basic_extents& operator=(basic_extents other) noexcept
 	{
 		swap (*this, other);
 		return *this;
@@ -98,6 +140,10 @@ public:
 
 
 
+	/** @brief Returns true if this has a scalar shape
+	 *
+	 * @returns true if (1,1,[1,...,1])
+	*/
 	bool is_scalar() const
 	{
 		return _base.size() != 0 &&
@@ -105,6 +151,10 @@ public:
 		                   [](const_reference a){ return a == 1;});
 	}
 
+	/** @brief Returns true if this has a vector shape
+	 *
+	 * @returns true if (1,n,[1,...,1]) or (n,1,[1,...,1]) with n > 1
+	*/
 	bool is_vector() const
 	{
 		if(_base.size() == 0){
@@ -123,6 +173,10 @@ public:
 		        std::all_of(_base.begin()+2, _base.end(),     equal_one);
 	}
 
+	/** @brief Returns true if this has a matrix shape
+	 *
+	 * @returns true if (m,n,[1,...,1]) with m > 1 and n > 1
+	*/
 	bool is_matrix() const
 	{
 		if(_base.size() < 2){
@@ -136,6 +190,10 @@ public:
 		        std::all_of(_base.begin()+2, _base.end(),     equal_one  );
 	}
 
+	/** @brief Returns true if this is has a tensor shape
+	 *
+	 * @returns true if !empty() && !is_scalar() && !is_vector() && !is_matrix()
+	*/
 	bool is_tensor() const
 	{
 		if(_base.size() < 3){
@@ -193,13 +251,14 @@ public:
 		return _base.size();
 	}
 
-
+	/** @brief Returns true if size > 1 and all elements > 0 */
 	bool valid() const
 	{
 		return this->size() > 1 && std::none_of(_base.begin(), _base.end(),
 																						[](const_reference a){ return a == value_type(0); });
 	}
 
+	/** @brief Returns the number of elements a tensor holds with this */
 	size_type product() const
 	{
 		if(_base.empty()){
@@ -211,9 +270,20 @@ public:
 	}
 
 
+	/** @brief Eliminates singleton dimensions when size > 2
+	 *
+	 * squeeze {  1,1} -> {  1,1}
+	 * squeeze {  2,1} -> {  2,1}
+	 * squeeze {  1,2} -> {  1,2}
+	 *
+	 * squeeze {1,2,3} -> {  2,3}
+	 * squeeze {2,1,3} -> {  2,3}
+	 * squeeze {1,3,1} -> {  3,1}
+	 *
+	*/
 	basic_extents squeeze() const
 	{
-		if(this->empty() || this->size() == 2){
+		if(this->size() <= 2){
 			return *this;
 		}
 
@@ -273,47 +343,7 @@ public:
 
 	base_type const& base() const { return _base; }
 
-//	template<class __other_allocator_type>
-//	friend basic_extents<value_type,__other_allocator_type>
-//	basic_layout::operator()(basic_extents<value_type, __other_allocator_type> const&);
-
 private:
-
-	static base_type
-	eliminate_last_ones(base_type const& bb)
-	{
-		if(bb.size() == 2 || bb.size() == 0){
-			return bb;
-		}
-
-		if(bb.size() == 1){
-			return base_type{bb[0],bb[0]};
-		}
-
-		auto not_equal_one   = [](const_reference a){ return a != 1;};
-		auto rit             = std::find_if(bb.rbegin(), bb.rend()-2, not_equal_one);
-		auto  it             = typename base_type::const_iterator((rit).base());
-		assert((it - bb.begin()) >= 2);
-		return base_type(bb.begin(),it);
-	}
-
-	static base_type
-	eliminate_last_ones(base_type && bb)
-	{
-		if(bb.size() == 2 || bb.size() == 0){
-			return base_type(bb);
-		}
-
-		if(bb.size() == 1){
-			return base_type{bb[0],bb[0]};
-		}
-
-		auto not_equal_one   = [](const_reference a){ return a != 1;};
-		auto rit             = std::find_if(bb.rbegin(), bb.rend()-2, not_equal_one);
-		auto  it             = typename base_type::iterator((rit).base());
-		assert((it - bb.begin()) >= 2);
-		return base_type(bb.begin(),it);
-	}
 
 	base_type _base;
 
