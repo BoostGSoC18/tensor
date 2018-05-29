@@ -352,9 +352,6 @@ BOOST_FIXTURE_TEST_CASE(test_extents_is, fixture, *boost::unit_test::label("exte
 
 BOOST_FIXTURE_TEST_CASE(test_extents_squeeze, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("squeeze"))
 {
-	using namespace boost::numeric;
-
-
 	BOOST_REQUIRE_EQUAL(extents.size(),13);
 
 	auto e0  = extents[ 0].squeeze(); // {}
@@ -388,6 +385,28 @@ BOOST_FIXTURE_TEST_CASE(test_extents_squeeze, fixture, *boost::unit_test::label(
 	BOOST_CHECK( (e10 == extents_type{4,2,3}) );
 	BOOST_CHECK( (e11 == extents_type{4,2,3}) );
 	BOOST_CHECK( (e12 == extents_type{4,2,3}) );
+
+}
+
+
+BOOST_FIXTURE_TEST_CASE(test_extents_valid, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("valid"))
+{
+
+	using namespace boost::numeric;
+
+	BOOST_REQUIRE_EQUAL(extents.size(),13);
+
+	for(auto const& e : extents){
+		if(e.empty())
+			BOOST_CHECK_EQUAL(e.valid(),false);
+		else
+			BOOST_CHECK_EQUAL(e.valid(), true );
+	}
+
+	BOOST_CHECK_EQUAL( extents_type{}.valid() , false  );
+
+	BOOST_CHECK_THROW( ublas::basic_extents<unsigned>({0,1}), std::length_error  );
+	BOOST_CHECK_THROW( ublas::basic_extents<unsigned>({1,0,1}), std::length_error  );
 
 }
 
