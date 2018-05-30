@@ -23,6 +23,7 @@ Branch          | Travis | Appveyor | codecov.io | Docs |
 | Name        | Purpose                        |
 | ----------- | ------------------------------ |
 | `doc`       | documentation                  |
+| `examples`  | example files                  |
 | `include`   | headers                        |
 | `test`      | unit tests                     |
 
