@@ -23,8 +23,7 @@
 
 #include <cassert>
 
-// in order to include column and row major
-#include <boost/numeric/ublas/functional.hpp> 
+#include <boost/numeric/ublas/functional.hpp>
 
 namespace boost { namespace numeric { namespace ublas {
 
@@ -34,6 +33,12 @@ using last_order = row_major;
 template<class T>
 class basic_extents;
 
+
+/** @brief Template class for storing tensor strides for iteration with runtime variable size.
+ *
+ * Proxy template class of std::vector<int_type>.
+ *
+ */
 template<class __int_type, class __layout>
 class basic_strides
 {
@@ -58,11 +63,20 @@ public:
 	using const_iterator = typename base_type::const_iterator;
 
 
+	/** @brief Default constructs basic_strides
+	 *
+	 * @code auto ex = basic_strides<unsigned>{};
+	 */
 	constexpr explicit basic_strides()
 		: _base{}
 	{
 	}
 
+	/** @brief Constructs basic_strides from basic_extents for the first- and last-order storage formats
+	 *
+	 * @code auto strides = basic_strides<unsigned>( basic_extents<std::size_t>{2,3,4} );
+	 *
+	 */
 	template <class T>
 	basic_strides(basic_extents<T> const& s)
 			: _base(s.size(),1)
@@ -188,7 +202,7 @@ using strides = basic_strides<std::size_t, layout_type>;
 namespace detail {
 
 
-/** @brief Memory access function with multi-indices
+/** @brief Accesses memory with multi-indices
  *
  * @code auto m = access(0, 3,4,5); @endcode
  *
@@ -206,7 +220,7 @@ auto access(std::vector<size_type> const& i, basic_strides<size_type,layout_type
 	return sum;
 }
 
-/** @brief Memory access function with multi-indices
+/** @brief Accesses memory with multi-indices
  *
  * @code auto m = access(0, 3,4,5); @endcode
  *

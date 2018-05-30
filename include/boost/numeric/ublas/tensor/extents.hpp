@@ -27,7 +27,7 @@ namespace boost { namespace numeric { namespace ublas {
 
 /** @brief Template class for storing tensor extents with runtime variable size.
  *
- * Proxy template class of the std::vector<int_type>.
+ * Proxy template class of std::vector<int_type>.
  *
  */
 template<class int_type>
