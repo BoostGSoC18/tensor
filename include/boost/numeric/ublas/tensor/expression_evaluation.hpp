@@ -157,11 +157,11 @@ auto all_extents_equal(binary_tensor_expression<T,EL,ER,OP> const& expr, basic_e
 		return false;
 
 	if constexpr ( std::is_same<T,EL>::value )
-		if(extents != expr.derived_left().extents())
+		if(extents !=  expr.el.extents())
 			return false;
 
 	if constexpr ( std::is_same<T,ER>::value )
-		if(extents != expr.derived_right().extents())
+		if(extents != expr.er.extents())
 			return false;
 
 	if constexpr ( detail::has_tensor_types<T,EL>::value )
@@ -187,7 +187,7 @@ auto all_extents_equal(unary_tensor_expression<T,E,OP> const& expr, basic_extent
 		return false;
 
 	if constexpr ( std::is_same<T,E>::value )
-		if(extents != expr.derived().extents())
+		if(extents != expr.e.extents())
 			return false;
 
 	if constexpr ( detail::has_tensor_types<T,E>::value )
