@@ -7,7 +7,6 @@
 //  The authors gratefully acknowledge the support of
 //  Fraunhofer IOSB in producing this work.
 //
-//  And we acknowledge the support from all contributors.
 
 
 #include <iostream>

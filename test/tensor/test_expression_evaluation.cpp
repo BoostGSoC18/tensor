@@ -10,16 +10,13 @@
 
 
 
-
+#include <boost/numeric/ublas/tensor/expression_evaluation.hpp>
 #include <boost/numeric/ublas/tensor/expression.hpp>
 #include <boost/numeric/ublas/tensor/tensor.hpp>
 #include <boost/test/unit_test.hpp>
 #include "utility.hpp"
 
 #include <functional>
-#include <complex>
-
-
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
@@ -60,10 +57,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_ty
 
 	for(auto const& e : extents) {
 
-		auto v = value_type{};
 		auto t = tensor_type(e);
-
+		auto v = value_type{};
 		for(auto& tt: t){ tt = v; v+=value_type{1}; }
+
 		const auto& tensor_expression_const = static_cast<tensor_expression_type const&>( t );
 
 		for(auto i = 0ul; i < t.size(); ++i)

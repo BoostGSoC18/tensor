@@ -33,6 +33,7 @@ SOURCES += \
 	../../../test/tensor/test_extents.cpp \
 	../../../test/tensor/test_strides.cpp \
 	../../../test/tensor/test_expression.cpp \
+	../../../test/tensor/test_expression_evaluation.cpp \
 	../../../test/tensor/test_functions.cpp \
 	../../../test/tensor/test_operators_comparison.cpp \	
 	../../../test/tensor/test_operators_arithmetic.cpp \
