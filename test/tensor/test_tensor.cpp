@@ -449,8 +449,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_ty
 	using value_type  = typename value::first_type;
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
-	using iterator_type = typename tensor_type::iterator;
-	using const_iterator_type = typename tensor_type::const_iterator;
 
 	for(auto const& e : extents)
 	{
@@ -463,11 +461,11 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_ty
 		BOOST_CHECK_EQUAL( std::distance(t.cbegin(),  t.cend ()), t.size() );
 		BOOST_CHECK_EQUAL( std::distance(t.crbegin(), t.crend()), t.size() );
 
-		BOOST_CHECK(  iterator_type       { t.data() } ==  t.begin ()  ) ;
-		BOOST_CHECK(  const_iterator_type { t.data() } ==  t.cbegin()  ) ;
+		BOOST_CHECK(  t.data() ==  std::addressof( *t.begin () )  ) ;
+		BOOST_CHECK(  t.data() ==  std::addressof( *t.cbegin() )  ) ;
 
-		BOOST_CHECK(  iterator_type       { t.data()+t.size() } ==  t.end ()  ) ;
-		BOOST_CHECK(  const_iterator_type { t.data()+t.size() } ==  t.cend()  ) ;
+		BOOST_CHECK(  (t.data()+t.size()) ==  std::addressof( *t.end () ) ) ;
+		BOOST_CHECK(  (t.data()+t.size()) ==  std::addressof( *t.cend() )  ) ;
 
 	}
 }
