@@ -231,14 +231,14 @@ auto access(std::vector<size_type> const& i, basic_strides<size_type,layout_type
  * @returns relative memory location depending on \c i
 */
 BOOST_UBLAS_INLINE
-template<std::size_t r, class layout_type, class size_type, class ... size_types>
-auto access(size_type sum, basic_strides<size_type, layout_type> const& w, size_type i, size_types ... is)
+template<std::size_t r, class layout_type, class ... size_types>
+auto access(std::size_t sum, basic_strides<std::size_t, layout_type> const& w, std::size_t i, size_types ... is)
 {
 	sum+=i*w[r];
 	if constexpr (sizeof...(is) == 0)
 		return sum;
 	else
-		return detail::access<r+1>(sum,w,std::forward<size_type>(is)...);
+		return detail::access<r+1>(sum,w,std::forward<size_types>(is)...);
 }
 
 }

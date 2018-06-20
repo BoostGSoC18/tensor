@@ -514,7 +514,7 @@ public:
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
-			return this->data_[detail::access<0>(0ul,this->strides_,i,is...)];
+			return this->data_[detail::access<0ul>(size_type(0),this->strides_,i,std::forward<size_types>(is)...)];
 	}
 
 	/** @brief Element access using a multi-index or single-index.
@@ -532,7 +532,7 @@ public:
 		if constexpr (sizeof...(is) == 0)
 			return this->data_[i];
 		else
-			return this->data_[detail::access<0ul>(0ul,this->strides_,i,is...)];
+			return this->data_[detail::access<0ul>(size_type(0),this->strides_,i,std::forward<size_types>(is)...)];
 	}
 
 
