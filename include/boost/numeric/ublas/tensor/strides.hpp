@@ -224,7 +224,6 @@ auto access(std::vector<size_type> const& i, basic_strides<size_type,layout_type
  *
  * @code auto m = access(0, 3,4,5); @endcode
  *
- *
  * @param[in] i   first element of the partial multi-index
  * @param[in] is  the following elements of the partial multi-index
  * @param[in] sum the current
