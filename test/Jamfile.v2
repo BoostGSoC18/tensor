@@ -47,7 +47,7 @@ UBLAS_TESTSET_SPARSE_COO ?=
 
 
 # Project settings
-project
+project boost-ublas-test
     : requirements
        <define>BOOST_UBLAS_NO_EXCEPTIONS
        <toolset>vacpp:<define>"BOOST_UBLAS_NO_ELEMENT_PROXIES"
