@@ -16,7 +16,7 @@ branches:
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      TOOLSET: msvc-14.14
+      TOOLSET: msvc-14.1
       CXXSTD: 17
 
 install:
