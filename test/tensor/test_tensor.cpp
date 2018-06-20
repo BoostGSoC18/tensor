@@ -463,11 +463,11 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_ty
 		BOOST_CHECK_EQUAL( std::distance(t.cbegin(),  t.cend ()), t.size() );
 		BOOST_CHECK_EQUAL( std::distance(t.crbegin(), t.crend()), t.size() );
 
-		BOOST_CHECK(  iterator_type       ( t.data() ) ==  t.begin ()  ) ;
-		BOOST_CHECK(  const_iterator_type ( t.data() ) ==  t.cbegin()  ) ;
+		BOOST_CHECK(  iterator_type       { t.data() } ==  t.begin ()  ) ;
+		BOOST_CHECK(  const_iterator_type { t.data() } ==  t.cbegin()  ) ;
 
-		BOOST_CHECK(  iterator_type       ( t.data()+t.size() ) ==  t.end ()  ) ;
-		BOOST_CHECK(  const_iterator_type ( t.data()+t.size() ) ==  t.cend()  ) ;
+		BOOST_CHECK(  iterator_type       { t.data()+t.size() } ==  t.end ()  ) ;
+		BOOST_CHECK(  const_iterator_type { t.data()+t.size() } ==  t.cend()  ) ;
 
 	}
 }
