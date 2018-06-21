@@ -258,43 +258,86 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
 
 	for(auto const& na : extents) {	
 
-		auto a  = vector_type(na.product(), value_type{2});
-		auto b  = vector_type(na.product(), value_type{3});
-		auto c  = vector_type(1);
-
-		auto nc = extents_type{1,1};
-		auto wc = strides_type(nc );
-
-
-		size_type p  = na.size();
 		auto wa = strides_type(na);
-		auto phi = std::vector<size_type>(p);
-		std::iota( phi.begin(), phi.end(), 1 );
+		auto a  = vector_type(na.product(), value_type{2});
+		auto pa  = na.size();
+		auto pia = std::vector<size_type>(pa);
+		std::iota( pia.begin(), pia.end(), 1 );
 
+		auto pib     = pia;
+		auto pib_inv = compute_inverse_permutation(pib);
 
-		auto pi     = phi;
-		auto pi_inv = compute_inverse_permutation(phi);
-
-
-		auto f = compute_factorial(p);
+		auto f = compute_factorial(pa);
 
 		for(auto i = 0ul; i < f; ++i) {
 
-			auto nb = permute_extents( pi, na  );
+			auto nb = permute_extents( pib, na  );
 			auto wb = strides_type(nb);
+			auto b  = vector_type(nb.product(), value_type{3});
+			auto pb = nb.size();
 
+			auto nc = extents_type{1,1};
+			auto wc = strides_type(nc );
+			auto c  = vector_type (nc.product());
+
+			auto q  = pa;
 
 			c[0] = 0;
-			ublas::ttt(p,p,p,
-								 phi.data(), pi_inv.data(),
+			ublas::ttt(pa,pb,q,
+								 pia.data(), pib_inv.data(),
 								 c.data(), nc.data(), wc.data(),
 								 a.data(), na.data(), wa.data(),
 								 b.data(), nb.data(), wb.data());
 
 			BOOST_CHECK_EQUAL( c[0] , value_type(na.product()) * a[0] * b[0] );
 
-			std::next_permutation(pi.begin(), pi.end());
-			pi_inv = compute_inverse_permutation(pi);
+			std::next_permutation(pib.begin(), pib.end());
+			pib_inv = compute_inverse_permutation(pib);
+		}
+	}
+
+
+	for(auto const& na : extents) {
+
+		auto wa = strides_type(na);
+		auto a  = vector_type(na.product(), value_type{2});
+		auto pa  = na.size();
+		auto pia = std::vector<size_type>(pa);
+		std::iota( pia.begin(), pia.end(), 1 );
+
+		auto pib     = pia;
+		auto pib_inv = compute_inverse_permutation(pib);
+
+		auto f = compute_factorial(pa);
+
+		for(auto i = 0ul; i < f; ++i) {
+
+			auto nb_old  = permute_extents( pib, na  );
+			auto nb_base = nb_old.base();
+			nb_base.push_back(10);
+			auto nb      = extents_type( nb_base );
+
+//			auto wb = strides_type(nb);
+//			auto b  = vector_type(nb.product(), value_type{3});
+//			auto pb = nb.size();
+
+//			auto nc = extents_type{1,1};
+//			auto wc = strides_type(nc );
+//			auto c  = vector_type (nc.product());
+
+//			auto q  = pa;
+
+//			c[0] = 0;
+//			ublas::ttt(pa,pb,q,
+//								 pia.data(), pib_inv.data(),
+//								 c.data(), nc.data(), wc.data(),
+//								 a.data(), na.data(), wa.data(),
+//								 b.data(), nb.data(), wb.data());
+
+//			BOOST_CHECK_EQUAL( c[0] , value_type(na.product()) * a[0] * b[0] );
+
+			std::next_permutation(pib.begin(), pib.end());
+			pib_inv = compute_inverse_permutation(pib);
 		}
 	}
 }
