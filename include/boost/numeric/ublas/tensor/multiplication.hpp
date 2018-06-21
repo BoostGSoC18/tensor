@@ -56,19 +56,19 @@ void ttt(SizeType const k,
 			{
 					assert(nc[k] == na[phia[k]-1]);
 					for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
-							ttt_recursion(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+							ttt(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
 			}
 			else if(k < r+s)
 			{
 					assert(nc[k] == nb[phib[k-r]-1]);
 					for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
-							ttt_recursion(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
+							ttt(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
 			}
 			else if(k < r+s+q-1)
 			{
 					assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
 					for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
-							ttt_recursion(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+							ttt(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
 			}
 			else
 			{
@@ -604,8 +604,11 @@ void ttm(SizeType const m, SizeType const p,
  *
  * @note calls detail::recursive::ttt or ttm or ttv or inner or outer
  *
- * @param[in]  m  contraction mode with 0 < m <= p
- * @param[in]  p  number of dimensions (rank) of the first input tensor with p > 0
+ * @param[in]  pa number of dimensions (rank) of the first input tensor a with pa > 0
+ * @param[in]  pb number of dimensions (rank) of the second input tensor b with pb > 0
+ * @param[in]	 q  number of contraction dimensions with pa >= q and pb >= q and q >= 0
+ * @param[in]	 phia pointer to a permutation tuple for the first input tensor a
+ * @param[in]	 phib pointer to a permutation tuple for the second input tensor b
  * @param[out] c  pointer to the output tensor with rank p-1
  * @param[in]  nc pointer to the extents of tensor c
  * @param[in]  wc pointer to the strides of tensor c
@@ -618,7 +621,7 @@ void ttm(SizeType const m, SizeType const p,
 */
 
 template <class PointerIn1, class PointerIn2, class PointerOut, class SizeType>
-void ttt(SizeType pa, SizeType pb, SizeType q,
+void ttt(SizeType const pa, SizeType const pb, SizeType const q,
 				 SizeType const*const phia, SizeType const*const phib,
 				 PointerOut c, SizeType const*const nc, SizeType const*const wc,
 				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
@@ -629,10 +632,10 @@ void ttt(SizeType pa, SizeType pb, SizeType q,
 		SizeType const s = pb - q;
 		SizeType const pc = r+s;
 
-		if(q == 0)
+		if(q == 0ul)
 				detail::recursive::outer(pa,  pc-1,c,nc,wc, pa-1,a,na,wa,   pb-1,b,nb,wb);
 		else
-				detail::recursive::ttt(0,q,r,s,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
+				detail::recursive::ttt(SizeType{0},r,s,q,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
 }
 
 

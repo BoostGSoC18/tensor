@@ -155,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
 		auto a = vector_type(na.product(), value_type{2});
 		auto wa = strides_type(na);
 		for(auto m = 0ul; m < na.size(); ++m){
-			auto b  = vector_type  ( na[m], value_type{1} );
+			auto b  = vector_type  (na[m], value_type{1} );
 			auto nb = extents_type {na[m],1};
 			auto wb = strides_type (nb);
 
@@ -198,8 +198,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 		auto a = vector_type(na.product(), value_type{2});
 		auto wa = strides_type(na);
 		for(auto m = 0ul; m < na.size(); ++m){
-			auto nb = extents_type { na[m], na[m] };
-			auto b  = vector_type  ( nb.product(), value_type{1} );
+			auto nb = extents_type {na[m], na[m] };
+			auto b  = vector_type  (nb.product(), value_type{1} );
 			auto wb = strides_type (nb);
 
 
@@ -215,6 +215,86 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 			for(auto i = 0u; i < c.size(); ++i)
 				BOOST_CHECK_EQUAL( c[i] , value_type(na[m]) * a[i] );
 
+		}
+	}
+}
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using strides_type = ublas::strides<layout_type>;
+	using vector_type  = std::vector<value_type>;
+	using extents_type = ublas::shape;
+	using size_type    = typename strides_type::value_type;
+
+
+	auto compute_factorial = [](auto const& p){
+		auto f = 1ul;
+		for(auto i = 1u; i <= p; ++i)
+			f *= i;
+		return f;
+	};
+
+
+	auto compute_inverse_permutation = [](auto const& pi){
+		auto pi_inv = pi;
+		for(auto j = 0u; j < pi.size(); ++j)
+			pi_inv[pi[j]-1] = j+1;
+		return pi_inv;
+	};
+
+	auto permute_extents = [](auto const& pi, auto const& na){
+		auto nb = na;
+		assert(pi.size() == na.size());
+		for(auto j = 0u; j < pi.size(); ++j)
+			nb[j] = na[pi[j]-1];
+		return nb;
+	};
+
+
+	for(auto const& na : extents) {	
+
+		auto a  = vector_type(na.product(), value_type{2});
+		auto b  = vector_type(na.product(), value_type{3});
+		auto c  = vector_type(1);
+
+		auto nc = extents_type{1,1};
+		auto wc = strides_type(nc );
+
+
+		size_type p  = na.size();
+		auto wa = strides_type(na);
+		auto phi = std::vector<size_type>(p);
+		std::iota( phi.begin(), phi.end(), 1 );
+
+
+		auto pi     = phi;
+		auto pi_inv = compute_inverse_permutation(phi);
+
+
+		auto f = compute_factorial(p);
+
+		for(auto i = 0ul; i < f; ++i) {
+
+			auto nb = permute_extents( pi, na  );
+			auto wb = strides_type(nb);
+
+
+			c[0] = 0;
+			ublas::ttt(p,p,p,
+								 phi.data(), pi_inv.data(),
+								 c.data(), nc.data(), wc.data(),
+								 a.data(), na.data(), wa.data(),
+								 b.data(), nb.data(), wb.data());
+
+			BOOST_CHECK_EQUAL( c[0] , value_type(na.product()) * a[0] * b[0] );
+
+			std::next_permutation(pi.begin(), pi.end());
+			pi_inv = compute_inverse_permutation(pi);
 		}
 	}
 }
