@@ -57,33 +57,31 @@ void ttt(SizeType const k,
 				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
-		if(k < r)
-		{
-				assert(nc[k] == na[phia[k]-1]);
-				for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
-						ttt(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else if(k < r+s)
-		{
-				assert(nc[k] == nb[phib[k-r]-1]);
-				for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
-						ttt(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else if(k < r+s+q-1)
-		{
-				assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
-				for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
-						ttt(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else
-		{
-				assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
-				for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
-						*c += *a * *b;
-		}
+	if(k < r)
+	{
+		assert(nc[k] == na[phia[k]-1]);
+		for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
+			ttt(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else if(k < r+s)
+	{
+		assert(nc[k] == nb[phib[k-r]-1]);
+		for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+			ttt(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else if(k < r+s+q-1)
+	{
+		assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
+		for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
+			ttt(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else
+	{
+		assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
+		for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
+			*c += *a * *b;
+	}
 }
-
-
 
 
 
@@ -93,6 +91,10 @@ void ttt(SizeType const k,
  * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
  *
  * @note no permutation tuple is used
+ *
+ * nc[x]   = na[x  ] for 1 <= x <= r
+ * nc[r+x] = nb[x  ] for 1 <= x <= s
+ * na[r+x] = nb[s+x] for 1 <= x <= q
  *
  * @note is used in function ttt
  *
@@ -118,30 +120,30 @@ void ttt(SizeType const k,
 				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
-		if(k < r)
-		{
-				assert(nc[k] == na[k]);
-				for(size_t ic = 0u; ic < nc[k]; a += wa[k], c += wc[k], ++ic)
-						ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else if(k < r+s)
-		{
-				assert(nc[k] == nb[k-r]);
-				for(size_t ic = 0u; ic < nc[k]; b += wb[k-r-1], c += wc[k], ++ic)
-						ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else if(k < r+s+q-1)
-		{
-				assert(na[k-s] == nb[k-r]);
-				for(size_t ia = 0u; ia < na[k-s]; a += wa[k-s], b += wb[k-r], ++ia)
-						ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else
-		{
-				assert(na[k-s] == nb[k-r]);
-				for(size_t ia = 0u; ia < na[k-s]; a += wa[k-s], b += wb[k-r], ++ia)
-						*c += *a * *b;
-		}
+	if(k < r)
+	{
+		assert(nc[k] == na[k]);
+		for(size_t ic = 0u; ic < nc[k]; a += wa[k], c += wc[k], ++ic)
+			ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else if(k < r+s)
+	{
+		assert(nc[k] == nb[k-r]);
+		for(size_t ic = 0u; ic < nc[k]; b += wb[k-r], c += wc[k], ++ic)
+			ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else if(k < r+s+q-1)
+	{
+		assert(na[k-s] == nb[k-r]);
+		for(size_t ia = 0u; ia < na[k-s]; a += wa[k-s], b += wb[k-r], ++ia)
+			ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else
+	{
+		assert(na[k-s] == nb[k-r]);
+		for(size_t ia = 0u; ia < na[k-s]; a += wa[k-s], b += wb[k-r], ++ia)
+			*c += *a * *b;
+	}
 }
 
 
@@ -171,26 +173,26 @@ void ttm(SizeType const m,  SizeType const r,
 				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
 
-		if(r == m) {
-				ttm(m, r-1, c, nc, wc,    a, na, wa,    b, nb, wb);
+	if(r == m) {
+		ttm(m, r-1, c, nc, wc,    a, na, wa,    b, nb, wb);
+	}
+	else if(r == 0){
+		for(auto i0 = 0ul; i0 < nc[0]; c += wc[0], a += wa[0], ++i0) {
+			auto cm = c;
+			auto b0 = b;
+			for(auto i0 = 0ul; i0 < nc[m]; cm += wc[m], b0 += wb[0], ++i0){
+				auto am = a;
+				auto b1 = b0;
+				for(auto i1 = 0ul; i1 < nb[1]; am += wa[m], b1 += wb[1], ++i1)
+					*cm += *am * *b1;
+			}
 		}
-		else if(r == 0){
-				for(auto i0 = 0ul; i0 < nc[0]; c += wc[0], a += wa[0], ++i0) {
-						auto cm = c;
-						auto b0 = b;
-						for(auto i0 = 0ul; i0 < nc[m]; cm += wc[m], b0 += wb[0], ++i0){
-								auto am = a;
-								auto b1 = b0;
-								for(auto i1 = 0ul; i1 < nb[1]; am += wa[m], b1 += wb[1], ++i1)
-										*cm += *am * *b1;
-						}
-				}
-		}
+	}
 
-		else{
-				for(auto i = 0ul; i < na[r]; c += wc[r], a += wa[r], ++i)
-						ttm(m, r-1, c, nc, wc,    a, na, wa,    b, nb, wb);
-		}
+	else{
+		for(auto i = 0ul; i < na[r]; c += wc[r], a += wa[r], ++i)
+			ttm(m, r-1, c, nc, wc,    a, na, wa,    b, nb, wb);
+	}
 }
 
 /** @brief Computes the tensor-times-matrix product for the contraction mode m = 0
@@ -218,26 +220,26 @@ void ttm0( SizeType const r,
 					 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
 
-		if(r > 1){
-				for(auto i = 0ul; i < na[r]; c += wc[r], a += wa[r], ++i)
-						ttm0(r-1, c, nc, wc,    a, na, wa,    b, nb, wb);
-		}
-		else{
-				for(auto i1 = 0ul; i1 < nc[1]; c += wc[1], a += wa[1], ++i1) {
-						auto cm = c;
-						auto b0 = b;
-						// r == m == 0
-						for(auto i0 = 0ul; i0 < nc[0]; cm += wc[0], b0 += wb[0], ++i0){
+	if(r > 1){
+		for(auto i = 0ul; i < na[r]; c += wc[r], a += wa[r], ++i)
+			ttm0(r-1, c, nc, wc,    a, na, wa,    b, nb, wb);
+	}
+	else{
+		for(auto i1 = 0ul; i1 < nc[1]; c += wc[1], a += wa[1], ++i1) {
+			auto cm = c;
+			auto b0 = b;
+			// r == m == 0
+			for(auto i0 = 0ul; i0 < nc[0]; cm += wc[0], b0 += wb[0], ++i0){
 
-								auto am = a;
-								auto b1 = b0;
-								for(auto i1 = 0u; i1 < nb[1]; am += wa[0], b1 += wb[1], ++i1){
+				auto am = a;
+				auto b1 = b0;
+				for(auto i1 = 0u; i1 < nb[1]; am += wa[0], b1 += wb[1], ++i1){
 
-										*cm += *am * *b1;
-								}
-						}
+					*cm += *am * *b1;
 				}
+			}
 		}
+	}
 }
 
 
@@ -272,20 +274,20 @@ void ttv( SizeType const m, SizeType const r, SizeType const q,
 					PointerIn2 b)
 {
 
-		if(r == m) {
-				ttv(m, r-1, q, c, nc, wc,    a, na, wa,    b);
+	if(r == m) {
+		ttv(m, r-1, q, c, nc, wc,    a, na, wa,    b);
+	}
+	else if(r == 0){
+		for(auto i0 = 0u; i0 < na[0]; c += wc[0], a += wa[0], ++i0) {
+			auto c1 = c; auto a1 = a; auto b1 = b;
+			for(auto im = 0u; im < na[m]; a1 += wa[m], ++b1, ++im)
+				*c1 += *a1 * *b1;
 		}
-		else if(r == 0){
-				for(auto i0 = 0u; i0 < na[0]; c += wc[0], a += wa[0], ++i0) {
-						auto c1 = c; auto a1 = a; auto b1 = b;
-						for(auto im = 0u; im < na[m]; a1 += wa[m], ++b1, ++im)
-								*c1 += *a1 * *b1;
-				}
-		}
-		else{
-				for(auto i = 0u; i < na[r]; c += wc[q], a += wa[r], ++i)
-						ttv(m, r-1, q-1, c, nc, wc,    a, na, wa,    b);
-		}
+	}
+	else{
+		for(auto i = 0u; i < na[r]; c += wc[q], a += wa[r], ++i)
+			ttv(m, r-1, q-1, c, nc, wc,    a, na, wa,    b);
+	}
 }
 
 
@@ -312,18 +314,18 @@ void ttv0(SizeType const r,
 					PointerIn2 b)
 {
 
-		if(r > 1){
-				for(auto i = 0u; i < na[r]; c += wc[r-1], a += wa[r], ++i)
-						ttv0(r-1, c, nc, wc,    a, na, wa,    b);
+	if(r > 1){
+		for(auto i = 0u; i < na[r]; c += wc[r-1], a += wa[r], ++i)
+			ttv0(r-1, c, nc, wc,    a, na, wa,    b);
+	}
+	else{
+		for(auto i1 = 0u; i1 < na[1]; c += wc[0], a += wa[1], ++i1)
+		{
+			auto c1 = c; auto a1 = a; auto b1 = b;
+			for(auto i0 = 0u; i0 < na[0]; a1 += wa[0], ++b1, ++i0)
+				*c1 += *a1 * *b1;
 		}
-		else{
-				for(auto i1 = 0u; i1 < na[1]; c += wc[0], a += wa[1], ++i1)
-				{
-						auto c1 = c; auto a1 = a; auto b1 = b;
-						for(auto i0 = 0u; i0 < na[0]; a1 += wa[0], ++b1, ++i0)
-								*c1 += *a1 * *b1;
-				}
-		}
+	}
 }
 
 
@@ -348,14 +350,14 @@ void mtv(SizeType const m,
 				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 				 PointerIn2 b)
 {
-		// decides whether matrix multiplied with vector or vector multiplied with matrix
-		const auto o = (m == 0) ? 1 : 0;
+	// decides whether matrix multiplied with vector or vector multiplied with matrix
+	const auto o = (m == 0) ? 1 : 0;
 
-		for(auto io = 0u; io < na[o]; c += wc[o], a += wa[o], ++io) {
-				auto c1 = c; auto a1 = a; auto b1 = b;
-				for(auto im = 0u; im < na[m]; a1 += wa[m], ++b1, ++im)
-						*c1 += *a1 * *b1;
-		}
+	for(auto io = 0u; io < na[o]; c += wc[o], a += wa[o], ++io) {
+		auto c1 = c; auto a1 = a; auto b1 = b;
+		for(auto im = 0u; im < na[m]; a1 += wa[m], ++b1, ++im)
+			*c1 += *a1 * *b1;
+	}
 }
 
 
@@ -395,7 +397,7 @@ void mtm(PointerOut c, SizeType const*const nc, SizeType const*const wc,
 
 			auto ci = cj; auto ai = ak;
 			for(auto i = 0u; i < na[0]; ai += wa[0], ci += wc[0], ++i){
-					*ci += *ai * *bk;
+				*ci += *ai * *bk;
 			}
 
 		}
@@ -442,9 +444,9 @@ void outer_2x2(SizeType const pa,
 							 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 							 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
-//	assert(rc == 3);
-//	assert(ra == 1);
-//	assert(rb == 1);
+	//	assert(rc == 3);
+	//	assert(ra == 1);
+	//	assert(rb == 1);
 
 	for(auto ib1 = 0u; ib1 < nb[1]; b += wb[1], c += wc[pa+1], ++ib1) {
 		auto c2 = c;
@@ -539,24 +541,24 @@ void outer(SizeType const k,
 					 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 					 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
-		if(k < r)
-		{
-				assert(nc[k] == na[phia[k]-1]);
-				for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
-						outer(k+1, r, s,   phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else if(k < r+s-1)
-		{
-				assert(nc[k] == nb[phib[k-r]-1]);
-				for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
-						outer(k+1, r, s, phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
-		}
-		else
-		{
-			assert(nc[k] == nb[phib[k-r]-1]);
-			for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
-				*c = *a * *b;
-		}
+	if(k < r)
+	{
+		assert(nc[k] == na[phia[k]-1]);
+		for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
+			outer(k+1, r, s,   phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else if(k < r+s-1)
+	{
+		assert(nc[k] == nb[phib[k-r]-1]);
+		for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+			outer(k+1, r, s, phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
+	}
+	else
+	{
+		assert(nc[k] == nb[phib[k-r]-1]);
+		for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+			*c = *a * *b;
+	}
 }
 
 
@@ -613,7 +615,7 @@ void ttv(SizeType const m, SizeType const p,
 				 const PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
-										 "Static error in boost::numeric::ublas::ttv: Argument types for pointers are not pointer types.");
+								 "Static error in boost::numeric::ublas::ttv: Argument types for pointers are not pointer types.");
 
 	if( m == 0)
 		throw std::length_error("Error in boost::numeric::ublas::ttv: Contraction mode must be greater than zero.");
@@ -683,39 +685,39 @@ void ttm(SizeType const m, SizeType const p,
 				 const PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
 
-		static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
-											 "Static error in boost::numeric::ublas::ttm: Argument types for pointers are not pointer types.");
+	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
+								 "Static error in boost::numeric::ublas::ttm: Argument types for pointers are not pointer types.");
 
-		if( m == 0 )
-				throw std::length_error("Error in boost::numeric::ublas::ttm: Contraction mode must be greater than zero.");
+	if( m == 0 )
+		throw std::length_error("Error in boost::numeric::ublas::ttm: Contraction mode must be greater than zero.");
 
-		if( p < m )
-				throw std::length_error("Error in boost::numeric::ublas::ttm: Rank must be greater equal than the specified mode.");
+	if( p < m )
+		throw std::length_error("Error in boost::numeric::ublas::ttm: Rank must be greater equal than the specified mode.");
 
-		if( p == 0)
-				throw std::length_error("Error in boost::numeric::ublas::ttm:Rank must be greater than zero.");
+	if( p == 0)
+		throw std::length_error("Error in boost::numeric::ublas::ttm:Rank must be greater than zero.");
 
-		if(c == nullptr || a == nullptr || b == nullptr)
-				throw std::length_error("Error in boost::numeric::ublas::ttm: Pointers shall not be null pointers.");
+	if(c == nullptr || a == nullptr || b == nullptr)
+		throw std::length_error("Error in boost::numeric::ublas::ttm: Pointers shall not be null pointers.");
 
-		for(auto i = 0u; i < m-1; ++i)
-				if(na[i] != nc[i])
-						throw std::length_error("Error in boost::numeric::ublas::ttm: Extents (except of dimension mode) of A and C must be equal.");
+	for(auto i = 0u; i < m-1; ++i)
+		if(na[i] != nc[i])
+			throw std::length_error("Error in boost::numeric::ublas::ttm: Extents (except of dimension mode) of A and C must be equal.");
 
-		for(auto i = m; i < p; ++i)
-				if(na[i] != nc[i])
-						throw std::length_error("Error in boost::numeric::ublas::ttm: Extents (except of dimension mode) of A and C must be equal.");
+	for(auto i = m; i < p; ++i)
+		if(na[i] != nc[i])
+			throw std::length_error("Error in boost::numeric::ublas::ttm: Extents (except of dimension mode) of A and C must be equal.");
 
-		if(na[m-1] != nb[1])
-				throw std::length_error("Error in boost::numeric::ublas::ttm: 2nd Extent of B and M-th Extent of A must be the equal.");
+	if(na[m-1] != nb[1])
+		throw std::length_error("Error in boost::numeric::ublas::ttm: 2nd Extent of B and M-th Extent of A must be the equal.");
 
-		if(nc[m-1] != nb[0])
-				throw std::length_error("Error in boost::numeric::ublas::ttm: 1nd Extent of B and M-th Extent of C must be the equal.");
+	if(nc[m-1] != nb[0])
+		throw std::length_error("Error in boost::numeric::ublas::ttm: 1nd Extent of B and M-th Extent of C must be the equal.");
 
-		if ( m != 1 )
-			detail::recursive::ttm (m-1, p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
-		else /*if (m == 1 && p >  2)*/
-			detail::recursive::ttm0(     p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
+	if ( m != 1 )
+		detail::recursive::ttm (m-1, p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
+	else /*if (m == 1 && p >  2)*/
+		detail::recursive::ttm0(     p-1, c, nc, wc,    a, na, wa,   b, nb, wb);
 
 }
 
@@ -725,6 +727,10 @@ void ttm(SizeType const m, SizeType const p,
  * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
  *
  * @note calls detail::recursive::ttt or ttm or ttv or inner or outer
+ *
+ * nc[x]         = na[phia[x]  ] for 1 <= x <= r
+ * nc[r+x]       = nb[phib[x]  ] for 1 <= x <= s
+ * na[phia[r+x]] = nb[phib[s+x]] for 1 <= x <= q
  *
  * @param[in]  pa number of dimensions (rank) of the first input tensor a with pa > 0
  * @param[in]  pb number of dimensions (rank) of the second input tensor b with pb > 0
@@ -749,14 +755,112 @@ void ttt(SizeType const pa, SizeType const pb, SizeType const q,
 				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
 {
+	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
+								 "Static error in boost::numeric::ublas::ttm: Argument types for pointers are not pointer types.");
 
-		SizeType const r = pa - q;
-		SizeType const s = pb - q;		
+	if( pa == 0 || pb == 0)
+		throw std::length_error("Error in boost::numeric::ublas::ttt: tensor order must be greater zero.");
 
-		if(q == 0ul)
-				detail::recursive::outer(SizeType{0},r,s,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
-		else
-				detail::recursive::ttt(SizeType{0},r,s,q,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
+	if( q > pa && q > pb)
+		throw std::length_error("Error in boost::numeric::ublas::ttt: number of contraction must be smaller than or equal to the tensor order.");
+
+
+	SizeType const r = pa - q;
+	SizeType const s = pb - q;
+
+	if(c == nullptr || a == nullptr || b == nullptr)
+		throw std::length_error("Error in boost::numeric::ublas::ttm: Pointers shall not be null pointers.");
+
+	for(auto i = 0ul; i < r; ++i)
+		if( na[phia[i]-1] != nc[i] )
+			throw std::length_error("Error in boost::numeric::ublas::ttt: dimensions of lhs and res tensor not correct.");
+
+	for(auto i = 0ul; i < s; ++i)
+		if( nb[phib[i]-1] != nc[r+i] )
+			throw std::length_error("Error in boost::numeric::ublas::ttt: dimensions of rhs and res not correct.");
+
+	for(auto i = 0ul; i < q; ++i)
+		if( nb[phib[s+i]-1] != na[phia[r+i]-1] )
+			throw std::length_error("Error in boost::numeric::ublas::ttt: dimensions of lhs and rhs not correct.");
+
+
+	if(q == 0ul)
+		detail::recursive::outer(SizeType{0},r,s,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
+	else
+		detail::recursive::ttt(SizeType{0},r,s,q,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
+}
+
+
+
+/** @brief Computes the tensor-times-tensor product
+ *
+ * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
+ *
+ * @note calls detail::recursive::ttt or ttm or ttv or inner or outer
+ *
+ * nc[x]   = na[x  ] for 1 <= x <= r
+ * nc[r+x] = nb[x  ] for 1 <= x <= s
+ * na[r+x] = nb[s+x] for 1 <= x <= q
+ *
+ * @param[in]  pa number of dimensions (rank) of the first input tensor a with pa > 0
+ * @param[in]  pb number of dimensions (rank) of the second input tensor b with pb > 0
+ * @param[in]	 q  number of contraction dimensions with pa >= q and pb >= q and q >= 0
+ * @param[out] c  pointer to the output tensor with rank p-1
+ * @param[in]  nc pointer to the extents of tensor c
+ * @param[in]  wc pointer to the strides of tensor c
+ * @param[in]  a  pointer to the first input tensor
+ * @param[in]  na pointer to the extents of input tensor a
+ * @param[in]  wa pointer to the strides of input tensor a
+ * @param[in]  b  pointer to the second input tensor
+ * @param[in]  nb pointer to the extents of input tensor b
+ * @param[in]  wb pointer to the strides of input tensor b
+*/
+
+template <class PointerIn1, class PointerIn2, class PointerOut, class SizeType>
+void ttt(SizeType const pa, SizeType const pb, SizeType const q,
+				 PointerOut c, SizeType const*const nc, SizeType const*const wc,
+				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+{
+	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value,
+								 "Static error in boost::numeric::ublas::ttm: Argument types for pointers are not pointer types.");
+
+	if( pa == 0 || pb == 0)
+		throw std::length_error("Error in boost::numeric::ublas::ttt: tensor order must be greater zero.");
+
+	if( q > pa && q > pb)
+		throw std::length_error("Error in boost::numeric::ublas::ttt: number of contraction must be smaller than or equal to the tensor order.");
+
+
+	SizeType const r  = pa - q;
+	SizeType const s  = pb - q;
+	SizeType const pc = r+s;
+
+	if(c == nullptr || a == nullptr || b == nullptr)
+		throw std::length_error("Error in boost::numeric::ublas::ttm: Pointers shall not be null pointers.");
+
+	for(auto i = 0ul; i < r; ++i)
+		if( na[i] != nc[i] )
+			throw std::length_error("Error in boost::numeric::ublas::ttt: dimensions of lhs and res tensor not correct.");
+
+	for(auto i = 0ul; i < s; ++i)
+		if( nb[i] != nc[r+i] )
+			throw std::length_error("Error in boost::numeric::ublas::ttt: dimensions of rhs and res not correct.");
+
+	for(auto i = 0ul; i < q; ++i)
+		if( nb[s+i] != na[r+i] )
+			throw std::length_error("Error in boost::numeric::ublas::ttt: dimensions of lhs and rhs not correct.");
+
+	using value_type = std::decay_t<decltype(*c)>;
+
+
+
+	if(q == 0ul)
+		detail::recursive::outer(pa, pc-1, c,nc,wc, pa-1, a,na,wa, pb-1, b,nb,wb);
+	else if(r == 0ul && s == 0ul)
+		*c = detail::recursive::inner(q-1, na, a,wa,  b,wb, value_type(0) );
+	else
+		detail::recursive::ttt(SizeType{0},r,s,q, c,nc,wc, a,na,wa, b,nb,wb);
 }
 
 
@@ -819,13 +923,13 @@ void outer(PointerOut c,       SizeType const pc, SizeType const*const nc, SizeT
 					 const PointerIn2 b, SizeType const pb, SizeType const*const nb, SizeType const*const wb)
 {
 	static_assert( std::is_pointer<PointerIn1>::value & std::is_pointer<PointerIn2>::value & std::is_pointer<PointerOut>::value,
-								 "Static error in boost::numeric::ublas::outer: Argument types for pointers must be pointer types.");
+								 "Static error in boost::numeric::ublas::outer: argument types for pointers must be pointer types.");
 	if(pa < 2u || pb < 2u)
-		throw std::length_error("Error when performing outer product: Number of extents of lhs and rhs tensor must be equal or greater than two.");
+		throw std::length_error("Error in boost::numeric::ublas::outer: number of extents of lhs and rhs tensor must be equal or greater than two.");
 	if((pa + pb) != pc)
-		throw std::length_error("Error when performing outer product: Number of extents of lhs plus rhs tensor must be equal to the number of extents of C.");
+		throw std::length_error("Error in boost::numeric::ublas::outer: number of extents of lhs plus rhs tensor must be equal to the number of extents of C.");
 	if(a == nullptr || b == nullptr || c == nullptr)
-		throw std::length_error("Error when performing outer product: Pointers shall not be null pointers.");
+		throw std::length_error("Error in boost::numeric::ublas::outer: pointers shall not be null pointers.");
 
 	detail::recursive::outer(pa, pc-1, c, nc, wc,   pa-1, a, na, wa,   pb-1, b, nb, wb);
 
