@@ -13,6 +13,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+
 #include <boost/numeric/ublas/tensor/multiplication.hpp>
 #include <boost/numeric/ublas/tensor/extents.hpp>
 #include <boost/numeric/ublas/tensor/strides.hpp>
@@ -32,14 +33,14 @@ using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost:
 struct fixture {
 	using extents_type = boost::numeric::ublas::shape;
 	fixture() : extents {
-				extents_type{1,1}, // 1
-				extents_type{1,2}, // 2
-				extents_type{2,1}, // 3
+//				extents_type{1,1}, // 1
+//				extents_type{1,2}, // 2
+//				extents_type{2,1}, // 3
 				extents_type{2,3}, // 4
 				extents_type{5,4}, // 5
-				extents_type{2,3,1}, // 6
-				extents_type{4,1,3}, // 7
-				extents_type{1,2,3}, // 8
+//				extents_type{2,3,1}, // 6
+//				extents_type{4,1,3}, // 7
+//				extents_type{1,2,3}, // 8
 				extents_type{4,2,3}, // 9
 				extents_type{4,2,3,5} // 10
 				}
@@ -256,6 +257,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
 	};
 
 
+	// left-hand and right-hand side have the
+	// the same number of elements
+
+	// computing the inner product with
+	// different permutation tuples for
+	// right-hand side
+
 	for(auto const& na : extents) {	
 
 		auto wa = strides_type(na);
@@ -269,6 +277,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
 
 		auto f = compute_factorial(pa);
 
+		// for the number of possible permutations
+		// only permutation tuple pib is changed.
 		for(auto i = 0ul; i < f; ++i) {
 
 			auto nb = permute_extents( pib, na  );
@@ -276,65 +286,44 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
 			auto b  = vector_type(nb.product(), value_type{3});
 			auto pb = nb.size();
 
-			auto nc = extents_type{1,1};
-			auto wc = strides_type(nc );
-			auto c  = vector_type (nc.product());
+			// the number of contractions is changed.
+			for( auto q = 0ul; q <= pa; ++q) {
 
-			auto q  = pa;
+				auto r  = pa - q;
+				auto s  = pb - q;
 
-			c[0] = 0;
-			ublas::ttt(pa,pb,q,
-								 pia.data(), pib_inv.data(),
-								 c.data(), nc.data(), wc.data(),
-								 a.data(), na.data(), wa.data(),
-								 b.data(), nb.data(), wb.data());
+				auto pc = r+s > 0 ? std::max(r+s,2ul) : 2ul;
 
-			BOOST_CHECK_EQUAL( c[0] , value_type(na.product()) * a[0] * b[0] );
+				auto nc_base = std::vector<size_type>( pc , 1 );
 
-			std::next_permutation(pib.begin(), pib.end());
-			pib_inv = compute_inverse_permutation(pib);
-		}
-	}
+				for(auto i = 0ul; i < r; ++i)
+					nc_base[ i ] = na[ pia[i]-1 ];
+
+				for(auto i = 0ul; i < s; ++i)
+					nc_base[ r + i ] = nb[ pib_inv[i]-1 ];
+
+				auto nc = extents_type ( nc_base );
+				auto wc = strides_type ( nc );
+				auto c  = vector_type  ( nc.product() );
+
+				for(auto i = 0ul; i < c.size(); ++i)
+					c[i] = 0;
+
+				ublas::ttt(pa,pb,q,
+									 pia.data(), pib_inv.data(),
+									 c.data(), nc.data(), wc.data(),
+									 a.data(), na.data(), wa.data(),
+									 b.data(), nb.data(), wb.data());
 
 
-	for(auto const& na : extents) {
+				auto acc = value_type(1);
+				for(auto i = r; i < pa; ++i)
+					acc *= na[pia[i]-1];
 
-		auto wa = strides_type(na);
-		auto a  = vector_type(na.product(), value_type{2});
-		auto pa  = na.size();
-		auto pia = std::vector<size_type>(pa);
-		std::iota( pia.begin(), pia.end(), 1 );
+				for(auto i = 0ul; i < c.size(); ++i)
+					BOOST_CHECK_EQUAL( c[i] , acc * a[0] * b[0] );
 
-		auto pib     = pia;
-		auto pib_inv = compute_inverse_permutation(pib);
-
-		auto f = compute_factorial(pa);
-
-		for(auto i = 0ul; i < f; ++i) {
-
-			auto nb_old  = permute_extents( pib, na  );
-			auto nb_base = nb_old.base();
-			nb_base.push_back(10);
-			auto nb      = extents_type( nb_base );
-
-//			auto wb = strides_type(nb);
-//			auto b  = vector_type(nb.product(), value_type{3});
-//			auto pb = nb.size();
-
-//			auto nc = extents_type{1,1};
-//			auto wc = strides_type(nc );
-//			auto c  = vector_type (nc.product());
-
-//			auto q  = pa;
-
-//			c[0] = 0;
-//			ublas::ttt(pa,pb,q,
-//								 pia.data(), pib_inv.data(),
-//								 c.data(), nc.data(), wc.data(),
-//								 a.data(), na.data(), wa.data(),
-//								 b.data(), nb.data(), wb.data());
-
-//			BOOST_CHECK_EQUAL( c[0] , value_type(na.product()) * a[0] * b[0] );
+			}
 
 			std::next_permutation(pib.begin(), pib.end());
 			pib_inv = compute_inverse_permutation(pib);

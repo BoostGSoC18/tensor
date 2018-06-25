@@ -26,6 +26,73 @@ namespace recursive {
  *
  * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
  *
+ * nc[x]         = na[phia[x]  ] for 1 <= x <= r
+ * nc[r+x]       = nb[phib[x]  ] for 1 <= x <= s
+ * na[phia[r+x]] = nb[phib[s+x]] for 1 <= x <= q
+ *
+ * @note is used in function ttt
+ *
+ * @param k  zero-based recursion level starting with 0
+ * @param r  number of non-contraction indices of A
+ * @param s  number of non-contraction indices of B
+ * @param q  number of contraction indices with q > 0
+ * @param phia pointer to the permutation tuple of length q+r for A
+ * @param phib pointer to the permutation tuple of length q+s for B
+ * @param c  pointer to the output tensor C with rank(A)=r+s
+ * @param nc pointer to the extents of tensor C
+ * @param wc pointer to the strides of tensor C
+ * @param a  pointer to the first input tensor with rank(A)=r+q
+ * @param na pointer to the extents of the first input tensor A
+ * @param wa pointer to the strides of the first input tensor A
+ * @param b  pointer to the second input tensor B with rank(B)=s+q
+ * @param nb pointer to the extents of the second input tensor B
+ * @param wb pointer to the strides of the second input tensor B
+*/
+
+template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
+void ttt(SizeType const k,
+				 SizeType const r, SizeType const s, SizeType const q,
+				 SizeType const*const phia, SizeType const*const phib,
+				 PointerOut c, SizeType const*const nc, SizeType const*const wc,
+				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+{
+		if(k < r)
+		{
+				assert(nc[k] == na[phia[k]-1]);
+				for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
+						ttt(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else if(k < r+s)
+		{
+				assert(nc[k] == nb[phib[k-r]-1]);
+				for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+						ttt(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else if(k < r+s+q-1)
+		{
+				assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
+				for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
+						ttt(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else
+		{
+				assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
+				for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
+						*c += *a * *b;
+		}
+}
+
+
+
+
+
+
+/** @brief Computes the tensor-times-tensor product for q contraction modes
+ *
+ * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
+ *
+ * @note no permutation tuple is used
  *
  * @note is used in function ttt
  *
@@ -47,36 +114,35 @@ namespace recursive {
 template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
 void ttt(SizeType const k,
 				 SizeType const r, SizeType const s, SizeType const q,
-				 SizeType const*const phia, SizeType const*const phib,
 				 PointerOut c, SizeType const*const nc, SizeType const*const wc,
 				 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
 				 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
-	{
-			if(k < r)
-			{
-					assert(nc[k] == na[phia[k]-1]);
-					for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
-							ttt(k+1, r, s, q,  phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
-			}
-			else if(k < r+s)
-			{
-					assert(nc[k] == nb[phib[k-r]-1]);
-					for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
-							ttt(k+1, r, s, q,  phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
-			}
-			else if(k < r+s+q-1)
-			{
-					assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
-					for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
-							ttt(k+1, r, s, q,  phia, phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
-			}
-			else
-			{
-					assert(na[phia[k-s]-1] == nb[phib[k-r]-1]);
-					for(size_t ia = 0u; ia < na[phia[k-s]-1]; a += wa[phia[k-s]-1], b += wb[phib[k-r]-1], ++ia)
-							*c += *a * *b;
-			}
-	}
+{
+		if(k < r)
+		{
+				assert(nc[k] == na[k]);
+				for(size_t ic = 0u; ic < nc[k]; a += wa[k], c += wc[k], ++ic)
+						ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else if(k < r+s)
+		{
+				assert(nc[k] == nb[k-r]);
+				for(size_t ic = 0u; ic < nc[k]; b += wb[k-r-1], c += wc[k], ++ic)
+						ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else if(k < r+s+q-1)
+		{
+				assert(na[k-s] == nb[k-r]);
+				for(size_t ia = 0u; ia < na[k-s]; a += wa[k-s], b += wb[k-r], ++ia)
+						ttt(k+1, r, s, q,  c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else
+		{
+				assert(na[k-s] == nb[k-r]);
+				for(size_t ia = 0u; ia < na[k-s]; a += wa[k-s], b += wb[k-r], ++ia)
+						*c += *a * *b;
+		}
+}
 
 
 /** @brief Computes the tensor-times-matrix product for the contraction mode m > 0
@@ -438,6 +504,62 @@ void outer(SizeType const pa,
 }
 
 
+
+
+/** @brief Computes the outer product with permutation tuples
+ *
+ * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir] * B[j1,...,js]  )
+ *
+ * nc[x]         = na[phia[x]] for 1 <= x <= r
+ * nc[r+x]       = nb[phib[x]] for 1 <= x <= s
+ *
+ * @note maybe called by ttt function
+ *
+ * @param k  zero-based recursion level starting with 0
+ * @param r  number of non-contraction indices of A
+ * @param s  number of non-contraction indices of B
+ * @param phia pointer to the permutation tuple of length r for A
+ * @param phib pointer to the permutation tuple of length s for B
+ * @param c  pointer to the output tensor C with rank(A)=r+s
+ * @param nc pointer to the extents of tensor C
+ * @param wc pointer to the strides of tensor C
+ * @param a  pointer to the first input tensor with rank(A)=r
+ * @param na pointer to the extents of the first input tensor A
+ * @param wa pointer to the strides of the first input tensor A
+ * @param b  pointer to the second input tensor B with rank(B)=s
+ * @param nb pointer to the extents of the second input tensor B
+ * @param wb pointer to the strides of the second input tensor B
+*/
+
+template <class PointerOut, class PointerIn1, class PointerIn2, class SizeType>
+void outer(SizeType const k,
+					 SizeType const r, SizeType const s,
+					 SizeType const*const phia, SizeType const*const phib,
+					 PointerOut c, SizeType const*const nc, SizeType const*const wc,
+					 PointerIn1 a, SizeType const*const na, SizeType const*const wa,
+					 PointerIn2 b, SizeType const*const nb, SizeType const*const wb)
+{
+		if(k < r)
+		{
+				assert(nc[k] == na[phia[k]-1]);
+				for(size_t ic = 0u; ic < nc[k]; a += wa[phia[k]-1], c += wc[k], ++ic)
+						outer(k+1, r, s,   phia,phib,  c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else if(k < r+s-1)
+		{
+				assert(nc[k] == nb[phib[k-r]-1]);
+				for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+						outer(k+1, r, s, phia, phib,    c, nc, wc,   a, na, wa,   b, nb, wb);
+		}
+		else
+		{
+			assert(nc[k] == nb[phib[k-r]-1]);
+			for(size_t ic = 0u; ic < nc[k]; b += wb[phib[k-r]-1], c += wc[k], ++ic)
+				*c = *a * *b;
+		}
+}
+
+
 } // namespace recursive
 } // namespace detail
 } // namespace ublas
@@ -629,11 +751,10 @@ void ttt(SizeType const pa, SizeType const pb, SizeType const q,
 {
 
 		SizeType const r = pa - q;
-		SizeType const s = pb - q;
-		SizeType const pc = r+s;
+		SizeType const s = pb - q;		
 
 		if(q == 0ul)
-				detail::recursive::outer(pa,  pc-1,c,nc,wc, pa-1,a,na,wa,   pb-1,b,nb,wb);
+				detail::recursive::outer(SizeType{0},r,s,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
 		else
 				detail::recursive::ttt(SizeType{0},r,s,q,  phia,phib, c,nc,wc, a,na,wa, b,nb,wb);
 }
