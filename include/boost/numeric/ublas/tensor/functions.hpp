@@ -37,9 +37,20 @@ class vector;
 
 
 
-
+/** @brief Computes the m-mode tensor-times-vector product
+ *
+ * Implements C[i1,...,im-1,im+1,...,ip] = A[i1,i2,...,ip] * b[im]
+ *
+ * @note calls ttv function
+ *
+ * @param[in] m contraction dimension with 1 <= m <= p
+ * @param[in] a tensor object A with order p
+ * @param[in] b vector object B
+ *
+ * @returns tensor object C with order p-1, the same storage format and allocator type as A
+*/
 template<class V, class F, class A1, class A2>
-auto prod(const std::size_t m, tensor<V,F,A1> const& a, vector<V,A2> const& b)
+auto prod(tensor<V,F,A1> const& a, vector<V,A2> const& b, const std::size_t m)
 {
 
 	using tensor_type  = tensor<V,F,A1>;
@@ -87,8 +98,21 @@ auto prod(const std::size_t m, tensor<V,F,A1> const& a, vector<V,A2> const& b)
 }
 
 
+
+/** @brief Computes the m-mode tensor-times-matrix product
+ *
+ * Implements C[i1,...,im-1,j,im+1,...,ip] = A[i1,i2,...,ip] * B[j,im]
+ *
+ * @note calls ttm function
+ *
+ * @param[in] a tensor object A with order p
+ * @param[in] b vector object B
+ * @param[in] m contraction dimension with 1 <= m <= p
+ *
+ * @returns tensor object C with order p, the same storage format and allocator type as A
+*/
 template<class V, class F, class A1, class A2>
-auto prod(const std::size_t m, tensor<V,F,A1> const& a, matrix<V,F,A2> const& b)
+auto prod(tensor<V,F,A1> const& a, matrix<V,F,A2> const& b, const std::size_t m)
 {
 
 	using tensor_type  = tensor<V,F,A1>;
@@ -133,6 +157,55 @@ auto prod(const std::size_t m, tensor<V,F,A1> const& a, matrix<V,F,A2> const& b)
 
 	return c;
 }
+
+
+
+//template<class V, class F, class A1, class A2>
+//auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
+//					std::vector<std::size_t> const& phia, std::vector<std::size_t> const& phib)
+//{
+
+//	using tensor_type  = tensor<V,F,A1>;
+//	using extents_type = typename tensor_type::extents_type;
+//	using strides_type = typename tensor_type::strides_type;
+//	using value_type   = typename tensor_type::value_type;
+
+//	auto const p = a.rank();
+
+//	if( m == 0)
+//		throw std::length_error("Error in boost::numeric::ublas::prod: Contraction mode must be greater than zero.");
+
+//	if( p < m || m > a.extents().size())
+//		throw std::length_error("Error in boost::numeric::ublas::prod: Rank must be greater equal the modus.");
+
+//	if( p == 0)
+//		throw std::length_error("Error in boost::numeric::ublas::prod: Rank must be greater than zero.");
+
+//	if( a.empty() )
+//		throw std::length_error("Error in boost::numeric::ublas::prod: tensor should not be empty.");
+
+//	if( b.size1()*b.size2() == 0)
+//		throw std::length_error("Error in boost::numeric::ublas::prod: matrix should not be empty.");
+
+
+//	auto nc = a.extents().base();
+//	auto nb = extents_type {b.size1(),b.size2()};
+//	auto wb = strides_type (nb);
+
+//	nc[m-1] = nb[0];
+
+//	auto c = tensor_type(extents_type(nc),value_type{});
+
+//	auto bb = &(b(0,0));
+
+//	ttm(m, p,
+//			c.data(), c.extents().data(), c.strides().data(),
+//			a.data(), a.extents().data(), a.strides().data(),
+//			bb, nb.data(), wb.data());
+
+
+//	return c;
+//}
 
 
 /** @brief Computes the inner product of two tensors

@@ -65,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_vector, value,  test_types, f
 
 			auto b = vector_type  (n[m], value_type{1} );
 
-			auto c = ublas::prod(m+1, a, b);
+			auto c = ublas::prod(a, b, m+1);
 
 			for(auto i = 0u; i < c.size(); ++i)
 				BOOST_CHECK_EQUAL( c[i] , value_type(n[m]) * a[i] );
@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_matrix, value,  test_types, f
 
 			auto b  = matrix_type  ( n[m], n[m], value_type{1} );
 
-			auto c = ublas::prod(m+1, a, b);
+			auto c = ublas::prod(a, b, m+1);
 
 			for(auto i = 0u; i < c.size(); ++i)
 				BOOST_CHECK_EQUAL( c[i] , value_type(n[m]) * a[i] );

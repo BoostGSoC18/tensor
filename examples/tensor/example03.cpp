@@ -34,18 +34,18 @@ int main()
 
 		// C1(j,k) = T2(j,k) + A(i,j,k)*T1(i);
 		q = 1u;
-		tensor_t C1 = matrix_t(n[1],n[2],2) + prod(q,A,vector_t(n[q-1],1));
+		tensor_t C1 = matrix_t(n[1],n[2],2) + prod(A,vector_t(n[q-1],1),q);
 
 		// C2(i,k) = A(i,j,k)*T1(j) + 4;
 		q = 2u;
-		tensor_t C2 = prod(q,A,vector_t(n[q-1],1)) + 4;
+		tensor_t C2 = prod(A,vector_t(n[q-1],1),q) + 4;
 
 		// C3() = A(i,j,k)*T1(i)*T2(j)*T2(k);		
-		tensor_t C3 = prod(1,prod(1,prod(1,A,vector_t(n[0],1)),vector_t(n[1],1)),vector_t(n[2],1));
+		tensor_t C3 = prod(prod(prod(A,vector_t(n[0],1),1),vector_t(n[1],1),1),vector_t(n[2],1),1);
 
 		// C4(i,j) = A(k,i,j)*T1(k) + 4;
 		q = 1u;
-		tensor_t C4 = prod(q, trans(A,{2,3,1}),vector_t(n[2],1)) + 4;
+		tensor_t C4 = prod(trans(A,{2,3,1}),vector_t(n[2],1),q) + 4;
 
 
 		// formatted output
@@ -85,22 +85,22 @@ int main()
 
 		// C1(l,j,k) = T2(l,j,k) + A(i,j,k)*T1(l,i);
 		q = 1u;
-		tensor_t C1 = tensor_t(shape{m,n[1],n[2]},2) + prod(q,A,matrix_t(m,n[q-1],1));
+		tensor_t C1 = tensor_t(shape{m,n[1],n[2]},2) + prod(A,matrix_t(m,n[q-1],1),q);
 
 		// C2(i,l,k) = A(i,j,k)*T1(l,j) + 4;
 		q = 2u;
-		tensor_t C2 = prod(q,A,matrix_t(m,n[q-1],1)) + 4;
+		tensor_t C2 = prod(A,matrix_t(m,n[q-1],1),q) + 4;
 
 		// C3(i,l1,l2) = A(i,j,k)*T1(l1,j)*T2(l2,k);
 		q = 3u;
-		tensor_t C3 = prod(q,prod(q-1,A,matrix_t(m+1,n[q-2],1)),matrix_t(m+2,n[q-1],1));
+		tensor_t C3 = prod(prod(A,matrix_t(m+1,n[q-2],1),q-1),matrix_t(m+2,n[q-1],1),q);
 
 		// C4(i,l1,l2) = A(i,j,k)*T2(l2,k)*T1(l1,j);
-		tensor_t C4 = prod(q-1,prod(q,A,matrix_t(m+2,n[q-1],1)),matrix_t(m+1,n[q-2],1));
+		tensor_t C4 = prod(prod(A,matrix_t(m+2,n[q-1],1),q),matrix_t(m+1,n[q-2],1),q-1);
 
 		// C5(i,k,l) = A(i,k,j)*T1(l,j) + 4;
 		q = 3u;
-		tensor_t C5 = prod(q,trans(A,{1,3,2}),matrix_t(m,n[1],1)) + 4;
+		tensor_t C5 = prod(trans(A,{1,3,2}),matrix_t(m,n[1],1),q) + 4;
 
 		// formatted output
 		std::cout << "% --------------------------- " << std::endl;
