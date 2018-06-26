@@ -23,23 +23,23 @@
 BOOST_AUTO_TEST_SUITE ( test_tensor_functions, * boost::unit_test::depends_on("test_tensor_contraction") ) ;
 
 
-using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+//using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
-//using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
+using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
 
 
 struct fixture {
 	using extents_type = boost::numeric::ublas::shape;
 	fixture() : extents {
-				extents_type{1,1}, // 1
-				extents_type{1,2}, // 2
-				extents_type{2,1}, // 3
-				extents_type{2,3}, // 4
-				extents_type{2,3,1}, // 5
-				extents_type{4,1,3}, // 6
-				extents_type{1,2,3}, // 7
+//				extents_type{1,1}, // 1
+//				extents_type{1,2}, // 2
+//				extents_type{2,1}, // 3
+//				extents_type{2,3}, // 4
+//				extents_type{2,3,1}, // 5
+//				extents_type{4,1,3}, // 6
+//				extents_type{1,2,3}, // 7
 				extents_type{4,2,3}, // 8
-				extents_type{4,2,3,5} // 9
+//				extents_type{4,2,3,5} // 9
 				}
 	{}
 	std::vector<extents_type> extents;
@@ -100,6 +100,56 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_matrix, value,  test_types, f
 				BOOST_CHECK_EQUAL( c[i] , value_type(n[m]) * a[i] );
 
 		}
+	}
+}
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using tensor_type  = ublas::tensor<value_type,layout_type>;
+
+	// left-hand and right-hand side have the
+	// the same number of elements
+
+	// computing the inner product with
+	// different permutation tuples for
+	// right-hand side
+
+	for(auto const& na : extents) {
+
+		auto a  = tensor_type( na, value_type{2} );
+		auto b  = tensor_type( na, value_type{3} );
+
+		auto const pa = a.rank();
+//		auto const pb = b.rank();
+
+		// the number of contractions is changed.
+		for( auto q = 0ul; q <= pa; ++q) { // pa
+
+//			auto r  = pa - q;
+//			auto s  = pb - q;
+
+			auto phia = std::vector<std::size_t> ( q );
+			auto phib = std::vector<std::size_t> ( q );
+
+			std::iota(phia.begin(), phia.end(), 1ul);
+			std::iota(phib.begin(), phib.end(), 1ul);
+
+			auto c = ublas::prod(a, b, phia, phib);
+
+			auto acc = value_type(1);
+			for(auto i = 0ul; i < q; ++i)
+				acc *= a.extents().at(phia.at(i)-1);
+
+			for(auto i = 0ul; i < c.size(); ++i)
+				BOOST_CHECK_EQUAL( c[i] , acc * a[0] * b[0] );
+
+		}
+
 	}
 }
 
