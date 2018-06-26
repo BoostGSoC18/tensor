@@ -134,4 +134,50 @@ int main()
 		std::cout << "% C5(i,k,l) = A(i,k,j)*T1(l,j) + 4;" << std::endl << std::endl;
 		std::cout << "C5=" << C5 << ";" << std::endl << std::endl;
 	}
+
+
+
+
+
+	// Tensor-Tensor-Multiplications Including Transposition
+	{
+
+		using perm_t = std::vector<std::size_t>;
+
+		auto na = shape{3,4,5};
+		auto nb = shape{4,6,3,2};
+		auto A = tensor_t(na,2);
+		auto B = tensor_t(nb,3);
+
+
+		// C1(j,l) = T(j,l) + A(i,j,k)*A(i,j,l) + 5;
+		tensor_t C1 = tensor_t(shape{na[2],na[2]},2) + prod(A,A,perm_t{1,2}) + 5;
+
+		// formatted output
+		std::cout << "% --------------------------- " << std::endl;
+		std::cout << "% --------------------------- " << std::endl << std::endl;
+		std::cout << "% C1(k,l) = T(k,l) + A(i,j,k)*A(i,j,l) + 5;" << std::endl << std::endl;
+		std::cout << "C1=" << C1 << ";" << std::endl << std::endl;
+
+
+		// C2(k,l,m) = T(k,l,m) + A(i,j,k)*B(j,l,i,m) + 5;
+		tensor_t C2 = tensor_t(shape{na[2],nb[1],nb[3]},2) + prod(A,B,perm_t{1,2},perm_t{3,1}) + 5;
+
+		// formatted output
+		std::cout << "% --------------------------- " << std::endl;
+		std::cout << "% --------------------------- " << std::endl << std::endl;
+		std::cout << "%  C2(k,l,m) = T(k,l,m) + A(i,j,k)*B(j,l,i,m) + 5;" << std::endl << std::endl;
+		std::cout << "C2=" << C2 << ";" << std::endl << std::endl;
+
+
+		// C3(k,l,m) = T(k,l,m) + A(i,j,k)*trans(B(j,l,i,m),{2,3,1,4})+ 5;
+		tensor_t C3 = tensor_t(shape{na[2],nb[1],nb[3]},2) + prod(A,trans(B,{2,3,1,4}),perm_t{1,2}) + 5;
+
+		// formatted output
+		std::cout << "% --------------------------- " << std::endl;
+		std::cout << "% --------------------------- " << std::endl << std::endl;
+		std::cout << "%  C3(k,l,m) = T(k,l,m) + A(i,j,k)*trans(B(j,l,i,m),{2,3,1,4})+ 5;" << std::endl << std::endl;
+		std::cout << "C3=" << C3 << ";" << std::endl << std::endl;
+
+	}
 }
