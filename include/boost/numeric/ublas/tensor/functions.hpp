@@ -163,6 +163,7 @@ auto prod(tensor<V,F,A1> const& a, matrix<V,F,A2> const& b, const std::size_t m)
 
 
 
+
 /** @brief Computes the q-mode tensor-times-tensor product
  *
  * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
@@ -171,8 +172,8 @@ auto prod(tensor<V,F,A1> const& a, matrix<V,F,A2> const& b, const std::size_t m)
  *
  * na[phia[x]] = nb[phib[x]] for 1 <= x <= q
  *
- * @param[in]	 one-based phia permutation tuple of length q for the first input tensor a
- * @param[in]	 one-based phib permutation tuple of length q for the second input tensor b
+ * @param[in]	 phia one-based permutation tuple of length q for the first input tensor a
+ * @param[in]	 phib one-based permutation tuple of length q for the second input tensor b
  * @param[in]  a  left-hand side tensor with order r+q
  * @param[in]  b  right-hand side tensor with order s+q
  * @result     tensor with order r+s
@@ -237,7 +238,7 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 		nc[ i ] = na[ phia1[ i  ] - 1  ];
 
 	for(auto i = 0ul; i < phib.size(); ++i)
-		* std::remove(phib1.begin(), phib1.end(), phia.at(i))  = phib.at(i) ;
+		* std::remove(phib1.begin(), phib1.end(), phib.at(i))  = phib.at(i) ;
 		//phib1.erase( std::remove(phib1.begin(), phib1.end(), phia.at(i)), phib1.end() )  ;
 
 	assert(phib1.size() == pb);
@@ -259,6 +260,27 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 			b.data(), b.extents().data(), b.strides().data());
 
 	return c;
+}
+
+
+/** @brief Computes the q-mode tensor-times-tensor product
+ *
+ * Implements C[i1,...,ir,j1,...,js] = sum( A[i1,...,ir+q] * B[j1,...,js+q]  )
+ *
+ * @note calls ublas::ttt
+ *
+ * na[phi[x]] = nb[phi[x]] for 1 <= x <= q
+ *
+ * @param[in]	 phi one-based permutation tuple of length q for bot input tensors
+ * @param[in]  a  left-hand side tensor with order r+q
+ * @param[in]  b  right-hand side tensor with order s+q
+ * @result     tensor with order r+s
+*/
+template<class V, class F, class A1, class A2>
+auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
+					std::vector<std::size_t> const& phi)
+{
+	return prod(a, b, phi, phi);
 }
 
 

@@ -23,23 +23,23 @@
 BOOST_AUTO_TEST_SUITE ( test_tensor_functions, * boost::unit_test::depends_on("test_tensor_contraction") ) ;
 
 
-//using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
-using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
+//using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
 
 
 struct fixture {
 	using extents_type = boost::numeric::ublas::shape;
 	fixture() : extents {
-//				extents_type{1,1}, // 1
-//				extents_type{1,2}, // 2
-//				extents_type{2,1}, // 3
-//				extents_type{2,3}, // 4
-//				extents_type{2,3,1}, // 5
-//				extents_type{4,1,3}, // 6
-//				extents_type{1,2,3}, // 7
+				extents_type{1,1}, // 1
+				extents_type{1,2}, // 2
+				extents_type{2,1}, // 3
+				extents_type{2,3}, // 4
+				extents_type{2,3,1}, // 5
+				extents_type{4,1,3}, // 6
+				extents_type{1,2,3}, // 7
 				extents_type{4,2,3}, // 8
-//				extents_type{4,2,3,5} // 9
+				extents_type{4,2,3,5} // 9
 				}
 	{}
 	std::vector<extents_type> extents;
@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_matrix, value,  test_types, f
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor_1, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -115,29 +115,85 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor, value,  test_types, f
 	// left-hand and right-hand side have the
 	// the same number of elements
 
-	// computing the inner product with
-	// different permutation tuples for
-	// right-hand side
-
 	for(auto const& na : extents) {
 
 		auto a  = tensor_type( na, value_type{2} );
 		auto b  = tensor_type( na, value_type{3} );
 
 		auto const pa = a.rank();
-//		auto const pb = b.rank();
 
 		// the number of contractions is changed.
 		for( auto q = 0ul; q <= pa; ++q) { // pa
 
-//			auto r  = pa - q;
-//			auto s  = pb - q;
+			auto phi = std::vector<std::size_t> ( q );
 
-			auto phia = std::vector<std::size_t> ( q );
-			auto phib = std::vector<std::size_t> ( q );
+			std::iota(phi.begin(), phi.end(), 1ul);
+
+			auto c = ublas::prod(a, b, phi);
+
+			auto acc = value_type(1);
+			for(auto i = 0ul; i < q; ++i)
+				acc *= a.extents().at(phi.at(i)-1);
+
+			for(auto i = 0ul; i < c.size(); ++i)
+				BOOST_CHECK_EQUAL( c[i] , acc * a[0] * b[0] );
+
+		}
+	}
+}
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor_2, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using tensor_type  = ublas::tensor<value_type,layout_type>;
+
+
+	auto compute_factorial = [](auto const& p){
+		auto f = 1ul;
+		for(auto i = 1u; i <= p; ++i)
+			f *= i;
+		return f;
+	};
+
+	auto permute_extents = [](auto const& pi, auto const& na){
+		auto nb = na;
+		assert(pi.size() == na.size());
+		for(auto j = 0u; j < pi.size(); ++j)
+			nb[pi[j]-1] = na[j];
+		return nb;
+	};
+
+
+	// left-hand and right-hand side have the
+	// the same number of elements
+
+	for(auto const& na : extents) {
+
+		auto a  = tensor_type( na, value_type{2} );
+		auto const pa = a.rank();
+
+
+		auto pi   = std::vector<std::size_t>(pa);
+		auto fac = compute_factorial(pa);
+		std::iota( pi.begin(), pi.end(), 1 );
+
+		for(auto f = 0ul; f < fac; ++f)
+		{
+			auto nb = permute_extents( pi, na  );
+			auto b  = tensor_type( nb, value_type{3} );
+
+		// the number of contractions is changed.
+		for( auto q = 0ul; q <= pa; ++q) { // pa
+
+			auto phia = std::vector<std::size_t> ( q );  // concatenation for a
+			auto phib = std::vector<std::size_t> ( q );  // concatenation for b
 
 			std::iota(phia.begin(), phia.end(), 1ul);
-			std::iota(phib.begin(), phib.end(), 1ul);
+			std::transform(  phia.begin(), phia.end(), phib.begin(),
+											 [&pi] ( std::size_t i ) { return pi.at(i-1); } );
 
 			auto c = ublas::prod(a, b, phia, phib);
 
@@ -150,8 +206,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor, value,  test_types, f
 
 		}
 
+			std::next_permutation(pi.begin(), pi.end());
+		}
 	}
 }
+
+
+
 
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner_prod, value,  test_types, fixture )
