@@ -25,6 +25,7 @@
 #include "expression_evaluation.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
+#include "einstein.hpp"
 
 
 
@@ -536,6 +537,8 @@ public:
 	}
 
 
+
+
 	/** @brief Element access using a single index.
 	 *
 	 *
@@ -560,6 +563,31 @@ public:
 	reference operator()(size_type i){
 		return this->data_[i];
 	}
+
+
+
+
+	/** @brief Generates
+	 *
+	 *
+	 *  @code A.at(i,j,k) = a; @endcode or
+	 *  @code A.at(i) = a;     @endcode
+	 *
+	 *  @param i placeholder
+	 *  @param is zero-based indices where 0 <= is[r] < this->size(r) where  0 < r < this->rank()
+	 */
+	BOOST_UBLAS_INLINE
+	template<std::size_t I, class ... size_types>
+	auto operator() (placeholders::Placeholder<I> /*i*/, size_types ... is) const
+	{
+		std::array<std::size_t, 1 + sizeof...(is)> indices;
+
+		return indices;
+	}
+
+
+
+
 
 	/** @brief Reshapes the tensor
 	 *
