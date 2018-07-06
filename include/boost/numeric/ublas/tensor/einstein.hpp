@@ -35,37 +35,32 @@ extern const Placeholder< 5> e;
 } // namespace placeholders
 
 
-//template<std::size_t N>
-//struct EinsteinIndices
-//{
+template<std::size_t N>
+struct MultiplicationIndices
+{
+	using size_type  = std::size_t;
+	using array_type = std::array<size_type, N>;
 
-//	EinsteinIndices();
+	MultiplicationIndices() = delete;
 
-//	std::array<std::size_t, N> _indices;
-//};
+	MultiplicationIndices(array_type const& other)
+		: _indices(other)
+	{
 
+	}
 
+	MultiplicationIndices(MultiplicationIndices const&)
+	{
 
+	}
 
-//template<std::size_t N, class T>
-//class TensorMultiplier
-//{
-//public:
-//	static constexpr size_type n = N;
-//	using size_type  = std::size_t;
-//	using array_type = std::array<size_type,n>;
+	bool goodIndices() const
+	{
 
-//private:
-//	TensorMultiplier() = delete;
-//	TensorMultiplier(array_type const& indices) : _indices(indices)
-//	{
+	}
 
-//	}
-
-
-//	array_type _indices;
-
-//};
+	std::array<std::size_t, N> _indices;
+};
 
 
 
