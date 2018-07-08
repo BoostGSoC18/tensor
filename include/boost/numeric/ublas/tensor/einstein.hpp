@@ -21,79 +21,128 @@
 namespace boost {
 namespace numeric {
 namespace ublas {
-namespace placeholders {
+namespace indices {
 
 // Adapter
 
 template<std::size_t I>
-struct Placeholder
+struct Index
 { static constexpr std::size_t value = I; };
 
-static constexpr Placeholder< 0> _;
-static constexpr Placeholder< 1> a;
-static constexpr Placeholder< 2> b;
-static constexpr Placeholder< 3> c;
-static constexpr Placeholder< 4> d;
-static constexpr Placeholder< 5> e;
-static constexpr Placeholder< 6> f;
-static constexpr Placeholder< 7> g;
-static constexpr Placeholder< 8> h;
-static constexpr Placeholder< 9> i;
-static constexpr Placeholder<10> j;
-static constexpr Placeholder<11> k;
-static constexpr Placeholder<12> l;
+static constexpr Index< 0> _;
+static constexpr Index< 1> a;
+static constexpr Index< 2> b;
+static constexpr Index< 3> c;
+static constexpr Index< 4> d;
+static constexpr Index< 5> e;
+static constexpr Index< 6> f;
+static constexpr Index< 7> g;
+static constexpr Index< 8> h;
+static constexpr Index< 9> i;
+static constexpr Index<10> j;
+static constexpr Index<11> k;
+static constexpr Index<12> l;
+static constexpr Index<13> m;
+static constexpr Index<14> n;
+static constexpr Index<15> o;
+static constexpr Index<16> p;
+static constexpr Index<17> q;
+static constexpr Index<18> r;
+static constexpr Index<19> s;
+static constexpr Index<20> t;
+static constexpr Index<21> u;
+static constexpr Index<22> v;
+static constexpr Index<23> w;
+static constexpr Index<24> x;
+static constexpr Index<25> y;
+static constexpr Index<26> z;
 
 
-} // namespace placeholders
+} // namespace indices
 
 
 template<std::size_t N>
-struct MultiplicationIndices
+class MIndices
 {
+
 	using size_type  = std::size_t;
 	template<std::size_t I>
-	using pindex_type = placeholders::Placeholder<I>;
+	using index_type = indices::Index<I>;
 	using array_type = std::array<std::size_t, N>;
 
-	MultiplicationIndices() = delete;
+public:
+	MIndices() = delete;
 
-	template<std::size_t I, class ... Placeholders>
-	MultiplicationIndices(pindex_type<I> const& p, Placeholders ... ps )
-			 : _indices{getIndex(p), getIndex(ps)... }
+	template<std::size_t I, class ... Indexes>
+	constexpr
+	MIndices(index_type<I> const& i, Indexes ... is )
+			 : _indices{getIndex(i), getIndex(is)... }
 	{
-		static_assert( sizeof...(ps)+1 == N, " " );
+		static_assert( sizeof...(is)+1 == N, "Static assert in boost::numeric::ublas::MIndices: number of constructor arguments is not equal to the template parameter." );
+		static_assert( valid(i,is...), "Static assert in boost::numeric::ublas::MIndices: constructor arguments are not valid." );
 	}
 
-
-	MultiplicationIndices(MultiplicationIndices const& other)
+	MIndices(MIndices const& other)
 		: _indices(other._indices)
 	{
 	}
 
-	MultiplicationIndices& operator=(MultiplicationIndices const& other)
+	MIndices& operator=(MIndices const& other)
 	{
-		_indices = (other._indices);
+		this->_indices = other._indices;
+		return *this;
 	}
 
-	~MultiplicationIndices() = default;
-
-	template<std::size_t I>
-	constexpr auto getIndex(pindex_type<I> const& p)
+	bool operator==(MIndices const& other) const
 	{
-		return p.value;
+		return this->_indices == other._indices;
 	}
+
+	bool operator!=(MIndices const& other) const
+	{
+		return this->_indices != other._indices;
+	}
+
+	~MIndices() = default;
 
 	auto const& indices() const { return _indices; }
 
 	auto at(std::size_t i) const { return _indices.at(i); }
 
+private:
+	template<std::size_t I>
+	constexpr auto getIndex(index_type<I> const& i) { return i.value; }
+
+
+	template<std::size_t I, std::size_t J, class ... Indexes>
+	static constexpr bool has_i (index_type<I> const& i, index_type<J> const& j, Indexes ... is )
+	{
+		constexpr auto n = sizeof...(is);
+		constexpr auto b = i.value==j.value;
+
+		if constexpr (n>0)
+			return b && has_i( i, is ... );
+		else
+			return b;
+	}
+
+	template<std::size_t I, class ... Indexes>
+	static constexpr bool valid (index_type<I> const& i, Indexes ... is )
+	{
+		constexpr auto n = sizeof...(is);
+		if constexpr (n>0)
+			return !has_i( i, is ... ) && valid(is...);
+		else
+			return true;
+	}
+
 	array_type _indices;
-	// array of index identifier, e.g. c<3>,a<1>,b<2>,...
 };
 
 template<std::size_t N, std::size_t M>
-auto corresponding(MultiplicationIndices<N> const& lhs,
-				   MultiplicationIndices<M> const& rhs)
+auto extract_corresponding_indices(
+		MIndices<N> const& lhs,
+		MIndices<M> const& rhs)
 {
 	using vtype = std::vector<std::size_t>;
 
@@ -105,10 +154,12 @@ auto corresponding(MultiplicationIndices<N> const& lhs,
 				pp.first .push_back( i+1 ),
 				pp.second.push_back( j+1 );
 
+	if(pp.first.empty())
+		throw std::runtime_error("Error in boost::numeric::ublas::extract_corresponding_indices: number of contracting indices of lhs indices is zero.");
 
-	assert(pp.first.size() == pp.second.size());
+	if(pp.first.size() != pp.second.size())
+		throw std::runtime_error("Error in boost::numeric::ublas::extract_corresponding_indices: number of contracting indices from lhs and rhs indices must be equal.");
 
-	assert(!pp.first.empty());
 
 	return pp;
 

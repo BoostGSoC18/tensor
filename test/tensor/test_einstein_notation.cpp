@@ -28,9 +28,9 @@ using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
 
 
 
-BOOST_AUTO_TEST_CASE ( test_multiplication_placeholders )
+BOOST_AUTO_TEST_CASE ( test_multiplication_indices )
 {
-	using namespace boost::numeric::ublas::placeholders;
+	using namespace boost::numeric::ublas::indices;
 
 
 	BOOST_CHECK_EQUAL (  a.value  , 1  ) ;
@@ -42,15 +42,15 @@ BOOST_AUTO_TEST_CASE ( test_multiplication_placeholders )
 
 }
 
-BOOST_AUTO_TEST_CASE ( test_multiplication_indices )
+BOOST_AUTO_TEST_CASE ( test_multiplication_mindices )
 {
 	using namespace boost::numeric::ublas;
 
-//	BOOST_CHECK_NO_THROW(  MultiplicationIndices<1>(placeholders::c) );
+//	BOOST_CHECK_NO_THROW(  Indices<1>(indices::c) );
 
 
 	{
-	MultiplicationIndices<2> ind(placeholders::a, placeholders::b);
+	MIndices<2> ind(indices::a, indices::b);
 
 	BOOST_CHECK_EQUAL ( std::get<0>( ind.indices() ), 1 ) ;
 	BOOST_CHECK_EQUAL ( std::get<1>( ind.indices() ), 2 ) ;
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE ( test_multiplication_indices )
 
 
 	{
-	MultiplicationIndices<2> ind(placeholders::d, placeholders::c);
+	MIndices<2> ind(indices::d, indices::c);
 
 	BOOST_CHECK_EQUAL ( std::get<0>( ind.indices() ), 4 ) ;
 	BOOST_CHECK_EQUAL ( std::get<1>( ind.indices() ), 3 ) ;
@@ -74,11 +74,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 	using layout_type  = typename value::second_type;
 	using tensor_type  = tensor<value_type,layout_type>;
 
-	auto t = std::make_tuple (  placeholders::a, // 0
-								placeholders::b, // 1
-								placeholders::c, // 2
-								placeholders::d, // 3
-								placeholders::e  // 4
+	auto t = std::make_tuple (  indices::a, // 0
+								indices::b, // 1
+								indices::c, // 2
+								indices::d, // 3
+								indices::e  // 4
 								);
 
 	{
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), placeholders::a.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), placeholders::c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::a.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::c.value ) ;
 	}
 
 	{
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), placeholders::c.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), placeholders::a.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::a.value ) ;
 	}
 
 	{
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), placeholders::c.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), placeholders::d.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::d.value ) ;
 	}
 
 	{
@@ -117,15 +117,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), placeholders::c.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), placeholders::d.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(2), placeholders::a.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::d.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.second.at(2), indices::a.value ) ;
 	}
 
 }
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_multiplication, value,  test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_einstein_multiplication, value,  test_types )
 {
 	using namespace boost::numeric::ublas;
 	using value_type   = typename value::first_type;
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_multiplication, value,  test
 		auto B = tensor_type(shape{3,4}, value_type{2});
 		auto C = tensor_type(shape{4,5,6}, value_type{2});
 
-		using namespace boost::numeric::ublas::placeholders;
+		using namespace boost::numeric::ublas::indices;
 
 
 		auto AB = A(d, e) * B(e, f);
