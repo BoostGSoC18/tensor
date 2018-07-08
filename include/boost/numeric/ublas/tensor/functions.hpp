@@ -21,7 +21,7 @@
 
 #include "multiplication.hpp"
 #include "algorithms.hpp"
-
+#include "einstein.hpp"
 
 
 namespace boost {
@@ -260,6 +260,17 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 			b.data(), b.extents().data(), b.strides().data());
 
 	return c;
+}
+
+
+template<class V, class F, class A1, class A2, std::size_t N, std::size_t M>
+auto operator*(
+		std::pair< tensor<V,F,A1>*, MultiplicationIndices<N> > const& lhs,
+		std::pair< tensor<V,F,A2>*, MultiplicationIndices<M> > const& rhs
+		)
+{
+	auto vlhs_vrhs = corresponding(  lhs.second, rhs.second  );
+	return prod( *lhs.first, *rhs.first, vlhs_vrhs.first, vlhs_vrhs.second );
 }
 
 

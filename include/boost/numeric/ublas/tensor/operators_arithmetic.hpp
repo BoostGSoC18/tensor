@@ -71,6 +71,10 @@ FIRST_ORDER_OPERATOR_LEFT (-, matrix_expression, detail:: tensor_expression)
 FIRST_ORDER_OPERATOR_LEFT (/, matrix_expression, detail:: tensor_expression)
 
 
+
+
+
+
 template<class T, class L, class R>
 auto operator+( boost::numeric::ublas::detail::tensor_expression<T,L> const& lhs, boost::numeric::ublas::detail::tensor_expression<T,R> const& rhs) {
 	return boost::numeric::ublas::detail::make_binary_tensor_expression<T> (lhs(), rhs(), [](auto const& l, auto const& r){ return l + r; });

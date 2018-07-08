@@ -577,12 +577,17 @@ public:
 	 *  @param is zero-based indices where 0 <= is[r] < this->size(r) where  0 < r < this->rank()
 	 */
 	BOOST_UBLAS_INLINE
-	template<std::size_t I, class ... size_types>
-	auto operator() (placeholders::Placeholder<I> /*i*/, size_types ... is) const
+	template<std::size_t I, class ... placeholder_types>
+	auto operator() (placeholders::Placeholder<I> p, placeholder_types ... ps) const
 	{
-		std::array<std::size_t, 1 + sizeof...(is)> indices;
+		constexpr auto N = sizeof...(ps)+1;
+		if( N != this->rank() )
+			throw std::runtime_error("Error in boost::numeric::ublas::operator(): size of provided placeholders does not match with the rank.");
 
-		return indices;
+		auto* tp = const_cast<tensor*>( this );
+
+		return std::make_pair(tp,MultiplicationIndices<N>( p, ps... ));
+
 	}
 
 

@@ -7,6 +7,8 @@ win*: CONFIG += console
 
 QMAKE_CXXFLAGS += -fno-inline
 QMAKE_CXXFLAGS += -std=c++17
+QMAKE_CXXFLAGS += -Wno-unknown-pragmas
+
 
 DEFINES += BOOST_UBLAS_NO_EXCEPTIONS
 win*: DEFINES += _SCL_SECURE_NO_WARNINGS
@@ -39,7 +41,8 @@ SOURCES += \
 	../../../test/tensor/test_operators_arithmetic.cpp \
     ../../../test/tensor/test_tensor_matrix_vector.cpp \
 	../../../test/tensor/test_multiplication.cpp \
-	../../../test/tensor/test_algorithms.cpp
+	../../../test/tensor/test_algorithms.cpp \
+	../../../test/tensor/test_einstein_notation.cpp
 
 
 INCLUDEPATH += \
