@@ -107,6 +107,7 @@ public:
 	~MIndices() = default;
 
 	auto const& indices() const { return _indices; }
+	constexpr auto size() const { return _indices.size(); }
 
 	auto at(std::size_t i) const { return _indices.at(i); }
 
@@ -119,7 +120,7 @@ private:
 	static constexpr bool has_i (index_type<I> i, index_type<J> j, Indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
-		constexpr auto b = (i.value==j.value);
+		constexpr auto b = (i.value==j.value && i.value != 0);
 
 		if constexpr (n>0)
 			return b && has_i( i, is ... );
@@ -139,6 +140,77 @@ private:
 
 	array_type _indices;
 };
+
+template<class V, class S, class A>
+class tensor;
+
+template<class V, class S, class A, std::size_t N>
+class tensor_index
+{
+	using indices_type = MIndices<N>;
+	using tensor_type  = tensor<V,S,A>;
+	friend tensor_type;
+public:
+	auto* ptensor() const { return this->_ptensor; }
+	auto  indices() const { return this->_indices; }
+
+
+	tensor_index(tensor_index const& other)
+		: _ptensor(other._ptensor)
+		, _indices(other._indices)
+	{
+		if(_ptensor == nullptr)
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: pointer to tensor is nullptr.");
+		if(_indices.size() > _ptensor->rank())
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: tensor rank is smaller than provided indices.");
+	}
+
+	tensor_index& operator=(tensor_index other)
+	{
+		swap (*this, other);
+		return *this;
+	}
+
+	friend void swap(tensor_index& lhs, tensor_index& rhs)
+	{
+		std::swap(lhs._ptensor, rhs._ptensor);
+		std::swap(lhs._indices, rhs._indices);
+	}
+
+	bool operator==(tensor_index const& other)
+	{
+		return this->_ptensor == other._ptensor && this->_indices == other._indices;
+	}
+
+	bool operator!=(tensor_index const& other)
+	{
+		return this->_ptensor != other._ptensor || this->_indices != other._indices;
+	}
+
+
+	~tensor_index() = default;
+
+
+private:
+
+	tensor_index() = delete;
+	tensor_index(  tensor_type* ptensor, indices_type const& indices )
+		: _ptensor(ptensor)
+		, _indices(indices)
+	{
+		if(ptensor == nullptr)
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: pointer to tensor is nullptr.");
+		if(indices.size() > ptensor->rank())
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: tensor rank is smaller than provided indices.");
+	}
+
+
+	tensor_type* _ptensor;
+	indices_type _indices;
+
+};
+
+
 
 template<std::size_t N, std::size_t M>
 auto extract_corresponding_indices(
@@ -161,10 +233,12 @@ auto extract_corresponding_indices(
 	if(pp.first.size() != pp.second.size())
 		throw std::runtime_error("Error in boost::numeric::ublas::extract_corresponding_indices: number of contracting indices from lhs and rhs indices must be equal.");
 
-
 	return pp;
 
 }
+
+
+
 
 
 

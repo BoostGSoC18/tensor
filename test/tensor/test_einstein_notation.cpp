@@ -106,41 +106,41 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 		auto a = tensor_type(shape{2,3}, value_type{2});
 		auto a_ind = a( std::get<0>(t), std::get<2>(t)  );
 
-		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
+		BOOST_CHECK_EQUAL (a_ind.ptensor(), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::_a.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::_c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(0), indices::_a.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(1), indices::_c.value ) ;
 	}
 
 	{
 		auto a = tensor_type(shape{2,3}, value_type{2});
 		auto a_ind = a( std::get<2>(t), std::get<0>(t)  );
 
-		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
+		BOOST_CHECK_EQUAL (a_ind.ptensor(), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::_c.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::_a.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(0), indices::_c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(1), indices::_a.value ) ;
 	}
 
 	{
 		auto a = tensor_type(shape{2,3}, value_type{2});
 		auto a_ind = a( std::get<2>(t), std::get<3>(t)  );
 
-		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
+		BOOST_CHECK_EQUAL (a_ind.ptensor(), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::_c.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::_d.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(0), indices::_c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(1), indices::_d.value ) ;
 	}
 
 	{
 		auto a = tensor_type(shape{2,3,4}, value_type{2});
 		auto a_ind = a( std::get<2>(t), std::get<3>(t), std::get<0>(t)  );
 
-		BOOST_CHECK_EQUAL (a_ind.first, std::addressof( a ) ) ;
+		BOOST_CHECK_EQUAL (a_ind.ptensor(), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), indices::_c.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), indices::_d.value ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(2), indices::_a.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(0), indices::_c.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(1), indices::_d.value ) ;
+		BOOST_CHECK_EQUAL (a_ind.indices().at(2), indices::_a.value ) ;
 	}
 
 }

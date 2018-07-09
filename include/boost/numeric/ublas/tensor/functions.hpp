@@ -264,13 +264,10 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 
 
 template<class V, class F, class A1, class A2, std::size_t N, std::size_t M>
-auto operator*(
-		std::pair< tensor<V,F,A1>*, MIndices<N> > const& lhs,
-		std::pair< tensor<V,F,A2>*, MIndices<M> > const& rhs
-		)
+auto operator*( tensor_index<V,F,A1,N> const& lhs, tensor_index<V,F,A2,M> const& rhs)
 {
-	auto indices = extract_corresponding_indices(  lhs.second, rhs.second  );
-	return prod( *lhs.first, *rhs.first, indices.first, indices.second );
+	auto corr_indices = extract_corresponding_indices(  lhs.indices(), rhs.indices());
+	return prod( *lhs.ptensor(), *rhs.ptensor(), corr_indices.first, corr_indices.second );
 }
 
 

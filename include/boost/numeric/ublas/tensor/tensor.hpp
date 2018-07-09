@@ -584,9 +584,11 @@ public:
 		if( N != this->rank() )
 			throw std::runtime_error("Error in boost::numeric::ublas::operator(): size of provided index_types does not match with the rank.");
 
-		auto* tp = const_cast<tensor*>( this );
+		return tensor_index( const_cast<tensor*>( this ), MIndices<N>( p, ps... )  );
 
-		return std::make_pair(tp, MIndices<N>( p, ps... ));
+//		auto* tp = const_cast<tensor*>( this );
+
+//		return std::make_pair(tp, MIndices<N>( p, ps... ));
 
 	}
 
