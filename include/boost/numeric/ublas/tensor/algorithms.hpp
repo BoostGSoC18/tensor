@@ -153,7 +153,6 @@ void copy(const SizeType p, SizeType const*const n,
 		throw std::length_error("Error in boost::numeric::ublas::copy: Pointers shall not be null pointers.");
 
 	detail::recursive::copy( p-1, n, c, wc, a, wa );
-
 }
 
 

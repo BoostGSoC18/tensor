@@ -30,32 +30,32 @@ struct Index
 { static constexpr std::size_t value = I; };
 
 static constexpr Index< 0> _;
-static constexpr Index< 1> a;
-static constexpr Index< 2> b;
-static constexpr Index< 3> c;
-static constexpr Index< 4> d;
-static constexpr Index< 5> e;
-static constexpr Index< 6> f;
-static constexpr Index< 7> g;
-static constexpr Index< 8> h;
-static constexpr Index< 9> i;
-static constexpr Index<10> j;
-static constexpr Index<11> k;
-static constexpr Index<12> l;
-static constexpr Index<13> m;
-static constexpr Index<14> n;
-static constexpr Index<15> o;
-static constexpr Index<16> p;
-static constexpr Index<17> q;
-static constexpr Index<18> r;
-static constexpr Index<19> s;
-static constexpr Index<20> t;
-static constexpr Index<21> u;
-static constexpr Index<22> v;
-static constexpr Index<23> w;
-static constexpr Index<24> x;
-static constexpr Index<25> y;
-static constexpr Index<26> z;
+static constexpr Index< 1> _a;
+static constexpr Index< 2> _b;
+static constexpr Index< 3> _c;
+static constexpr Index< 4> _d;
+static constexpr Index< 5> _e;
+static constexpr Index< 6> _f;
+static constexpr Index< 7> _g;
+static constexpr Index< 8> _h;
+static constexpr Index< 9> _i;
+static constexpr Index<10> _j;
+static constexpr Index<11> _k;
+static constexpr Index<12> _l;
+static constexpr Index<13> _m;
+static constexpr Index<14> _n;
+static constexpr Index<15> _o;
+static constexpr Index<16> _p;
+static constexpr Index<17> _q;
+static constexpr Index<18> _r;
+static constexpr Index<19> _s;
+static constexpr Index<20> _t;
+static constexpr Index<21> _u;
+static constexpr Index<22> _v;
+static constexpr Index<23> _w;
+static constexpr Index<24> _x;
+static constexpr Index<25> _y;
+static constexpr Index<26> _z;
 
 
 } // namespace indices
@@ -79,7 +79,8 @@ public:
 			 : _indices{getIndex(i), getIndex(is)... }
 	{
 		static_assert( sizeof...(is)+1 == N, "Static assert in boost::numeric::ublas::MIndices: number of constructor arguments is not equal to the template parameter." );
-		static_assert( valid(i,is...), "Static assert in boost::numeric::ublas::MIndices: constructor arguments are not valid." );
+		if( ! valid(i,is...) )
+			throw std::runtime_error("Error in boost::numeric::ublas::MIndices: constructor arguments are not valid." );
 	}
 
 	MIndices(MIndices const& other)
@@ -115,10 +116,10 @@ private:
 
 
 	template<std::size_t I, std::size_t J, class ... Indexes>
-	static constexpr bool has_i (index_type<I> const& i, index_type<J> const& j, Indexes ... is )
+	static constexpr bool has_i (index_type<I> i, index_type<J> j, Indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
-		constexpr auto b = i.value==j.value;
+		constexpr auto b = (i.value==j.value);
 
 		if constexpr (n>0)
 			return b && has_i( i, is ... );
@@ -127,7 +128,7 @@ private:
 	}
 
 	template<std::size_t I, class ... Indexes>
-	static constexpr bool valid (index_type<I> const& i, Indexes ... is )
+	static constexpr bool valid (index_type<I> i, Indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
 		if constexpr (n>0)
@@ -150,7 +151,7 @@ auto extract_corresponding_indices(
 
 	for(auto i = 0u; i < N; ++i)
 		for(auto j = 0u; j < M; ++j)
-			if ( lhs.at(i) == rhs.at(j) )
+			if ( lhs.at(i) == rhs.at(j) && lhs.at(i) != indices::_.value)
 				pp.first .push_back( i+1 ),
 				pp.second.push_back( j+1 );
 
@@ -164,6 +165,7 @@ auto extract_corresponding_indices(
 	return pp;
 
 }
+
 
 
 
