@@ -2,6 +2,9 @@ Changes
 =====
 While the tensor template class and its auxiliary classes inherits the implementation style of the matrix and vector template class, they deviate in some points. This document shall give an overview of the changes.
 
+## Concept [Tensor]
+
+* The methods`insert` or `erase` of the tensor concept are renamed by `write` and `read`.
 
 ## Implementation [Tensor]
 
@@ -9,7 +12,7 @@ While the tensor template class and its auxiliary classes inherits the implement
 * Function `max_size()` in vector and matrix class is removed. It can still be queried through the underlying storage array. Note that `max_size()` is depcretated since C++17 for the std::vector.
 * Functions like `find_element()` are put outside the tensor template class as free functions. 
 * All iterator structures are removed.
-* Member functions `data()` return a pointer instead of an `array_type` instance.
+* Member function `data()` returns a `pointer` or `const_pointer` instead of an `array_type`.
 * Data access functions are implemented with `operator[]` and function `at()`. 
 * Function `operator()` will be used to select/project sections of tensors.
 * Functions `insert_element()` and `erase_element()` will not be used.
