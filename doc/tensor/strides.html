@@ -26,33 +26,38 @@ MathJax.Hub.Config({
 <title>Shape</title>
 </head>
 <body>
-<h1><img src="../../../../boost.png" align="middle" />Extents</h1>
+<h1><img src="../../../../boost.png" align="middle" />Strides</h1>
 <div class="toc" id="toc"></div>
-<h2><a name="extents"></a>basic_extents&lt;size_type&gt;</h2>
+<h2><a name="extents"></a>basic_strides&lt;size_type&gt;</h2>
 <h4>Description</h4>
-<p>The template class <code>basic_extents</code> specifies dimension extents of a  <a href=
-"../tensor.html#tensor">tensor</a> instance.</p>
+<p>The template class <code>basic_strides</code> contains weights for a given storage format in order to map multi-indices to scalar memory indices for <a href=
+"../tensor.html#tensor">tensor</a> instances.</p>
 
 <h4>Example</h4>
 <pre>
-#include &lt;boost/numeric/ublas/tensor/extents.hpp&gt;
+#include &lt;boost/numeric/ublas/tensor/strides.hpp&gt;
 
 int main () {
     <b>using namespace</b> boost::numeric::ublas;
-    shape s{4,3,2};
-    for (<b>auto</b> i = 0u; i &lt; s.size(); ++i) {
-        std::cout &lt;&lt; s.at(i) &lt;&lt; std::endl;
-    }
+    <b>auto</b> wf = strides&lt;first_order&gt;(shape{4,3,2});
+    for (<b>auto</b> i = 0u; i &lt; wf.size(); ++i)
+        std::cout &lt;&lt; wf.at(i) &lt;&lt; std::endl;    
+        // 1,4,12
+        
+    <b>auto</b> wl = strides&lt;first_order&gt;(shape{4,3,2});
+    for (<b>auto</b> i = 0u; i &lt; wl.size(); ++i)
+        std::cout &lt;&lt; wl.at(i) &lt;&lt; std::endl;    
+        // 6,2,1        
 }
 </pre>
 <h4>Definition</h4>
-<p>Defined in the header tensor/extents.hpp.</p>
+<p>Defined in the header tensor/strides.hpp.</p>
 
 <h4>Public base classes</h4>
 <p>None.</p>
 
 <h4>Specialization</h4>
-<p><code><b>using</b> shape = basic_extents&lt;std::size_t&gt;</code></p>
+<p><code><b>template</b>&lt;<b>class</b> format_t&gt;<br><b>using</b> strides = basic_strides&lt;std::size_t,format_t&gt;</code></p>
 
 
 <h4>Template parameters</h4>
