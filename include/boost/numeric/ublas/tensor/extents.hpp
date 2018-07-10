@@ -296,7 +296,7 @@ public:
 
 	bool operator != (basic_extents const& b) const
 	{
-		return _base != b._base;
+		return !( _base == b._base );
 	}
 
 	const_iterator

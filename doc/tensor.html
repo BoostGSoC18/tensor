@@ -9,6 +9,23 @@
 <link rel="stylesheet" href="ublas.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-1.3.2.min.js" async="async" ></script>
 <script type="text/javascript" src="js/jquery.toc-gw.js" async="async" ></script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+      jax: ["input/TeX", "output/HTML-CSS"],
+      extensions: ["tex2jax.js"],
+      "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"], scale: "80" },
+      tex2jax: { 
+      	inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+      	displayMath: [ ["$$","$$"], ["\\[", "\\]"] ], 
+      	processEscapes: true, 
+      	ignoreClass: "tex2jax_ignore|dno" },
+      TeX: { noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } } },
+      messageStyle: "none"
+    });
+</script>    
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+
+
 <title>Tensor</title>
 </head>
 <body>
@@ -16,30 +33,39 @@
 <div class="toc" id="toc"></div>
 <h2><a name="tensor"></a>Tensor</h2>
 <h4>Description</h4>
-<p>The templated class <code>tensor&lt;T, F, A&gt;</code> is the
-base container adaptor for dense tensors. Every element <code>t<sub>i<sub>1</sub>,i<sub>2</sub>,...,i<sub>p</sub></code></sub> of a <code>p</code>-order <code>(n<sub>1</sub> x
-n<sub>2</sub> x ... x n<sub>p</sub> </code>)-dimensional tensor is mapped to 
-<code>(i<sub>1</sub> x w<sub>1</sub> + i<sub>2</sub> x w<sub>1</sub> + ... + i<sub>p</sub> x w<sub>p</sub> )-</code>th element of the container
-where <code>0 &lt;= i<sub>1</sub> &lt; n<sub>2</sub></code>, <code>0 &lt;= i<sub>2</sub> &lt; n<sub>2</sub></code>, ..., <code>0 &lt;= i<sub>p</sub> &lt; n<sub>p</sub></code>.
-For first-order orientation <code>w<sub>k</sub> = n<sub>k-1</sub> x w<sub>k-1</sub></code> with <code>w<sub>1</sub> = 1</code> and for last-order orientation <code>w<sub>k</sub> = n<sub>k+1</sub> x w<sub>k+1</sub></code> with <code>w<sub>p</sub>=1</code>.
+<p>The templated class <code>tensor&lt;value_t,format_t,storage_t&gt;</code> is the base container adaptor for dense tensors. 
+Every element $t_{i_1,i_2,\dots,i_p}$ of a $p$-order $(n_1 \times n_2 \times \cdots \times n_p)$-dimensional tensor $T$ is mapped to $j$-th element of a one-dimensional container where $$j = \sum_{r=1}^p i_r \cdot w_r$$ with $1 \leq i_r \leq n_r $ for $1 \leq r \leq p$.
+For the first-order orientation $w_1 = 1$ and $w_k = n_{k-1} \cdot w_{k-1}$ for $k > 1$. For last-order orientation $w_p = 1$ and $ w_k = n_{k+1} \cdot w_{k+1}$ for $k < p$. 
 </p>
 <h4>Example</h4>
 <pre>
 <b>#include</b> &lt;boost/numeric/ublas/tensor.hpp&gt;
-<b>#include</b> &lt;boost/numeric/ublas/io.hpp&gt;
 
 <b>int</b> main () {
   <b>using namespace</b> boost::numeric::ublas;
   tensor&lt;<b>double</b>&gt; t{4,2,3};
-  <b>for</b> (<b>auto k</b> = 0ul; k &lt; t.size (2); ++ k)
+  <b>for</b> (<b>auto</b> k = 0ul; k &lt; t.size (2); ++ k)
     <b>for</b> (<b>auto</b> j = 0ul; j &lt; t.size (1); ++ j)
       <b>for</b> (<b>auto</b> i = 0ul; i &lt; t.size (0); ++ i)
         t.at(i,j,k) = 3*i + 2*j + 5*k;
+        
   std::cout &lt;&lt; t &lt;&lt; std::endl;
 }
 </pre>
+
 <h4>Definition</h4>
-<p>Defined in the header tensor.hpp.</p>
+<p>Defined in the header file <code>tensor/tensor.hpp</code>.</p>
+
+<h4>Model of</h4>
+<p><a href="container_concept.html#tensor">Tensor</a></p>
+
+<h4>Type requirements</h4>
+<p>None, except for those imposed by the requirements of <a href=
+"container_concept.html#tensor">Tensor</a> .</p>
+
+<h4>Public base classes</h4>
+<p><code>tensor_container&lt;tensor&lt;value_t,format_t,storage_t&gt; &gt;</code></p>
+
 <h4>Template parameters</h4>
 <table border="1" summary="parameters">
 <tbody>
@@ -49,35 +75,95 @@ For first-order orientation <code>w<sub>k</sub> = n<sub>k-1</sub> x w<sub>k-1</s
 <th>Default</th>
 </tr>
 <tr>
-<td><code>T</code></td>
+<td><code>value_t</code></td>
 <td>The type of object stored in the tensor.</td>
 <td></td>
 </tr>
 <tr>
-<td><code>F</code></td>
-<td>Functor describing the storage organization. <a href=
+<td><code>format_t</code></td>
+<td>Storage organization. <a href=
 "#tensor_1">[1]</a></td>
 <td><code>first_order</code></td>
 </tr>
 <tr>
-<td><code>A</code></td>
+<td><code>storage_t</code></td>
 <td>The type of the <a href="storage_concept.html">Storage</a> array. <a href="#tensor_2">[2]</a></td>
-<td><code>unbounded_array&lt;T&gt;</code></td>
+<td><code>std::vector&lt;value_t&gt;</code></td>
 </tr>
 </tbody>
 </table>
-<h4>Model of</h4>
-<p><a href="container_concept.html#tensor">Tensor</a> .</p>
-<h4>Type requirements</h4>
-<p>None, except for those imposed by the requirements of <a href=
-"container_concept.html#tensor">Tensor</a> .</p>
-<h4>Public base classes</h4>
-<p><code>tensor_container&lt;tensor&lt;T, F, A&gt; &gt;</code></p>
-<h4>Members</h4>
-<table border="1" summary="members">
-<tbody>
+
+<h4>Member types</h4>
+<table border="1" style="font-size:100%" summary="members">
+<tbody style="font-size:100%" >
 <tr>
-<th>Member</th>
+<th>Member type</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><code>value_type</code></td>
+<td>Type <code>value_t</code> of the tensor elements.</td>
+</tr>
+<tr>
+<td><code>format_type</code></td>
+<td>Format of the tensor which is either <code>first_order</code> or <code>last_order</code>.</td>
+</tr>
+<tr>
+<td><code>storage_type</code></td>
+<td>Sequence container type that stores all tensor elements and is accessible with a single index.</td>
+</tr>
+
+<tr>
+<td><code>size_type</code></td>
+<td>Unsigned integer which is usually <code>std::size_t</code>.</td>
+</tr>
+<tr>
+<td><code>difference_type</code></td>
+<td>Unsigned integer which is usually <code>std::ptrdiff_t</code>.</td>
+</tr>
+<tr>
+<td><code>reference</code></td>
+<td>Reference type <code>storage_type::reference</code> which is in most cases <code>value_type&</code>.</td>
+</tr>
+<tr>
+<td><code>const_reference</code></td>
+<td>Constant reference type <code>storage_type::const_reference</code> which is in most cases <code>const value_type&</code>.</td>
+</tr>
+<tr>
+<td><code>pointer</code></td>
+<td>Pointer type <code>storage_type::pointer</code> which is in most cases <code>value_type*</code>.</td>
+</tr>
+<tr>
+<td><code>const_pointer</code></td>
+<td>Constant reference type <code>storage_type::const_reference</code> which is in most cases <code>const value_type*</code>.</td>
+</tr>
+
+<tr>
+<td><code>iterator</code></td>
+<td>RandomAccessIterator <code>storage_type::iterator</code>.</td>
+</tr>
+<tr>
+<td><code>const_iterator</code></td>
+<td>Constant RandomAccessIterator <code>storage_type::const_iterator</code>.</td>
+</tr>
+
+<tr>
+<td><code>reverse_iterator</code></td>
+<td>Reverse RandomAccessIterator <code>storage_type::reverse_iterator</code>.</td>
+</tr>
+<tr>
+<td><code>const_reverse_iterator</code></td>
+<td>Reverse RandomAccessIterator <code>storage_type::const_reverse_iterator</code>.</td>
+</tr>
+
+</tbody>
+</table>
+
+<h4>Member Functions</h4>
+<table border="1" style="font-size:100%" summary="member_function">
+<tbody style="font-size:100%" >
+<tr>
+<th>Member Function</th>
 <th>Description</th>
 </tr>
 <tr>
@@ -85,14 +171,13 @@ For first-order orientation <code>w<sub>k</sub> = n<sub>k-1</sub> x w<sub>k-1</s
 <td>Allocates an uninitialized <code>tensor</code> that holds zero elements.</td>
 </tr>
 <tr>
-<td><code> tensor (std::initializer_list<size_type> list) </code></td>
-<td>Allocates an uninitialized <code>tensor</code> where initializer list 
-<code>list</code> specifies the dimension extents.</td>
+<td><code> tensor (std::initializer_list&lt;size_type&gt; list) </code></td>
+<td>Allocates an uninitialized <code>tensor</code> where <code>list</code> specifies the dimension extents.</td>
 </tr>
 <tr>
-<td><code> tensor (const extents& e) </code></td>
+<td><code> tensor (const shape& s) </code></td>
 <td>Allocates an uninitialized <code>tensor</code> where
-<code>e</code> specifies the dimension extents.</td>
+<code>s</code> specifies the dimension extents, see <a href="tensor/shape.html">shape</a>.</td>
 </tr>
 <tr>
 <td><code> tensor (const extents& e, const array_type& a) </code></td>

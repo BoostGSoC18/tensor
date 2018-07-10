@@ -116,7 +116,7 @@ int main()
 
 		// C1(j,l) = T1(j,l) + A(i,j,k)*A(i,j,l) + 5;
 		// tensor_t C1 = T1 + prod(A,A,perm_t{1,2}) + 5;
-		tensor_t C1 = T1 + A(_i,_j,_k)*A(_i,_j,_l) + 5;
+		tensor_t C1 = T1 + A(_i,_j,_m)*A(_i,_j,_l) + 5;
 
 		// formatted output
 		std::cout << "% --------------------------- " << std::endl;
