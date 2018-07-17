@@ -78,27 +78,27 @@ int main () {
 </tr>
 <tr>
 <td><code>value_type</code></td>
-<td>Type <code>value_t</code> of the tensor elements.</td>
+<td>Type <code>size_type</code> of the extents.</td>
 </tr>
 <tr>
 <td><code>size_type</code></td>
-<td>Unsigned integer which is usually <code>std::size_t</code>.</td>
+<td>Unsigned integer such as <code>std::size_t</code>.</td>
 </tr>
 <tr>
 <td><code>reference</code></td>
-<td>Reference type <code>storage_type::reference</code> which is in most cases <code>value_type&</code>.</td>
+<td>Reference type which is <code>value_type&</code>.</td>
 </tr>
 <tr>
 <td><code>const_reference</code></td>
-<td>Constant reference type <code>storage_type::const_reference</code> which is in most cases <code>const value_type&</code>.</td>
+<td>Constant reference type which is <code>const value_type&</code>.</td>
 </tr>
 <tr>
 <td><code>pointer</code></td>
-<td>Pointer type <code>storage_type::pointer</code> which is in most cases <code>value_type*</code>.</td>
+<td>Pointer type which is <code>value_type*</code>.</td>
 </tr>
 <tr>
 <td><code>const_pointer</code></td>
-<td>Constant reference type <code>storage_type::const_reference</code> which is in most cases <code>const value_type*</code>.</td>
+<td>Constant reference type which is <code>const value_type*</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -115,7 +115,7 @@ int main () {
 </tr>
 <tr>
 <td><code>basic_extents ()</code></td>
-<td>Constructs an empty instance.</td>
+<td>Constructs an empty instance of <code>basic_extents</code>.</td>
 </tr>
 <tr>
 <td><code>basic_extents (std::vector&lt;value_type&gt; const& vector)</code></td>
@@ -163,27 +163,27 @@ int main () {
 </tr>
 <tr>
 <td><code>const_pointer data() const</code></td>
-<td>Returns a pointer to the first element.</td>
+<td>Returns a <code>const_pointer</code> to the first element.</td>
 </tr>
 <tr>
-<td><code>const_pointer data() const</code></td>
-<td>Returns a pointer of type <code>const_pointer</code> to the first element.</td>
+<td><code>pointer data()</code></td>
+<td>Returns a <code>pointer</code> to the first element.</td>
 </tr>
 <tr>
 <td><code>reference operator[](size_type i)</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>reference</code> to the <code>i</code>-th element.</td>
 </tr>
 <tr>
 <td><code>const_reference operator[](size_type i) const</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>const_reference</code> to the <code>i</code>-th element.</td>
 </tr>
 <tr>
 <td><code>reference at(size_type i)</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>reference</code> to the <code>i</code>-th element.</td>
 </tr>
 <tr>
 <td><code>const_reference at(size_type i) const</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>const_reference</code> to the <code>i</code>-th element.</td>
 </tr>
 <tr>
 <td><code>bool empty()</code></td>
@@ -207,26 +207,29 @@ int main () {
 </tr>
 <tr>
 <td><code>bool operator==(basic_extents const& b) const</code></td>
-<td>Return true if all elements are equal.</td>
+<td>Returns true if all elements are equal.</td>
 </tr>
 <tr>
 <td><code>bool operator!=(basic_extents const& b) const</code></td>
-<td>Return true if some elements are not equal.</td>
+<td>Returns true if some elements are not equal.</td>
 </tr>
 <tr>
 <td><code>const_iterator begin() const</code></td>
-<td>Returns an iterator pointing to the first element.</td>
+<td>Returns an <code>const_iterator<code> pointing to the first element.</td>
 </tr>
 <tr>
 <td><code>const_iterator end() const</code></td>
-<td>Returns an iterator pointing to an element passed the last element.</td>
+<td>Returns a <code>const_iterator</code> pointing to an element passed the last element.</td>
 </tr>
 <tr>
-<td><code>std::vector&lt;size_type&gt; end() const</code></td>
-<td>Returns the private member sequence container holding all elements.</td>
+<td><code>std::vector&lt;size_type&gt; base() const</code></td>
+<td>Returns a const reference to the private member sequence container holding all elements.</td>
 </tr>
 </tbody>
 </table>
+
+
+
 
 <hr />
 <p>

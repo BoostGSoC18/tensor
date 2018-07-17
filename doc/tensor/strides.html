@@ -23,12 +23,12 @@ MathJax.Hub.Config({
 </script>    
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
 
-<title>Shape</title>
+<title>Strides</title>
 </head>
 <body>
 <h1><img src="../../../../boost.png" align="middle" />Strides</h1>
 <div class="toc" id="toc"></div>
-<h2><a name="extents"></a>basic_strides&lt;size_type&gt;</h2>
+<h2><a name="extents"></a>basic_strides&lt;size_type, format_type&gt;</h2>
 <h4>Description</h4>
 <p>The template class <code>basic_strides</code> contains weights for a given storage format in order to map multi-indices to scalar memory indices for <a href=
 "../tensor.html#tensor">tensor</a> instances.</p>
@@ -83,28 +83,33 @@ int main () {
 </tr>
 <tr>
 <td><code>value_type</code></td>
-<td>Type <code>value_t</code> of the tensor elements.</td>
+<td>Type <code>size_type</code> of the strides.</td>
 </tr>
 <tr>
 <td><code>size_type</code></td>
-<td>Unsigned integer which is usually <code>std::size_t</code>.</td>
+<td>Unsigned integer such as <code>std::size_t</code>.</td>
 </tr>
 <tr>
 <td><code>reference</code></td>
-<td>Reference type <code>storage_type::reference</code> which is in most cases <code>value_type&</code>.</td>
+<td>Reference type which is <code>value_type&</code>.</td>
 </tr>
 <tr>
 <td><code>const_reference</code></td>
-<td>Constant reference type <code>storage_type::const_reference</code> which is in most cases <code>const value_type&</code>.</td>
+<td>Constant reference type which is <code>const value_type&</code>.</td>
 </tr>
 <tr>
 <td><code>pointer</code></td>
-<td>Pointer type <code>storage_type::pointer</code> which is in most cases <code>value_type*</code>.</td>
+<td>Pointer type which is <code>value_type*</code>.</td>
 </tr>
 <tr>
 <td><code>const_pointer</code></td>
-<td>Constant reference type <code>storage_type::const_reference</code> which is in most cases <code>const value_type*</code>.</td>
+<td>Constant pointer type which is <code>const value_type*</code>.</td>
 </tr>
+<tr>
+<td><code>layout_type</code></td>
+<td>Layout type which can be either <code>boost::numeric::ublas::first_order</code> or <code>boost::numeric::ublas::last_order</code>.</td>
+</tr>
+
 </tbody>
 </table>
 
@@ -119,76 +124,44 @@ int main () {
 <th>Description</th>
 </tr>
 <tr>
-<td><code>basic_extents ()</code></td>
-<td>Constructs an empty instance.</td>
+<td><code>basic_strides ()</code></td>
+<td>Constructs an empty instance of <code>basic_strides</code>.</td>
 </tr>
 <tr>
-<td><code>basic_extents (std::vector&lt;value_type&gt; const& vector)</code></td>
-<td>Constructs an instance copying the content of <code>vector</code>.</td>
+<td><code>basic_strides (basic_extents&lt;value_type&gt; const& be)</code></td>
+<td>Constructs an instance based on the tensor extents specified by <code>be</code>.</td>
 </tr>
 <tr>
-<td><code>basic_extents (std::vector&lt;value_type&gt; && vector)</code></td>
-<td>Constructs an instance moving the content of <code>vector</code>.</td>
+<td><code>basic_strides (std::vector&lt;value_type&gt; const& v)</code></td>
+<td>Constructs an instance copying the content of <code>v</code>.</td>
 </tr>
 <tr>
-<td><code>basic_extents (std::initializer_list&lt;value_type&gt; list)</code></td>
-<td>Constructs an instance from <code>list</code>.</td>
+<td><code>basic_strides (std::vector&lt;value_type&gt; && v)</code></td>
+<td>Constructs an instance moving the content of <code>v</code>.</td>
 </tr>
 <tr>
-<td><code>basic_extents (const_iterator first, const_iterator last)</code></td>
-<td>Constructs an instance from the range specified by <code>[first</code>,<code>last)</code>.</td>
-</tr>
-<tr>
-<td><code>basic_extents (basic_extents const& other)</code></td>
+<td><code>basic_strides (basic_strides const& other)</code></td>
 <td>Constructs an instance from <code>other</code> copying its elements.</td>
 </tr>
 <tr>
-<td><code>basic_extents (basic_extents && other)</code></td>
+<td><code>basic_strides (basic_strides && other)</code></td>
 <td>Constructs an instance from <code>other</code> by moving its elements.</td>
 </tr>
 <tr>
-<td><code>basic_extents& operator= (basic_extents other)</code></td>
+<td><code>basic_strides& operator= (basic_strides other)</code></td>
 <td>Assigns the elements of <code>other</code> to this instance.</td>
 </tr>
 <tr>
-<td><code>bool is_scalar() const</code></td>
-<td>Returns true if the elements are <code>(1,1,[1,...,1])</code>.</td>
-</tr>
-<tr>
-<td><code>bool is_vector() const</code></td>
-<td>Returns true if the elements are <code>(n,1,[1,...,1])</code> or <code>(1,n,[1,...,1])</code> where <code>n>1</code>.</td>
-</tr>
-<tr>
-<td><code>bool is_matrix() const</code></td>
-<td>Returns true if the elements are <code>(m,n,[1,...,1])</code> where <code>m>1</code> and <code>n>1</code>.</td>
-</tr>
-<tr>
-<td><code>bool is_tensor() const</code></td>
-<td>Returns true if it is not a scalar, vector or matrix.</td>
-</tr>
-<tr>
 <td><code>const_pointer data() const</code></td>
-<td>Returns a pointer to the first element.</td>
-</tr>
-<tr>
-<td><code>const_pointer data() const</code></td>
-<td>Returns a pointer of type <code>const_pointer</code> to the first element.</td>
-</tr>
-<tr>
-<td><code>reference operator[](size_type i)</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>const_pointer</code> to the first element.</td>
 </tr>
 <tr>
 <td><code>const_reference operator[](size_type i) const</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
-</tr>
-<tr>
-<td><code>reference at(size_type i)</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>const_reference</code> to the <code>i</code>-th element.</td>
 </tr>
 <tr>
 <td><code>const_reference at(size_type i) const</code></td>
-<td>Returns a reference to the <code>i</code>-th element.</td>
+<td>Returns a <code>const_reference</code> to the <code>i</code>-th element.</td>
 </tr>
 <tr>
 <td><code>bool empty()</code></td>
@@ -199,39 +172,52 @@ int main () {
 <td>Returns the number of elements.</td>
 </tr>
 <tr>
-<td><code>bool valid() const</code></td>
-<td>Returns true if size()>1 and all elements are greater than one.</td>
+<td><code>void clear()</code></td>
+<td>Erases all elements.</td>
 </tr>
 <tr>
-<td><code>size_type product() const</code></td>
-<td>Returns the multiplication of all entries.</td>
+<td><code>bool operator==(basic_strides const& b) const</code></td>
+<td>Returns true if all elements are equal.</td>
 </tr>
 <tr>
-<td><code>basic_extents squeeze() const</code></td>
-<td>Returns a new instance where entries equal to one are eliminated.</td>
-</tr>
-<tr>
-<td><code>bool operator==(basic_extents const& b) const</code></td>
-<td>Return true if all elements are equal.</td>
-</tr>
-<tr>
-<td><code>bool operator!=(basic_extents const& b) const</code></td>
-<td>Return true if some elements are not equal.</td>
+<td><code>bool operator!=(basic_strides const& b) const</code></td>
+<td>Returns true if some elements are not equal.</td>
 </tr>
 <tr>
 <td><code>const_iterator begin() const</code></td>
-<td>Returns an iterator pointing to the first element.</td>
+<td>Returns an <code>const_iterator</code> pointing to the first element.</td>
 </tr>
 <tr>
 <td><code>const_iterator end() const</code></td>
-<td>Returns an iterator pointing to an element passed the last element.</td>
+<td>Returns a <code>const_iterator</code> pointing to an element passed the last element.</td>
 </tr>
 <tr>
-<td><code>std::vector&lt;size_type&gt; end() const</code></td>
+<td><code>std::vector&lt;size_type&gt; base() const</code></td>
 <td>Returns the private member sequence container holding all elements.</td>
 </tr>
 </tbody>
 </table>
+
+
+
+<h4>Non-Member Functions</h4>
+<table border="1" summary="members functions">
+<tbody>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><code>access(std::vector&lt;size_type&gt; const& i, strides&lt;layout_type&gt; w)</code></td>
+<td>Returns relative memory location depending on the multi-index vector <code>i</code> and strides <code>w</code>.</td>
+</tr>
+<tr>
+<td><code>access(size_type sum, strides&lt;layout_type&gt; w, size_type i, size_types ... is)</code></td>
+<td>Returns relative memory location depending on the indices <code>i</code>, <code>is ... </code> and stride vector <code>w</code> (recursive function).</td>
+</tr>
+</tbody>
+</table>
+
 
 <hr />
 <p>
