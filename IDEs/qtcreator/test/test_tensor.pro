@@ -8,6 +8,7 @@ win*: CONFIG += console
 QMAKE_CXXFLAGS += -fno-inline
 QMAKE_CXXFLAGS += -std=c++17
 QMAKE_CXXFLAGS += -Wno-unknown-pragmas
+QMAKE_CXXFLAGS += --coverage
 
 
 DEFINES += BOOST_UBLAS_NO_EXCEPTIONS
@@ -25,7 +26,7 @@ exists(../../../../../../boost-build.jam) {
 }
 
 
-LIBS +=-lboost_unit_test_framework
+LIBS +=-lboost_unit_test_framework -lgcov
 
 HEADERS += \
 	../../../test/tensor/utility.hpp

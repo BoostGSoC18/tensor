@@ -149,8 +149,11 @@ void copy(const SizeType p, SizeType const*const n,
 	if( p == 0 )
 		return;
 
+	if(n == nullptr || wc == nullptr || wa == nullptr )
+		throw std::runtime_error("Error in boost::numeric::ublas::copy: Pointers shall not be null.");
+
 	if(c == nullptr || a == nullptr)
-		throw std::length_error("Error in boost::numeric::ublas::copy: Pointers shall not be null pointers.");
+		throw std::runtime_error("Error in boost::numeric::ublas::copy: Pointers shall not be null.");
 
 	detail::recursive::copy( p-1, n, c, wc, a, wa );
 }
@@ -184,7 +187,11 @@ void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
 		return;
 
 	if(c == nullptr || a == nullptr)
-		throw std::length_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");
+		throw std::runtime_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");
+
+	if(na == nullptr || wc == nullptr || wa == nullptr || pi == nullptr)
+		throw std::runtime_error("Error in boost::numeric::ublas::trans: Pointers shall not be null.");
+
 
 	detail::recursive::trans( p-1, na, pi, c, wc, a, wa );
 }
@@ -211,14 +218,15 @@ void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
 			std::complex<ValueType>* a,       SizeType const*const wa)
 {
 
-//	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
-//					 "Static error in boost::numeric::ublas::trans: Argument types for pointers are not pointer types.");
-
 	if( p < 2)
 		return;
 
 	if(c == nullptr || a == nullptr)
 		throw std::length_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");
+
+	if(na == nullptr || wc == nullptr || wa == nullptr || pi == nullptr)
+		throw std::runtime_error("Error in boost::numeric::ublas::trans: Pointers shall not be null.");
+
 
 	detail::recursive::trans( p-1, na, pi, c, wc, a, wa );
 }

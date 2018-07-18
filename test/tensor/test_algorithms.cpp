@@ -76,7 +76,42 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_copy, value,  test_type
 		for(auto i = 1ul; i < c.size(); ++i)
 			BOOST_CHECK_EQUAL( c[i], a[i] );
 
+		using size_type = typename ublas::strides<ublas::first_order>::value_type;
+		size_type const*const p0 = nullptr;
+		BOOST_CHECK_THROW( ublas::copy( n.size(), p0, c.data(), wc.data(), b.data(), wb.data() ), std::runtime_error );
+		BOOST_CHECK_THROW( ublas::copy( n.size(), n.data(), c.data(), p0, b.data(), wb.data() ), std::runtime_error );
+		BOOST_CHECK_THROW( ublas::copy( n.size(), n.data(), c.data(), wc.data(), b.data(), p0 ), std::runtime_error );
+
+		value_type* c0 = nullptr;
+		BOOST_CHECK_THROW( ublas::copy( n.size(), n.data(), c0, wc.data(), b.data(), wb.data() ), std::runtime_error );
 	}
+
+	// special case rank == 0
+	{
+		auto n = ublas::shape{};
+
+		auto a  = vector_type(n.product());
+		auto b  = vector_type(n.product());
+		auto c  = vector_type(n.product());
+
+
+		auto wa = ublas::strides<ublas::first_order>(n);
+		auto wb = ublas::strides<ublas::last_order> (n);
+		auto wc = ublas::strides<ublas::first_order>(n);
+
+		ublas::copy( n.size(), n.data(), b.data(), wb.data(), a.data(), wa.data() );
+		ublas::copy( n.size(), n.data(), c.data(), wc.data(), b.data(), wb.data() );
+
+
+
+		BOOST_CHECK_NO_THROW( ublas::copy( n.size(), n.data(), c.data(), wc.data(), b.data(), wb.data() ) );
+
+	}
+
+
+
+
+
 }
 
 template<class V>
