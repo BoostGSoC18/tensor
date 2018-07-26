@@ -67,7 +67,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_ty
 		const auto& tensor_expression_const = static_cast<tensor_expression_type const&>( t );
 
 		for(auto i = 0ul; i < t.size(); ++i)
-			BOOST_CHECK_EQUAL( tensor_expression_const(i), t(i)  );
+			BOOST_CHECK_EQUAL( tensor_expression_const()(i), t(i)  );
 
 	}
 }

@@ -34,7 +34,7 @@ MathJax.Hub.Config({
 <h2><a name="tensor"></a>Tensor</h2>
 <h4>Description</h4>
 <p>The templated class <code>tensor&lt;value_t,format_t,storage_t&gt;</code> is the base container adaptor for dense tensors. 
-Every element $t_{i_1,i_2,\dots,i_p}$ of a $p$-order $(n_1 \times n_2 \times \cdots \times n_p)$-dimensional tensor $T$ is mapped to $j$-th element of a one-dimensional container where $$j = \sum_{r=1}^p i_r \cdot w_r$$ with $1 \leq i_r \leq n_r $ for $1 \leq r \leq p$.
+Every element $t_{i_1,i_2,\dots,i_p}$ of a $p$-order $(n_1 \times n_2 \times \cdots \times n_p)$-dimensional tensor $T$ is mapped to $j$-th element of a one-dimensional container where $j = \sum_{r=1}^p i_r \cdot w_r$ with $1 \leq i_r \leq n_r $ for $1 \leq r \leq p$.
 For the first-order orientation $w_1 = 1$ and $w_k = n_{k-1} \cdot w_{k-1}$ for $k > 1$. For last-order orientation $w_p = 1$ and $ w_k = n_{k+1} \cdot w_{k+1}$ for $k < p$. 
 </p>
 <h4>Example</h4>
