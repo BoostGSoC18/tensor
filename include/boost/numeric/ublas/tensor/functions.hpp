@@ -409,20 +409,18 @@ auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
 	return c;
 }
 
-/** @brief Transposes a tensor according to a permutation tuple
+/** @brief Computes the frobenius norm of a tensor
  *
- * Implements C[tau[i1],tau[i2]...,tau[ip]] = A[i1,i2,...,ip]
- *
- * @note calls trans function
+ * @note calls the accumulate function
  *
  * @param[in] a    tensor object of rank p
- * @param[in] tau  one-based permutation tuple of length p
- * @returns        a transposed tensor object with the same storage format F and allocator type A
+ * @returns        the frobenius norm of the tensor
 */
 template<class V, class F, class A>
 auto norm(tensor<V,F,A> const& a)
 {
-
+	return std::sqrt( accumulate( a.order(), a.extents().data(), a.data(), a.strides().data(), V{},
+								  [](auto const& l, auto const& r){ return l + r*r; }  ) ) ;
 }
 
 

@@ -144,7 +144,7 @@ ValueType accumulate(SizeType const p, SizeType const*const n,
 				  "Static error in boost::numeric::ublas::transform: Argument types for pointers are not pointer types.");
 
 	if( p == 0 )
-		return;
+		return k;
 
 	if(a == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::transform: Pointers shall not be null pointers.");
@@ -156,7 +156,7 @@ ValueType accumulate(SizeType const p, SizeType const*const n,
 		throw std::runtime_error("Error in boost::numeric::ublas::transform: Pointers shall not be null pointers.");
 
 
-	std::function<ValueType(SizeType r, PointerIn a)> lambda;
+	std::function<ValueType(SizeType r, PointerIn a, ValueType k)> lambda;
 
 	lambda = [&lambda, n, w](SizeType r, PointerIn a, ValueType k)
 	{
@@ -194,7 +194,7 @@ ValueType accumulate(SizeType const p, SizeType const*const n,
 
 
 	if( p == 0 )
-		return;
+		return k;
 
 	if(a == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::transform: Pointers shall not be null pointers.");
@@ -205,7 +205,7 @@ ValueType accumulate(SizeType const p, SizeType const*const n,
 	if(n == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::transform: Pointers shall not be null pointers.");
 
-	std::function<ValueType(SizeType r, PointerIn a)> lambda;
+	std::function<ValueType(SizeType r, PointerIn a, ValueType k)> lambda;
 
 	lambda = [&lambda, n, w, op](SizeType r, PointerIn a, ValueType k)
 	{
