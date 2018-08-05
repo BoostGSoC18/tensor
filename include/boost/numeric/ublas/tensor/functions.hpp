@@ -396,18 +396,33 @@ auto trans(tensor<V,F,A> const& a, std::vector<std::size_t> const& tau)
 				 c.data(), c.strides().data(),
 				 a.data(), a.strides().data());
 
-
 //	auto wc_pi = typename strides_type::base_type (p);
 //	for(auto i = 0u; i < p; ++i)
 //		wc_pi.at(tau.at(i)-1) = c.strides().at(i);
 
 
-	//copy(a.rank(),
-	//		 a.extents().data(),
-	//		 c.data(), wc_pi.data(),
-	//		 a.data(), a.strides().data() );
+//copy(a.rank(),
+//		 a.extents().data(),
+//		 c.data(), wc_pi.data(),
+//		 a.data(), a.strides().data() );
 
 	return c;
+}
+
+/** @brief Transposes a tensor according to a permutation tuple
+ *
+ * Implements C[tau[i1],tau[i2]...,tau[ip]] = A[i1,i2,...,ip]
+ *
+ * @note calls trans function
+ *
+ * @param[in] a    tensor object of rank p
+ * @param[in] tau  one-based permutation tuple of length p
+ * @returns        a transposed tensor object with the same storage format F and allocator type A
+*/
+template<class V, class F, class A>
+auto norm(tensor<V,F,A> const& a)
+{
+
 }
 
 

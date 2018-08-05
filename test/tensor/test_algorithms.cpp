@@ -114,6 +114,39 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_copy, value,  test_type
 
 }
 
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_transform, value,  test_types2, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = value;
+	using vector_type  = std::vector<value_type>;
+
+
+	for(auto const& n : extents) {
+
+		auto a  = vector_type(n.product());
+		auto b  = vector_type(n.product());
+		auto c  = vector_type(n.product());
+
+		auto wa = ublas::strides<ublas::first_order>(n);
+		auto wb = ublas::strides<ublas::last_order> (n);
+		auto wc = ublas::strides<ublas::first_order>(n);
+
+		auto v = value_type{};
+		for(auto i = 0ul; i < a.size(); ++i, v+=1){
+			a[i]=v;
+		}
+
+		ublas::transform( n.size(), n.data(), b.data(), wb.data(), a.data(), wa.data(), [](value_type const& a){ return a + value_type(1);} );
+		ublas::transform( n.size(), n.data(), c.data(), wc.data(), b.data(), wb.data(), [](value_type const& a){ return a - value_type(1);} );
+
+		for(auto i = 1ul; i < c.size(); ++i)
+			BOOST_CHECK_EQUAL( c[i], a[i] );
+
+	}
+}
+
 template<class V>
 void init(std::vector<V>& a)
 {
