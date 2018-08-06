@@ -26,85 +26,75 @@ namespace indices {
 // Adapter
 
 template<std::size_t I>
-struct Index
+struct index
 { static constexpr std::size_t value = I; };
 
-static constexpr Index< 0> _;
-static constexpr Index< 1> _a;
-static constexpr Index< 2> _b;
-static constexpr Index< 3> _c;
-static constexpr Index< 4> _d;
-static constexpr Index< 5> _e;
-static constexpr Index< 6> _f;
-static constexpr Index< 7> _g;
-static constexpr Index< 8> _h;
-static constexpr Index< 9> _i;
-static constexpr Index<10> _j;
-static constexpr Index<11> _k;
-static constexpr Index<12> _l;
-static constexpr Index<13> _m;
-static constexpr Index<14> _n;
-static constexpr Index<15> _o;
-static constexpr Index<16> _p;
-static constexpr Index<17> _q;
-static constexpr Index<18> _r;
-static constexpr Index<19> _s;
-static constexpr Index<20> _t;
-static constexpr Index<21> _u;
-static constexpr Index<22> _v;
-static constexpr Index<23> _w;
-static constexpr Index<24> _x;
-static constexpr Index<25> _y;
-static constexpr Index<26> _z;
+static constexpr index< 0> _;
+static constexpr index< 1> _a;
+static constexpr index< 2> _b;
+static constexpr index< 3> _c;
+static constexpr index< 4> _d;
+static constexpr index< 5> _e;
+static constexpr index< 6> _f;
+static constexpr index< 7> _g;
+static constexpr index< 8> _h;
+static constexpr index< 9> _i;
+static constexpr index<10> _j;
+static constexpr index<11> _k;
+static constexpr index<12> _l;
+static constexpr index<13> _m;
+static constexpr index<14> _n;
+static constexpr index<15> _o;
+static constexpr index<16> _p;
+static constexpr index<17> _q;
+static constexpr index<18> _r;
+static constexpr index<19> _s;
+static constexpr index<20> _t;
+static constexpr index<21> _u;
+static constexpr index<22> _v;
+static constexpr index<23> _w;
+static constexpr index<24> _x;
+static constexpr index<25> _y;
+static constexpr index<26> _z;
 
 
 } // namespace indices
 
 
 template<std::size_t N>
-class MIndices
+class multi_index
 {
 
 	using size_type  = std::size_t;
 	template<std::size_t I>
-	using index_type = indices::Index<I>;
+	using index_type = indices::index<I>;
 	using array_type = std::array<std::size_t, N>;
 
 public:
-	MIndices() = delete;
+	multi_index() = delete;
 
-	template<std::size_t I, class ... Indexes>
+	template<std::size_t I, class ... indexes>
 	constexpr
-	MIndices(index_type<I> const& i, Indexes ... is )
-			 : _indices{getIndex(i), getIndex(is)... }
+	multi_index(index_type<I> const& i, indexes ... is )
+			 : _indices{getindex(i), getindex(is)... }
 	{
-		static_assert( sizeof...(is)+1 == N, "Static assert in boost::numeric::ublas::MIndices: number of constructor arguments is not equal to the template parameter." );
+		static_assert( sizeof...(is)+1 == N, "Static assert in boost::numeric::ublas::multi_index: number of constructor arguments is not equal to the template parameter." );
 		if( ! valid(i,is...) )
-			throw std::runtime_error("Error in boost::numeric::ublas::MIndices: constructor arguments are not valid." );
+			throw std::runtime_error("Error in boost::numeric::ublas::multi_index: constructor arguments are not valid." );
 	}
 
-	MIndices(MIndices const& other)
+	multi_index(multi_index const& other)
 		: _indices(other._indices)
 	{
 	}
 
-	MIndices& operator=(MIndices const& other)
+	multi_index& operator=(multi_index const& other)
 	{
 		this->_indices = other._indices;
 		return *this;
 	}
 
-	bool operator==(MIndices const& other) const
-	{
-		return this->_indices == other._indices;
-	}
-
-	bool operator!=(MIndices const& other) const
-	{
-		return this->_indices != other._indices;
-	}
-
-	~MIndices() = default;
+	~multi_index() = default;
 
 	auto const& indices() const { return _indices; }
 	constexpr auto size() const { return _indices.size(); }
@@ -113,11 +103,11 @@ public:
 
 private:
 	template<std::size_t I>
-	constexpr auto getIndex(index_type<I> const& i) { return i.value; }
+	constexpr auto getindex(index_type<I> const& i) { return i.value; }
 
 
-	template<std::size_t I, std::size_t J, class ... Indexes>
-	static constexpr bool has_i (index_type<I> i, index_type<J> j, Indexes ... is )
+	template<std::size_t I, std::size_t J, class ... indexes>
+	static constexpr bool has_i (index_type<I> i, index_type<J> j, indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
 		constexpr auto b = (i.value==j.value && i.value != 0);
@@ -128,8 +118,8 @@ private:
 			return b;
 	}
 
-	template<std::size_t I, class ... Indexes>
-	static constexpr bool valid (index_type<I> i, Indexes ... is )
+	template<std::size_t I, class ... indexes>
+	static constexpr bool valid (index_type<I> i, indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
 		if constexpr (n>0)
@@ -144,23 +134,38 @@ private:
 template<class V, class S, class A>
 class tensor;
 
+/** @brief A dense tensor of values of type \c T.
+	*
+	* For a \f$n\f$-dimensional tensor \f$v\f$ and \f$0\leq i < n\f$ every element \f$v_i\f$ is mapped
+	* to the \f$i\f$-th element of the container. A storage type \c A can be specified which defaults to \c unbounded_array.
+	* Elements are constructed by \c A, which need not initialise their value.
+	*
+	* @tparam T type of the objects stored in the tensor (like int, double, complex,...)
+	* @tparam A The type of the storage array of the tensor. Default is \c unbounded_array<T>. \c <bounded_array<T> and \c std::vector<T> can also be used
+*/
+
 template<class V, class S, class A, std::size_t N>
 class tensor_index
 {
-	using indices_type = MIndices<N>;
 	using tensor_type  = tensor<V,S,A>;
-	friend tensor_type;
 public:
-	auto* ptensor() const { return this->_ptensor; }
-	auto  indices() const { return this->_indices; }
+	auto const& ptensor() const { return this->_ptensor; }
+	auto const& indices() const { return this->_indices; }
 
+	tensor_index() = delete;
+
+	tensor_index(tensor_type const& ptensor, multi_index<N> const& indices )
+		: _ptensor(ptensor)
+		, _indices(indices)
+	{
+		if(indices.size() > ptensor.rank())
+			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: tensor rank is smaller than provided indices.");
+	}
 
 	tensor_index(tensor_index const& other)
 		: _ptensor(other._ptensor)
 		, _indices(other._indices)
 	{
-		if(_ptensor == nullptr)
-			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: pointer to tensor is nullptr.");
 		if(_indices.size() > _ptensor->rank())
 			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: tensor rank is smaller than provided indices.");
 	}
@@ -177,45 +182,29 @@ public:
 		std::swap(lhs._indices, rhs._indices);
 	}
 
-	bool operator==(tensor_index const& other)
-	{
-		return this->_ptensor == other._ptensor && this->_indices == other._indices;
-	}
-
-	bool operator!=(tensor_index const& other)
-	{
-		return this->_ptensor != other._ptensor || this->_indices != other._indices;
-	}
-
-
 	~tensor_index() = default;
-
 
 private:
 
-	tensor_index() = delete;
-	tensor_index(  tensor_type* ptensor, indices_type const& indices )
-		: _ptensor(ptensor)
-		, _indices(indices)
-	{
-		if(ptensor == nullptr)
-			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: pointer to tensor is nullptr.");
-		if(indices.size() > ptensor->rank())
-			throw std::runtime_error("Error in boost::numeric::ublas::tensor_index: tensor rank is smaller than provided indices.");
-	}
-
-
-	tensor_type* _ptensor;
-	indices_type _indices;
+	tensor_type const& _ptensor;
+	multi_index<N> _indices;
 
 };
 
+template<class V, class S, class A, std::size_t N>
+auto generate_tensor_multiindex_pair(tensor<V,S,A> const& t, multi_index<N> const& i)
+{
+	if(i.size() > t.rank())
+		throw std::runtime_error("Error in boost::numeric::ublas::generate_tensor_multiindex_pair: tensor rank is smaller than provided indices.");
+
+	return std::pair<  tensor<V,S,A> const&, multi_index<N> const& >   ( t, i  );
+}
 
 
 template<std::size_t N, std::size_t M>
 auto extract_corresponding_indices(
-		MIndices<N> const& lhs,
-		MIndices<M> const& rhs)
+		multi_index<N> const& lhs,
+		multi_index<M> const& rhs)
 {
 	using vtype = std::vector<std::size_t>;
 

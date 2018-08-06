@@ -581,13 +581,16 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	template<std::size_t I, class ... index_types>
-	auto operator() (indices::Index<I> p, index_types ... ps) const
+	auto operator() (indices::index<I> p, index_types ... ps) const
 	{
 		constexpr auto N = sizeof...(ps)+1;
 		if( N != this->rank() )
 			throw std::runtime_error("Error in boost::numeric::ublas::operator(): size of provided index_types does not match with the rank.");
 
-		return tensor_index( const_cast<tensor*>( this ), MIndices<N>( p, ps... )  );
+		//return std::tensor_index( *this , multi_index<N>( p, ps... )  );
+
+
+		return generate_tensor_multiindex_pair( *this,  multi_index<N>( p, ps... ) );
 	}
 
 
