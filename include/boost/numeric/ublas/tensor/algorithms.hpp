@@ -127,7 +127,7 @@ void transform(const SizeType p,
 
 /** @brief Performs a reduce operation with all elements of the tensor and an initial value
  *
- * Implements k += A[i1,i2,...,ip], for all ir
+ * Implements k = sum_{i1,..,ip} A[i1,i2,...,ip]
  *
  * @param[in] r  zero-based recursion level starting with r=p-1
  * @param[in] n  pointer to the extents of input or output tensor
@@ -251,9 +251,8 @@ void trans( SizeType const p,  SizeType const*const na, SizeType const*const pi,
 	if(c == nullptr || a == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");
 
-	if(na == nullptr || wc == nullptr || wa == nullptr || pi == nullptr)
+	if(na == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::trans: Pointers shall not be null.");
-
 
 	if(wc == nullptr || wa == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::trans: Pointers shall not be null pointers.");

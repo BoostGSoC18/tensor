@@ -27,8 +27,6 @@
 #include "strides.hpp"
 #include "einstein.hpp"
 
-
-
 namespace boost { namespace numeric { namespace ublas {
 
 template<class T, class F, class A>
@@ -65,6 +63,8 @@ class vector;
 //			return *static_cast<container_type *> (this);
 //	}
 //};
+
+
 
 /** @brief A dense tensor of values of type \c T.
 		*
@@ -129,7 +129,6 @@ public:
 
 	using matrix_type     = matrix<value_type,layout_type,array_type>;
 	using vector_type     = vector<value_type,array_type>;
-
 
 
 	/** @brief Constructs a tensor.
