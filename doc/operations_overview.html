@@ -91,13 +91,8 @@ Z = outer_prod(X, Y);
 <pre><code>
 w = conj(u); w = real(u); w = imag(u);
 C = trans(A); C = conj(A); C = herm(A); C = real(A); C = imag(A);
+Z = trans(X); Z = conj(X); Z = real(X); Z = imag(X);
 </code></pre>
-
-<h3>tensor transformations</h3>
-<pre><code>
-Z = trans(X);
-</code></pre>
-
 
 
 <h2><a name="advanced">Advanced functions</a></h2>
@@ -110,6 +105,7 @@ t = norm_1(v);   t = norm_2(v);
 t = norm_2_square(v);
 t = norm_inf(A); i = index_norm_inf(A);
 t = norm_1(A);   t = norm_frobenius(A); 
+t = norm(X);
 </code></pre>
 
 <h3>products</h3>
