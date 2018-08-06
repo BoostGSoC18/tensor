@@ -237,6 +237,36 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner_prod, value,  test_types, fi
 }
 
 
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner_norm, value,  test_types, fixture )
+{
+	using namespace boost::numeric;
+	using value_type   = typename value::first_type;
+	using layout_type  = typename value::second_type;
+	using tensor_type  = ublas::tensor<value_type,layout_type>;
+
+
+	for(auto const& n : extents) {
+
+		auto a  = tensor_type(n);
+
+		auto one = value_type(1);
+		auto v = one;
+		for(auto& aa: a)
+			aa = v, v += one;
+
+
+		auto c = ublas::inner_prod(a, a);
+		auto r = std::inner_product(a.begin(),a.end(), a.begin(),value_type(0));
+
+		auto r2 = ublas::norm( a  );
+
+		BOOST_CHECK_EQUAL( c , r );
+		BOOST_CHECK_EQUAL( std::sqrt( c ) , r2 );
+
+	}
+}
+
+
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer_prod, value,  test_types, fixture )
 {
