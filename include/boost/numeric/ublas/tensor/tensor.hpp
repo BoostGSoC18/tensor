@@ -25,7 +25,7 @@
 #include "expression_evaluation.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
-#include "einstein.hpp"
+#include "multi_index.hpp"
 
 namespace boost { namespace numeric { namespace ublas {
 
@@ -587,10 +587,7 @@ public:
 		if( N != this->rank() )
 			throw std::runtime_error("Error in boost::numeric::ublas::operator(): size of provided index_types does not match with the rank.");
 
-		//return std::tensor_index( *this , multi_index<N>( p, ps... )  );
-
-
-		return generate_tensor_multiindex_pair( *this,  multi_index<N>( p, ps... ) );
+		return std::pair< tensor const&, multi_index<N> > ( *this,  multi_index<N>( p, ps... ) );
 	}
 
 

@@ -22,7 +22,6 @@
 
 #include "multiplication.hpp"
 #include "algorithms.hpp"
-#include "einstein.hpp"
 #include "expression.hpp"
 #include "expression_evaluation.hpp"
 #include "storage_traits.hpp"
@@ -268,12 +267,7 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 //template<class V, class F, class A1, class A2, std::size_t N, std::size_t M>
 //auto operator*( tensor_index<V,F,A1,N> const& lhs, tensor_index<V,F,A2,M> const& rhs)
 
-template<class T, class M, class U, class N>
-auto operator*( std::pair<T const&, M const&> const& lhs, std::pair<U const&, N const&> const& rhs)
-{
-	auto corr_indices = extract_corresponding_indices(  lhs.second, rhs.second);
-	return prod( lhs.first, rhs.first, corr_indices.first, corr_indices.second );
-}
+
 
 
 /** @brief Computes the q-mode tensor-times-tensor product
