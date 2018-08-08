@@ -23,7 +23,7 @@ int main()
 	using value_t   = float;
 	using tensor_t = tensor<value_t,format_t>;
 	using matrix_t = matrix<value_t,format_t>;
-	using namespace boost::numeric::ublas::indices;
+	using namespace boost::numeric::ublas::index;
 
 	// Tensor-Vector-Multiplications - Including Transposition
 	{

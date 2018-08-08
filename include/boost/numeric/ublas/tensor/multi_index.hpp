@@ -17,55 +17,65 @@
 #include <array>
 #include <vector>
 
-
 namespace boost {
 namespace numeric {
 namespace ublas {
+namespace index {
 
-template<class V, class S, class A>
-class tensor;
-
-}
-}
-}
-
-namespace boost {
-namespace numeric {
-namespace ublas {
-namespace indices {
-
-// Adapter
-
+/** @brief Proxy template class for the einstein summation notation
+ *
+ * @note index::index_type<K> for 0<=K<=16 is used in tensor::operator()
+ *
+ * @tparam I wrapped integer
+*/
 template<std::size_t I>
-struct index { static constexpr std::size_t value = I; };
+struct index_type
+{
+	static constexpr std::size_t value = I;
 
-static constexpr index< 0> _;
-static constexpr index< 1> _a;
-static constexpr index< 2> _b;
-static constexpr index< 3> _c;
-static constexpr index< 4> _d;
-static constexpr index< 5> _e;
-static constexpr index< 6> _f;
-static constexpr index< 7> _g;
-static constexpr index< 8> _h;
-static constexpr index< 9> _i;
-static constexpr index<10> _j;
-static constexpr index<11> _k;
-static constexpr index<12> _l;
-static constexpr index<13> _m;
-static constexpr index<14> _n;
-static constexpr index<15> _o;
-static constexpr index<16> _p;
-static constexpr index<17> _q;
-static constexpr index<18> _r;
-static constexpr index<19> _s;
-static constexpr index<20> _t;
-static constexpr index<21> _u;
-static constexpr index<22> _v;
-static constexpr index<23> _w;
-static constexpr index<24> _x;
-static constexpr index<25> _y;
-static constexpr index<26> _z;
+	constexpr bool operator == (std::size_t other) const { return value == other; }
+	constexpr bool operator != (std::size_t other) const { return value != other; }
+
+	template <std::size_t K>
+	constexpr bool operator == (index_type<K> /*other*/) const {  return I==K; }
+	template <std::size_t  K>
+	constexpr bool operator != (index_type<K> /*other*/) const {  return I!=K; }
+
+	std::size_t operator()() const { return I; }
+};
+
+/** @brief Proxy classes for the einstein summation notation
+ *
+ * @note index::_a ... index::_z is used in tensor::operator()
+*/
+
+static constexpr index_type< 0> _;
+static constexpr index_type< 1> _a;
+static constexpr index_type< 2> _b;
+static constexpr index_type< 3> _c;
+static constexpr index_type< 4> _d;
+static constexpr index_type< 5> _e;
+static constexpr index_type< 6> _f;
+static constexpr index_type< 7> _g;
+static constexpr index_type< 8> _h;
+static constexpr index_type< 9> _i;
+static constexpr index_type<10> _j;
+static constexpr index_type<11> _k;
+static constexpr index_type<12> _l;
+static constexpr index_type<13> _m;
+static constexpr index_type<14> _n;
+static constexpr index_type<15> _o;
+static constexpr index_type<16> _p;
+static constexpr index_type<17> _q;
+static constexpr index_type<18> _r;
+static constexpr index_type<19> _s;
+static constexpr index_type<20> _t;
+static constexpr index_type<21> _u;
+static constexpr index_type<22> _v;
+static constexpr index_type<23> _w;
+static constexpr index_type<24> _x;
+static constexpr index_type<25> _y;
+static constexpr index_type<26> _z;
 
 
 } // namespace indices
@@ -78,22 +88,20 @@ namespace boost {
 namespace numeric {
 namespace ublas {
 
+
+/** @brief Proxy class for the einstein summation notation
+ *
+ * Denotes an array of index_type types ::_a for 0<=K<=16 is used in tensor::operator()
+*/
 template<std::size_t N>
 class multi_index
 {
-
-	using size_type  = std::size_t;
-	template<std::size_t I>
-	using index_type = indices::index<I>;
-	using array_type = std::array<std::size_t, N>;
-
 public:
 	multi_index() = delete;
 
 	template<std::size_t I, class ... indexes>
-	constexpr
-	multi_index(index_type<I> const& i, indexes ... is )
-			 : _indices{getindex(i), getindex(is)... }
+	constexpr multi_index(index::index_type<I> const& i, indexes ... is )
+			 : _base{i(), getindex(is)... }
 	{
 		static_assert( sizeof...(is)+1 == N,
 					   "Static assert in boost::numeric::ublas::multi_index: number of constructor arguments is not equal to the template parameter." );
@@ -102,33 +110,35 @@ public:
 	}
 
 	multi_index(multi_index const& other)
-		: _indices(other._indices)
+		: _base(other._base)
 	{
 	}
 
 	multi_index& operator=(multi_index const& other)
 	{
-		this->_indices = other._indices;
+		this->_base = other._base;
 		return *this;
 	}
 
 	~multi_index() = default;
 
-	auto const& indices() const { return _indices; }
-	constexpr auto size() const { return _indices.size(); }
+	auto const& base() const { return _base; }
+	constexpr auto size() const { return _base.size(); }
 
-	auto at(std::size_t i) const { return _indices.at(i); }
+	constexpr auto at(std::size_t i) const { return _base.at(i); }
+
+	constexpr auto operator[](std::size_t i) const { return _base.at(i); }
 
 private:
 	template<std::size_t I>
-	constexpr auto getindex(index_type<I> const& i) { return i.value; }
+	constexpr auto getindex(index::index_type<I> ) const { return I; }
 
 
 	template<std::size_t I, std::size_t J, class ... indexes>
-	static constexpr bool has_i (index_type<I> i, index_type<J> j, indexes ... is )
+	static constexpr bool has_i (index::index_type<I> i, index::index_type<J> j, indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
-		constexpr auto b = (i.value==j.value && i.value != 0);
+		constexpr auto b = (i==j && i!=0ul);
 
 		if constexpr (n>0)
 			return b && has_i( i, is ... );
@@ -137,7 +147,7 @@ private:
 	}
 
 	template<std::size_t I, class ... indexes>
-	static constexpr bool valid (index_type<I> i, indexes ... is )
+	static constexpr bool valid (index::index_type<I> i, indexes ... is )
 	{
 		constexpr auto n = sizeof...(is);
 		if constexpr (n>0)
@@ -146,51 +156,13 @@ private:
 			return true;
 	}
 
-	array_type _indices;
+	std::array<std::size_t, N> _base;
 };
 
+template<std::size_t K, std::size_t N>
+static constexpr auto get(multi_index<N> const& m) { return std::get<K>(m.base()); }
+
 }
 }
 }
-
-
-//namespace boost {
-//namespace numeric {
-//namespace ublas {
-//namespace detail {
-
-//template<class V, class S, class A, std::size_t N>
-//using tensor_multiindex_pair = std::pair< tensor<V,S,A> const&, multi_index<N> >;
-
-//template<std::size_t N, std::size_t M>
-//auto extract_corresponding_indices(
-//		multi_index<N> const& lhs_multi_index,
-//		multi_index<M> const& rhs_multi_index)
-//{
-//	using vtype = std::vector<std::size_t>;
-
-//	auto pp = std::make_pair( vtype {}, vtype{}  );
-
-//	for(auto i = 0u; i < N; ++i)
-//		for(auto j = 0u; j < M; ++j)
-//			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != indices::_.value)
-//				pp.first .push_back( i+1 ),
-//				pp.second.push_back( j+1 );
-
-//	if(pp.first.empty())
-//		throw std::runtime_error("Error in boost::numeric::ublas::extract_corresponding_indices: number of contracting indices of lhs_multi_index is zero.");
-
-//	if(pp.first.size() != pp.second.size())
-//		throw std::runtime_error("Error in boost::numeric::ublas::extract_corresponding_indices: number of contracting indices from lhs_multi_index and rhs_multi_index must be equal.");
-
-//	return pp;
-//}
-
-
-//} // namespace detail
-//} // namespace ublas
-//} // namespace numeric
-//} // namespace boost
-
-
 #endif // MULTI_INDEX_HPP

@@ -581,7 +581,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	template<std::size_t I, class ... index_types>
-	auto operator() (indices::index<I> p, index_types ... ps) const
+	auto operator() (index::index_type<I> p, index_types ... ps) const
 	{
 		constexpr auto N = sizeof...(ps)+1;
 		if( N != this->rank() )

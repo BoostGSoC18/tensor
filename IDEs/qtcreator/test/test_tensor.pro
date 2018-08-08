@@ -43,7 +43,9 @@ SOURCES += \
     ../../../test/tensor/test_tensor_matrix_vector.cpp \
 	../../../test/tensor/test_multiplication.cpp \
 	../../../test/tensor/test_algorithms.cpp \
-	../../../test/tensor/test_einstein_notation.cpp
+	../../../test/tensor/test_einstein_notation.cpp \
+	../../../test/tensor/test_multi_index.cpp
+
 
 
 INCLUDEPATH += \

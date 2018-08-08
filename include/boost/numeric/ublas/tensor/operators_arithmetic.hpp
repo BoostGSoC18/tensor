@@ -98,7 +98,7 @@ auto operator*(
 
 	for(auto i = 0u; i < N; ++i)
 		for(auto j = 0u; j < M; ++j)
-			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::indices::_.value)
+			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::index::_())
 				pp.first .push_back( i+1 ),
 				pp.second.push_back( j+1 );
 
