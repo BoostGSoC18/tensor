@@ -1,4 +1,3 @@
-//
 //  Copyright (c) 2018
 //  Cem Bassoy
 //
@@ -7,9 +6,10 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 //  The authors gratefully acknowledge the support of
-//  Fraunhofer IOSB in producing this work.
+//  Fraunhofer and Google in producing this work
+//  which started as a Google Summer of Code project.
 //
-//  And we acknowledge the support from all contributors.
+
 
 /// \file tensor.hpp Definition for the tensor template class
 
@@ -25,7 +25,7 @@
 #include "expression_evaluation.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
-#include "multi_index.hpp"
+#include "index.hpp"
 
 namespace boost { namespace numeric { namespace ublas {
 
@@ -581,13 +581,13 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	template<std::size_t I, class ... index_types>
-	auto operator() (index::index_type<I> p, index_types ... ps) const
+	decltype(auto) operator() (index::index_type<I> p, index_types ... ps) const
 	{
 		constexpr auto N = sizeof...(ps)+1;
 		if( N != this->rank() )
 			throw std::runtime_error("Error in boost::numeric::ublas::operator(): size of provided index_types does not match with the rank.");
 
-		return std::pair< tensor const&, multi_index<N> > ( *this,  multi_index<N>( p, ps... ) );
+		return std::make_pair( std::cref(*this),  std::make_tuple( p, std::forward<index_types>(ps)... ) );
 	}
 
 

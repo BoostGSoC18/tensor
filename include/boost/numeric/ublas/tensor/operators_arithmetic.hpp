@@ -14,7 +14,7 @@
 
 #include "expression.hpp"
 #include "expression_evaluation.hpp"
-#include "multi_index.hpp"
+#include "multi_index_utility.hpp"
 #include "functions.hpp"
 
 #include <type_traits>
@@ -83,32 +83,69 @@ FIRST_ORDER_OPERATOR_LEFT (/, matrix_expression, detail:: tensor_expression)
 */
 // this is not a elementwise multiplication, but a tensor contraction.
 
-template<class V, class S, class A, std::size_t N, class U, class B, std::size_t M>
+//template<class V, class S, class A, std::size_t N, class U, class B, std::size_t M>
+//auto operator*(
+//		std::pair< boost::numeric::ublas::tensor<V,S,A> const&, boost::numeric::ublas::multi_index<N> > const& lhs,
+//		std::pair< boost::numeric::ublas::tensor<U,S,B> const&, boost::numeric::ublas::multi_index<M> > const& rhs)
+//{
+//	auto lhs_multi_index = lhs.second;
+//	auto rhs_multi_index = rhs.second;
+
+//	using vtype = std::vector<std::size_t>;
+
+//	auto pp = std::make_pair( vtype {}, vtype{}  );
+
+//	for(auto i = 0u; i < N; ++i)
+//		for(auto j = 0u; j < M; ++j)
+//			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::index::_())
+//				pp.first .push_back( i+1 ),
+//				pp.second.push_back( j+1 );
+
+//	if(pp.first.empty())
+//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices of lhs_multi_index is zero.");
+
+//	if(pp.first.size() != pp.second.size())
+//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices from lhs_multi_index and rhs_multi_index must be equal.");
+//	return boost::numeric::ublas::prod( lhs.first, rhs.first, pp.first, pp.second );
+//}
+
+
+template<class tensor_type_left, class tuple_type_left, class tensor_type_right, class tuple_type_right>
 auto operator*(
-		std::pair< boost::numeric::ublas::tensor<V,S,A> const&, boost::numeric::ublas::multi_index<N> > const& lhs,
-		std::pair< boost::numeric::ublas::tensor<U,S,B> const&, boost::numeric::ublas::multi_index<M> > const& rhs)
+		std::pair< tensor_type_left  const&, tuple_type_left  > lhs,
+		std::pair< tensor_type_right const&, tuple_type_right > rhs)
 {
 
-	auto lhs_multi_index = lhs.second;
-	auto rhs_multi_index = rhs.second;
+	using namespace boost::numeric::ublas;
 
-	using vtype = std::vector<std::size_t>;
+	auto const& tensor_left  = lhs.first;
+	auto const& tensor_right = rhs.first;
 
-	auto pp = std::make_pair( vtype {}, vtype{}  );
+	auto multi_index_left = lhs.second;
+	auto multi_index_right = rhs.second;
 
-	for(auto i = 0u; i < N; ++i)
-		for(auto j = 0u; j < M; ++j)
-			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::index::_())
-				pp.first .push_back( i+1 ),
-				pp.second.push_back( j+1 );
+	auto array_index_pairs = index_position_pairs(multi_index_left,multi_index_right);
+	auto index_pairs = array_to_vector(  array_index_pairs  );
+	return boost::numeric::ublas::prod( tensor_left, tensor_right, index_pairs.first, index_pairs.second );
 
-	if(pp.first.empty())
-		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices of lhs_multi_index is zero.");
 
-	if(pp.first.size() != pp.second.size())
-		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices from lhs_multi_index and rhs_multi_index must be equal.");
+//	using vtype = std::vector<std::size_t>;
 
-	return boost::numeric::ublas::prod( lhs.first, rhs.first, pp.first, pp.second );
+//	auto pp = std::make_pair( vtype {}, vtype{}  );
+
+//	for(auto i = 0u; i < N; ++i)
+//		for(auto j = 0u; j < M; ++j)
+//			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::index::_())
+//				pp.first .push_back( i+1 ),
+//				pp.second.push_back( j+1 );
+
+//	if(pp.first.empty())
+//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices of lhs_multi_index is zero.");
+
+//	if(pp.first.size() != pp.second.size())
+//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices from lhs_multi_index and rhs_multi_index must be equal.");
+
+//	return boost::numeric::ublas::prod( lhs.first, rhs.first, pp.first, pp.second );
 }
 
 

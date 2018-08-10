@@ -5,18 +5,20 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 //  The authors gratefully acknowledge the support of
-//  Fraunhofer IOSB in producing this work.
+//  Fraunhofer and Google in producing this work
+//  which started as a Google Summer of Code project.
 //
-//  And we acknowledge the support from all contributors.
-
 
 #include <iostream>
 #include <algorithm>
 #include <boost/numeric/ublas/tensor.hpp>
+#include <boost/numeric/ublas/tensor/multi_index.hpp>
+
 
 #include <boost/test/unit_test.hpp>
 
 #include "utility.hpp"
+
 
 BOOST_AUTO_TEST_SUITE ( test_multi_index ) ;
 
@@ -24,7 +26,7 @@ BOOST_AUTO_TEST_SUITE ( test_multi_index ) ;
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
 
 
-BOOST_AUTO_TEST_CASE ( test_multiplication_indices )
+BOOST_AUTO_TEST_CASE ( test_index_classes )
 {
 	using namespace boost::numeric::ublas::index;
 
@@ -58,34 +60,30 @@ BOOST_AUTO_TEST_CASE ( test_multiplication_indices )
 
 }
 
-BOOST_AUTO_TEST_CASE ( test_multiplication_multi_index )
+BOOST_AUTO_TEST_CASE ( test_multi_index_class_construction )
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
 
 
-//	BOOST_CHECK_NO_THROW(  Indices<1>(indices::c) );
-
-
 	{
-	multi_index<2> ind(_a, _b);
+		multi_index<2> ind(_a, _b);
 
-	BOOST_CHECK_EQUAL ( get<0>( ind ), 1 ) ;
-	BOOST_CHECK_EQUAL ( get<1>( ind ), 2 ) ;
-
+		BOOST_CHECK_EQUAL ( get<0>( ind ), 1 ) ;
+		BOOST_CHECK_EQUAL ( get<1>( ind ), 2 ) ;
 	}
 
 
 	{
-	multi_index<2> ind(_d,_c);
+		multi_index<2> ind(_d,_c);
 
-	BOOST_CHECK_EQUAL ( ind[0] , 4 ) ;
-	BOOST_CHECK_EQUAL ( ind[1] , 3 ) ;
+		BOOST_CHECK_EQUAL ( ind[0] , 4 ) ;
+		BOOST_CHECK_EQUAL ( ind[1] , 3 ) ;
 	}
-
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types )
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_multi_index_class_generation, value,  test_types )
 {
 	using namespace boost::numeric::ublas;
 	using value_type   = typename value::first_type;
@@ -106,8 +104,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL ( std::addressof( a_ind.first ), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), index::_a() ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), index::_c() ) ;
+		BOOST_CHECK_EQUAL (std::get<0>(a_ind.second)(), index::_a() ) ;
+		BOOST_CHECK_EQUAL (std::get<1>(a_ind.second)(), index::_c() ) ;
 	}
 
 	{
@@ -116,8 +114,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL ( std::addressof( a_ind.first ), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), index::_c() ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), index::_a() ) ;
+		BOOST_CHECK_EQUAL (std::get<0>(a_ind.second)(), index::_c() ) ;
+		BOOST_CHECK_EQUAL (std::get<1>(a_ind.second)(), index::_a() ) ;
 	}
 
 	{
@@ -126,8 +124,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL (std::addressof(  a_ind.first ), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), index::_c() ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), index::_d() ) ;
+		BOOST_CHECK_EQUAL (std::get<0>(a_ind.second)(), index::_c() ) ;
+		BOOST_CHECK_EQUAL (std::get<1>(a_ind.second)(), index::_d() ) ;
 	}
 
 	{
@@ -136,9 +134,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_einstein_notation, value,  test_types
 
 		BOOST_CHECK_EQUAL (std::addressof(  a_ind.first ), std::addressof( a ) ) ;
 
-		BOOST_CHECK_EQUAL (a_ind.second.at(0), index::_c() ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(1), index::_d() ) ;
-		BOOST_CHECK_EQUAL (a_ind.second.at(2), index::_a() ) ;
+		BOOST_CHECK_EQUAL (std::get<0>(a_ind.second)(), index::_c() ) ;
+		BOOST_CHECK_EQUAL (std::get<1>(a_ind.second)(), index::_d() ) ;
+		BOOST_CHECK_EQUAL (std::get<2>(a_ind.second)(), index::_a() ) ;
 	}
 
 }
