@@ -19,6 +19,7 @@
 
 #include <type_traits>
 #include <functional>
+#include <algorithm>
 
 namespace boost{
 namespace numeric{
@@ -74,79 +75,6 @@ FIRST_ORDER_OPERATOR_LEFT (+, matrix_expression, detail:: tensor_expression)
 FIRST_ORDER_OPERATOR_LEFT (-, matrix_expression, detail:: tensor_expression)
 FIRST_ORDER_OPERATOR_LEFT (/, matrix_expression, detail:: tensor_expression)
 
-/** @brief Performs a tensor contraction, not an elementwise multiplication
-  *
-  *
-  *
-  * @tparam T tensor teype
-  * @tparam M
-*/
-// this is not a elementwise multiplication, but a tensor contraction.
-
-//template<class V, class S, class A, std::size_t N, class U, class B, std::size_t M>
-//auto operator*(
-//		std::pair< boost::numeric::ublas::tensor<V,S,A> const&, boost::numeric::ublas::multi_index<N> > const& lhs,
-//		std::pair< boost::numeric::ublas::tensor<U,S,B> const&, boost::numeric::ublas::multi_index<M> > const& rhs)
-//{
-//	auto lhs_multi_index = lhs.second;
-//	auto rhs_multi_index = rhs.second;
-
-//	using vtype = std::vector<std::size_t>;
-
-//	auto pp = std::make_pair( vtype {}, vtype{}  );
-
-//	for(auto i = 0u; i < N; ++i)
-//		for(auto j = 0u; j < M; ++j)
-//			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::index::_())
-//				pp.first .push_back( i+1 ),
-//				pp.second.push_back( j+1 );
-
-//	if(pp.first.empty())
-//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices of lhs_multi_index is zero.");
-
-//	if(pp.first.size() != pp.second.size())
-//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices from lhs_multi_index and rhs_multi_index must be equal.");
-//	return boost::numeric::ublas::prod( lhs.first, rhs.first, pp.first, pp.second );
-//}
-
-
-template<class tensor_type_left, class tuple_type_left, class tensor_type_right, class tuple_type_right>
-auto operator*(
-		std::pair< tensor_type_left  const&, tuple_type_left  > lhs,
-		std::pair< tensor_type_right const&, tuple_type_right > rhs)
-{
-
-	using namespace boost::numeric::ublas;
-
-	auto const& tensor_left  = lhs.first;
-	auto const& tensor_right = rhs.first;
-
-	auto multi_index_left = lhs.second;
-	auto multi_index_right = rhs.second;
-
-	auto array_index_pairs = index_position_pairs(multi_index_left,multi_index_right);
-	auto index_pairs = array_to_vector(  array_index_pairs  );
-	return boost::numeric::ublas::prod( tensor_left, tensor_right, index_pairs.first, index_pairs.second );
-
-
-//	using vtype = std::vector<std::size_t>;
-
-//	auto pp = std::make_pair( vtype {}, vtype{}  );
-
-//	for(auto i = 0u; i < N; ++i)
-//		for(auto j = 0u; j < M; ++j)
-//			if ( lhs_multi_index.at(i) == rhs_multi_index.at(j) && lhs_multi_index.at(i) != boost::numeric::ublas::index::_())
-//				pp.first .push_back( i+1 ),
-//				pp.second.push_back( j+1 );
-
-//	if(pp.first.empty())
-//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices of lhs_multi_index is zero.");
-
-//	if(pp.first.size() != pp.second.size())
-//		throw std::runtime_error("Error in boost::numeric::ublas::operator*(): number of contracting indices from lhs_multi_index and rhs_multi_index must be equal.");
-
-//	return boost::numeric::ublas::prod( lhs.first, rhs.first, pp.first, pp.second );
-}
 
 
 
@@ -274,5 +202,43 @@ auto operator -(boost::numeric::ublas::detail::tensor_expression<T,D> const& lhs
 	return boost::numeric::ublas::detail::make_unary_tensor_expression<T> (lhs(), [] (auto const& l) { return -l; } );
 }
 
+
+
+
+
+/** @brief Performs a tensor contraction, not an elementwise multiplication
+	*
+*/
+
+template<class tensor_type_left, class tuple_type_left, class tensor_type_right, class tuple_type_right>
+auto operator*(
+		std::pair< tensor_type_left  const&, tuple_type_left  > lhs,
+		std::pair< tensor_type_right const&, tuple_type_right > rhs)
+{
+
+	using namespace boost::numeric::ublas;
+
+	auto const& tensor_left  = lhs.first;
+	auto const& tensor_right = rhs.first;
+
+	auto multi_index_left = lhs.second;
+	auto multi_index_right = rhs.second;
+
+	static constexpr auto num_equal_ind = number_equal_indexes<tuple_type_left, tuple_type_right>::value;
+
+	if constexpr ( num_equal_ind == 0  ){
+		return tensor_left * tensor_right;
+	}
+	else if constexpr ( num_equal_ind==std::tuple_size<tuple_type_left>::value && std::is_same<tuple_type_left, tuple_type_right>::value ){
+
+		return boost::numeric::ublas::inner_prod( tensor_left, tensor_right );
+	}
+	else {
+		auto array_index_pairs = index_position_pairs(multi_index_left,multi_index_right);
+		auto index_pairs = array_to_vector(  array_index_pairs  );
+		return boost::numeric::ublas::prod( tensor_left, tensor_right, index_pairs.first, index_pairs.second );
+	}
+
+}
 
 #endif

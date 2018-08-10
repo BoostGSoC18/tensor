@@ -83,6 +83,25 @@ private:
 template<std::size_t K, std::size_t N>
 constexpr auto get(multi_index<N> const& m) { return std::get<K>(m.base()); }
 
+template<std::size_t M, std::size_t N>
+auto array_to_vector(multi_index<M> const& lhs, multi_index<N> const& rhs)
+{
+	using vtype = std::vector<std::size_t>;
+
+	auto pair_of_vector = std::make_pair( vtype {}, vtype{}  );
+
+	for(auto i = 0u; i < N; ++i)
+		for(auto j = 0u; j < M; ++j)
+			if ( lhs.at(i) == rhs.at(j) && lhs.at(i) != boost::numeric::ublas::index::_())
+				pair_of_vector.first .push_back( i+1 ),
+				pair_of_vector.second.push_back( j+1 );
+
+	return pair_of_vector;
+}
+
+
+
+
 
 } // namespace ublas
 } // namespace numeric
