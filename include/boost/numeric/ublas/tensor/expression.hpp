@@ -85,7 +85,7 @@ struct binary_tensor_expression
 	binary_tensor_expression() = delete;
 	binary_tensor_expression(const binary_tensor_expression& l) = delete;
 	binary_tensor_expression(binary_tensor_expression&& l)
-		: el(l.el), er(r.er), op(l.op) {}
+		: el(l.el), er(l.er), op(l.op) {}
 
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i) const { return op(el(i), er(i)); }
