@@ -12,7 +12,10 @@ Distributed under the [Boost Software License, Version 1.0](http://www.boost.org
 ## Properties
 
 * Header-only
-* Requires C++17 compatible compiler
+* Requires C++17 compatible compiler, compiles with
+  * gcc 7.3.0
+  * clang 6.0
+  * msvc 14.1
 * Unit-tests require Boost.Test
 
 ## Build Status
