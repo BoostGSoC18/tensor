@@ -84,7 +84,8 @@ struct binary_tensor_expression
 		: el(l) , er(r) , op(o) {}
 	binary_tensor_expression() = delete;
 	binary_tensor_expression(const binary_tensor_expression& l) = delete;
-	binary_tensor_expression(binary_tensor_expression&& l) = delete;
+	binary_tensor_expression(binary_tensor_expression&& l)
+		: el(l.el), er(r.er), op(l.op) {}
 
 	BOOST_UBLAS_INLINE
 	decltype(auto)  operator()(size_type i) const { return op(el(i), er(i)); }
@@ -143,7 +144,8 @@ struct unary_tensor_expression
 	explicit unary_tensor_expression(E const& ee, OP o) : e(ee) , op(o) {}
 	unary_tensor_expression() = delete;
 	unary_tensor_expression(const unary_tensor_expression& l) = delete;
-	unary_tensor_expression(unary_tensor_expression&& l) = delete;
+	unary_tensor_expression(unary_tensor_expression&& l)
+		: e(l.e), op(op.l) {}
 
 	BOOST_UBLAS_INLINE
 	decltype(auto) operator()(size_type i) const { return op(e(i)); }

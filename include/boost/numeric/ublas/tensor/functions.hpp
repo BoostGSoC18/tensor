@@ -62,9 +62,10 @@ auto prod(tensor<V,F,A1> const& a, vector<V,A2> const& b, const std::size_t m)
 	using extents_type = typename tensor_type::extents_type;
 	using ebase_type   = typename extents_type::base_type;
 	using value_type   = typename tensor_type::value_type;
+	using size_type = typename extents_type::value_type;
 
-	auto const p = a.rank();
-
+	auto const p = std::size_t(a.rank());
+	
 	if( m == 0)
 		throw std::length_error("Error in boost::numeric::ublas::prod: Contraction mode must be greater than zero.");
 
@@ -81,7 +82,7 @@ auto prod(tensor<V,F,A1> const& a, vector<V,A2> const& b, const std::size_t m)
 		throw std::length_error("Error in boost::numeric::ublas::prod: vector should not be empty.");
 
 
-	auto nc = ebase_type(std::max(p-1,2ul) ,1);
+	auto nc = ebase_type(std::max(p-1, size_type(2)) , size_type(1));
 	auto nb = ebase_type{b.size(),1};
 
 
@@ -188,11 +189,12 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 	using tensor_type  = tensor<V,F,A1>;
 	using extents_type = typename tensor_type::extents_type;
 	using value_type   = typename tensor_type::value_type;
+	using size_type = typename extents_type::value_type;
 
 	auto const pa = a.rank();
 	auto const pb = b.rank();
 
-	auto const q  = phia.size();
+	auto const q  = size_type(phia.size());
 
 	if(pa == 0ul)
 		throw std::runtime_error("Error in ublas::prod: order of left-hand side tensor must be greater than 0.");
@@ -227,7 +229,7 @@ auto prod(tensor<V,F,A1> const& a, tensor<V,F,A2> const& b,
 	std::iota(phia1.begin(), phia1.end(), 1ul);
 	std::iota(phib1.begin(), phib1.end(), 1ul);
 
-	std::vector<std::size_t> nc( std::max ( r+s , 2ul ), 1ul );
+	std::vector<std::size_t> nc( std::max ( r+s , size_type(2) ), size_type(1) );
 
 	for(auto i = 0ul; i < phia.size(); ++i)
 		* std::remove(phia1.begin(), phia1.end(), phia.at(i)) = phia.at(i);

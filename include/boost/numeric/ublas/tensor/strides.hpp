@@ -95,12 +95,12 @@ public:
 
 
 		if constexpr (std::is_same<layout_type,first_order>::value){
-			auto k = 1ul, kend = this->size();
+			size_type k = 1ul, kend = this->size();
 			for(; k < kend; ++k)
 				_base[k] = _base[k-1] * s[k-1];
 		}
 		else {
-			auto k = this->size()-2, kend = 0ul;
+			size_type k = this->size()-2, kend = 0ul;
 			for(; k > kend; --k)
 				_base[k] = _base[k+1] * s[k+1];
 			_base[0] = _base[1] * s[1];

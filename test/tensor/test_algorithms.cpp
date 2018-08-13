@@ -219,7 +219,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_trans, value,  test_typ
 	using vector_type  = std::vector<value_type>;
 	using strides_type = ublas::strides<layout_type>;
 	using extents_type = ublas::shape;
-	using permutation_type = std::vector<std::size_t>;
+	using size_type = typename extents_type::value_type;
+	using permutation_type = std::vector<size_type>;
+	
 
 	for(auto const& n : extents) {
 
@@ -238,7 +240,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_trans, value,  test_typ
 		init(a);
 
 		// so wie last-order.
-		for(auto i = 0ul, j = p; i < n.size(); ++i, --j)
+		for(auto i = size_type(0), j = p; i < n.size(); ++i, --j)
 			pi[i] = j;
 
 		auto nc = typename extents_type::base_type (p);
