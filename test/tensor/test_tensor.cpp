@@ -461,11 +461,15 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_ty
 		BOOST_CHECK_EQUAL( std::distance(t.cbegin(),  t.cend ()), t.size() );
 		BOOST_CHECK_EQUAL( std::distance(t.crbegin(), t.crend()), t.size() );
 
-		BOOST_CHECK(  t.data() ==  std::addressof( *t.begin () )  ) ;
-		BOOST_CHECK(  t.data() ==  std::addressof( *t.cbegin() )  ) ;
+		if(t.size() > 0) {
 
-		BOOST_CHECK(  (t.data()+t.size()) ==  std::addressof( *t.end () ) ) ;
-		BOOST_CHECK(  (t.data()+t.size()) ==  std::addressof( *t.cend() )  ) ;
+			BOOST_CHECK(  t.data() ==  std::addressof( *t.begin () )  ) ;
+			BOOST_CHECK(  t.data() ==  std::addressof( *t.cbegin() )  ) ;
+
+			BOOST_CHECK(  (t.data()+t.size()) ==  std::addressof( *t.end () ) ) ;
+			BOOST_CHECK(  (t.data()+t.size()) ==  std::addressof( *t.cend() )  ) ;
+
+		}
 
 	}
 }
