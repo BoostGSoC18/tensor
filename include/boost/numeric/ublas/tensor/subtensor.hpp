@@ -11,10 +11,13 @@
 //
 
 
-/// \file tensor.hpp Definition for the tensor template class
+/// \file subtensor.hpp Definition for the tensor template class
 
-#ifndef _BOOST_UBLAS_TENSOR_IMPL_
-#define _BOOST_UBLAS_TENSOR_IMPL_
+#ifndef _BOOST_UBLAS_TENSOR_VIEW_
+#define _BOOST_UBLAS_TENSOR_VIEW_
+
+
+#if 0
 
 #include <boost/config.hpp>
 
@@ -27,10 +30,13 @@
 #include "strides.hpp"
 #include "index.hpp"
 
+
+
 namespace boost { namespace numeric { namespace ublas {
 
 template<class T, class F, class A>
 class tensor;
+
 
 template<class T, class F, class A>
 class matrix;
@@ -38,26 +44,48 @@ class matrix;
 template<class T, class A>
 class vector;
 
-/** @brief A dense tensor of values of type \c T.
+struct sliced_tag {};
+struct strided_tag {};
+
+
+
+
+/** @brief A view of a dense tensor of values of type \c T.
+	*
+	* @tparam T type of the objects stored in the tensor (like int, double, complex,...)
+	* @tparam F
+	* @tparam A The type of the storage array of the tensor. Default is \c unbounded_array<T>. \c <bounded_array<T> and \c std::vector<T> can also be used
+*/
+template<class S, class T>
+class subtensor;
+
+
+/** @brief A sliced view of a dense tensor of values of type \c T.
 		*
 		* For a \f$n\f$-dimensional tensor \f$v\f$ and \f$0\leq i < n\f$ every element \f$v_i\f$ is mapped
-		* to the \f$i\f$-th element of the container. A storage type \c A can be specified which defaults to \c std::vector.
+		* to the \f$i\f$-th element of the container. A storage type \c A can be specified which defaults to \c unbounded_array.
 		* Elements are constructed by \c A, which need not initialise their value.
 		*
 		* @tparam T type of the objects stored in the tensor (like int, double, complex,...)
-		* @tparam F type of layout which can be either \c first_order or \c last_order.
-		* @tparam A The type of the storage array of the tensor which must be a sequence container type with random access. Default is \c std::vector<T>.
+		* @tparam F type of the layout which can be either
+		* @tparam A The type of the storage array of the tensor. Default is \c unbounded_array<T>. \c <bounded_array<T> and \c std::vector<T> can also be used
 		*/
-template<class T, class F = first_order, class A = std::vector<T,std::allocator<T>> >
-class tensor:
-		public detail::tensor_expression<tensor<T, F, A>,tensor<T, F, A>>
+template<class T, class F, class A>
+class subtensor <sliced_tag, tensor<T, F, A>> :
+		public detail::tensor_expression<subtensor<sliced_tag, tensor<T, F, A>>>
 {
 
 	static_assert( std::is_same<F,first_order>::value ||
 								 std::is_same<F,last_order >::value, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
 
-	using self_type  = tensor<T, F, A>;
+	using tensor_type = tensor<T,F,A>;
+	using self_type  = subtensor<tensor_type>;
 public:
+
+	using domain_tag = sliced_tag;
+
+	using range_type = experimental::basic_range<domain_tag>;
+
 	template<class derived_type>
 	using tensor_expression_type = detail::tensor_expression<self_type,derived_type>;
 
@@ -71,25 +99,24 @@ public:
 
 //	static_assert(std::is_same_v<tensor_expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "tensor_expression_type<self_type>");
 
-	using array_type  = A;
-	using layout_type = F;
+	using array_type      = typename tensor_type::array_type;
+	using layout_type     = typename tensor_type::layout_type;
 
+	using size_type       = typename tensor_type::size_type;
+	using difference_type = typename tensor_type::difference_type;
+	using value_type      = typename tensor_type::value_type;
 
-	using size_type       = typename array_type::size_type;
-	using difference_type = typename array_type::difference_type;
-	using value_type      = typename array_type::value_type;
+	using reference       = typename tensor_type::reference;
+	using const_reference = typename tensor_type::const_reference;
 
-	using reference       = typename array_type::reference;
-	using const_reference = typename array_type::const_reference;
+	using pointer         = typename tensor_type::pointer;
+	using const_pointer   = typename tensor_type::const_pointer;
 
-	using pointer         = typename array_type::pointer;
-	using const_pointer   = typename array_type::const_pointer;
+//	using iterator        = typename array_type::iterator;
+//	using const_iterator  = typename array_type::const_iterator;
 
-	using iterator        = typename array_type::iterator;
-	using const_iterator  = typename array_type::const_iterator;
-
-	using reverse_iterator        = typename array_type::reverse_iterator;
-	using const_reverse_iterator  = typename array_type::const_reverse_iterator;
+//	using reverse_iterator        = typename array_type::reverse_iterator;
+//	using const_reverse_iterator  = typename array_type::const_reverse_iterator;
 
 	using tensor_temporary_type = self_type;
 	using storage_category = dense_tag;
@@ -97,59 +124,43 @@ public:
 	using strides_type = basic_strides<std::size_t,layout_type>;
 	using extents_type = shape;
 
-	using matrix_type     = matrix<value_type,layout_type,array_type>;
-	using vector_type     = vector<value_type,array_type>;
+	using matrix_type  = matrix<value_type,layout_type,array_type>;
+	using vector_type  = vector<value_type,array_type>;
 
 
-	/** @brief Constructs a tensor.
-	 *
-	 * @note the tensor is empty.
-	 * @note the tensor needs to reshaped for further use.
-	 *
-	 */
+	/** @brief Deleted constructor of a subtensor */
 	BOOST_UBLAS_INLINE
-	constexpr tensor ()
-		: tensor_expression_type<self_type>() // container_type
-		, extents_()
-		, strides_()
-		, data_()
-	{
-	}
+	subtensor () = delete;
 
 
-	/** @brief Constructs a tensor with an initializer list
+	/** @brief Constructs a tensor view from a tensor without any range.
 	 *
-	 * By default, its elements are initialized to 0.
-	 *
-	 * @code tensor<float> A{4,2,3}; @endcode
-	 *
-	 * @param l initializer list for setting the dimension extents of the tensor
+	 * @note can be regarded as a pointer to a tensor
 	 */
 	explicit BOOST_UBLAS_INLINE
-	tensor (std::initializer_list<size_type> l)
+	subtensor (tensor_type const& t)
 		: tensor_expression_type<self_type>()
-		, extents_ (std::move(l))
-		, strides_ (extents_)
-		, data_    (extents_.product())
+		, tensor_  (t)
+		, extents_ (t.extents())
+		, strides_ (t.strides())
+		, data_    (t.data())
 	{
 	}
 
 
-	/** @brief Constructs a tensor with a \c shape
+	/** @brief Constructs a tensor view from a tensor without any range.
 	 *
-	 * By default, its elements are initialized to 0.
-	 *
-	 * @code tensor<float> A{extents{4,2,3}}; @endcode
-	 *
-	 * @param s initial tensor dimension extents
+	 * @note can be regarded as a pointer to a tensor
 	 */
-	explicit BOOST_UBLAS_INLINE
-	tensor (extents_type const& s)
-		: tensor_expression_type<self_type>() //tensor_container<self_type>()
-		, extents_ (s)
-		, strides_ (extents_)
-		, data_    (extents_.product())
-	{}
+//	explicit BOOST_UBLAS_INLINE
+//	subtensor (tensor_type const& t)
+//		: tensor_expression_type<self_type>()
+//		, tensor_  (t)
+//		, extents_ (t.extents())
+//		, strides_ (t.strides())
+//		, data_    (t.data())
+//	{
+//	}
 
 
 	/** @brief Constructs a tensor with a \c shape and initiates it with one-dimensional data
@@ -697,6 +708,7 @@ private:
 
 }}} // namespaces
 
+#endif
 
 
 

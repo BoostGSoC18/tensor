@@ -12,4 +12,6 @@ HEADERS += \
 	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/operators_arithmetic.hpp \
 	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/multi_index.hpp \
 	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/multi_index_utility.hpp \
-	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/index.hpp
+	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/index.hpp \
+	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/subtensor.hpp \
+	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/span.hpp
