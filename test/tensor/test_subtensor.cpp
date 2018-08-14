@@ -17,58 +17,64 @@
 #include <boost/test/unit_test.hpp>
 #include "utility.hpp"
 
-//BOOST_AUTO_TEST_SUITE ( test_tensor, * boost::unit_test::depends_on("test_extents") ) ;
-BOOST_AUTO_TEST_SUITE ( test_subtensor ) ;
 
-using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+BOOST_AUTO_TEST_SUITE ( test_subtensor,
+												*boost::unit_test::depends_on("test_tensor")
+												*boost::unit_test::depends_on("test_span") ) ;
+
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 
-#if 0
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( test_subtensor_ctor, value,  test_types)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
 
+
+	using subtensor_type = ublas::subtensor<ublas::sliced_tag, tensor_type>;
+
 	auto a1 = tensor_type{};
-	BOOST_CHECK_EQUAL( a1.size() , 0ul );
-	BOOST_CHECK( a1.empty() );
-	BOOST_CHECK_EQUAL( a1.data() , nullptr);
+	auto s1 = subtensor_type( a1 );
+//	BOOST_CHECK_EQUAL( s1.size() , 0ul );
+//	BOOST_CHECK( s1.empty() );
+//	BOOST_CHECK_EQUAL( s1.data() , nullptr);
 
-	auto a2 = tensor_type{1,1};
-	BOOST_CHECK_EQUAL(  a2.size() , 1 );
-	BOOST_CHECK( !a2.empty() );
-	BOOST_CHECK_NE(  a2.data() , nullptr);
+//	auto a2 = tensor_type{1,1};
+//	BOOST_CHECK_EQUAL(  a2.size() , 1 );
+//	BOOST_CHECK( !a2.empty() );
+//	BOOST_CHECK_NE(  a2.data() , nullptr);
 
-	auto a3 = tensor_type{2,1};
-	BOOST_CHECK_EQUAL(  a3.size() , 2 );
-	BOOST_CHECK( !a3.empty() );
-	BOOST_CHECK_NE(  a3.data() , nullptr);
+//	auto a3 = tensor_type{2,1};
+//	BOOST_CHECK_EQUAL(  a3.size() , 2 );
+//	BOOST_CHECK( !a3.empty() );
+//	BOOST_CHECK_NE(  a3.data() , nullptr);
 
-	auto a4 = tensor_type{1,2};
-	BOOST_CHECK_EQUAL(  a4.size() , 2 );
-	BOOST_CHECK( !a4.empty() );
-	BOOST_CHECK_NE(  a4.data() , nullptr);
+//	auto a4 = tensor_type{1,2};
+//	BOOST_CHECK_EQUAL(  a4.size() , 2 );
+//	BOOST_CHECK( !a4.empty() );
+//	BOOST_CHECK_NE(  a4.data() , nullptr);
 
-	auto a5 = tensor_type{2,1};
-	BOOST_CHECK_EQUAL(  a5.size() , 2 );
-	BOOST_CHECK( !a5.empty() );
-	BOOST_CHECK_NE(  a5.data() , nullptr);
+//	auto a5 = tensor_type{2,1};
+//	BOOST_CHECK_EQUAL(  a5.size() , 2 );
+//	BOOST_CHECK( !a5.empty() );
+//	BOOST_CHECK_NE(  a5.data() , nullptr);
 
-	auto a6 = tensor_type{4,3,2};
-	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
-	BOOST_CHECK( !a6.empty() );
-	BOOST_CHECK_NE(  a6.data() , nullptr);
+//	auto a6 = tensor_type{4,3,2};
+//	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
+//	BOOST_CHECK( !a6.empty() );
+//	BOOST_CHECK_NE(  a6.data() , nullptr);
 
-	auto a7 = tensor_type{4,1,2};
-	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
-	BOOST_CHECK( !a7.empty() );
-	BOOST_CHECK_NE(  a7.data() , nullptr);
+//	auto a7 = tensor_type{4,1,2};
+//	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
+//	BOOST_CHECK( !a7.empty() );
+//	BOOST_CHECK_NE(  a7.data() , nullptr);
 }
 
-
+#if 0
 struct fixture {
 	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;
 	fixture() : extents{
@@ -154,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor_layout, value,  test_typ
 	using value_type  = typename value::first_type;
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
-	using other_layout_type = std::conditional_t<std::is_same<ublas::first_order,layout_type>::value, ublas::last_order, ublas::first_order>;
+	using other_layout_type = std::conditional_t<std::is_same<ublas::tag::first_order,layout_type>::value, ublas::tag::last_order, ublas::tag::first_order>;
 	using other_tensor_type = ublas::tensor<value_type, other_layout_type>;
 
 
@@ -299,8 +305,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 	auto check2 = [](const tensor_type& t)
 	{
 		std::array<unsigned,2> k;
-		auto r = std::is_same_v<layout_type,ublas::first_order> ? 1 : 0;
-		auto q = std::is_same_v<layout_type,ublas::last_order > ? 1 : 0;
+		auto r = std::is_same_v<layout_type,ublas::tag::first_order> ? 1 : 0;
+		auto q = std::is_same_v<layout_type,ublas::tag::last_order > ? 1 : 0;
 		auto v = value_type{};
 		for(k[r] = 0ul; k[r] < t.size(r); ++k[r]){
 			for(k[q] = 0ul; k[q] < t.size(q); ++k[q]){
@@ -313,8 +319,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 	auto check3 = [](const tensor_type& t)
 	{
 		std::array<unsigned,3> k;
-		using op_type = std::conditional_t<std::is_same_v<layout_type,ublas::first_order>, std::minus<>, std::plus<>>;
-		auto r = std::is_same_v<layout_type,ublas::first_order> ? 2 : 0;
+		using op_type = std::conditional_t<std::is_same_v<layout_type,ublas::tag::first_order>, std::minus<>, std::plus<>>;
+		auto r = std::is_same_v<layout_type,ublas::tag::first_order> ? 2 : 0;
 		auto o = op_type{};
 		auto v = value_type{};
 		for(k[r] = 0ul; k[r] < t.size(r); ++k[r]){
@@ -330,8 +336,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 	auto check4 = [](const tensor_type& t)
 	{
 		std::array<unsigned,4> k;
-		using op_type = std::conditional_t<std::is_same_v<layout_type,ublas::first_order>, std::minus<>, std::plus<>>;
-		auto r = std::is_same_v<layout_type,ublas::first_order> ? 3 : 0;
+		using op_type = std::conditional_t<std::is_same_v<layout_type,ublas::tag::first_order>, std::minus<>, std::plus<>>;
+		auto r = std::is_same_v<layout_type,ublas::tag::first_order> ? 3 : 0;
 		auto o = op_type{};
 		auto v = value_type{};
 		for(k[r] = 0ul; k[r] < t.size(r); ++k[r]){

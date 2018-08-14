@@ -22,9 +22,9 @@
 BOOST_AUTO_TEST_SUITE ( test_einstein_notation, * boost::unit_test::depends_on("test_multi_index") ) ;
 
 
-using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
-//using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
+//using test_types = zip<int>::with_t<boost::numeric::ublas::tag::first_order>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( test_einstein_multiplication, value,  test_types )
 {

@@ -23,7 +23,7 @@
 BOOST_AUTO_TEST_SUITE ( test_multi_index ) ;
 
 
-using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 
 BOOST_AUTO_TEST_CASE ( test_index_classes )

@@ -24,9 +24,9 @@
 BOOST_AUTO_TEST_SUITE ( test_tensor_functions, * boost::unit_test::depends_on("test_tensor_contraction") ) ;
 
 
-using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
-//using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
+//using test_types = zip<int>::with_t<boost::numeric::ublas::tag::first_order>;
 
 
 struct fixture {
@@ -273,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE( test_tensor_real_imag_conj, fixture )
 	using namespace boost::numeric;
 	using value_type   = float;
 	using complex_type = std::complex<value_type>;
-	using layout_type  = ublas::first_order;
+	using layout_type  = ublas::tag::first_order;
 
 	using tensor_complex_type  = ublas::tensor<complex_type,layout_type>;
 	using tensor_type  = ublas::tensor<value_type,layout_type>;

@@ -10,19 +10,18 @@
 //
 
 
-#ifndef _BOOST_UBLAS_TENSOR_ALGORITHMS_
-#define _BOOST_UBLAS_TENSOR_ALGORITHMS_
+#ifndef _BOOST_UBLAS_TENSOR_ALGORITHMS_HPP_
+#define _BOOST_UBLAS_TENSOR_ALGORITHMS_HPP_
 
 
 #include <stdexcept>
 #include <complex>
 #include <functional>
+#include <tuple>
 
 namespace boost {
 namespace numeric {
 namespace ublas {
-
-
 
 /** @brief Copies a tensor to another tensor with different layouts
  *
@@ -37,9 +36,10 @@ namespace ublas {
  * @param[in] wa pointer to the strides of input tensor a
 */
 template <class	PointerOut, class PointerIn, class SizeType>
-void copy(const SizeType p, SizeType const*const n,
-		  PointerOut c, SizeType const*const wc,
-		  PointerIn a,  SizeType const*const wa)
+void copy(const SizeType p,
+					SizeType const*const n,
+					PointerOut c, SizeType const*const wc,
+					PointerIn a,  SizeType const*const wa)
 {
 	static_assert( std::is_pointer<PointerOut>::value & std::is_pointer<PointerIn>::value,
 								 "Static error in boost::numeric::ublas::copy: Argument types for pointers are not pointer types.");
@@ -56,7 +56,7 @@ void copy(const SizeType p, SizeType const*const n,
 		throw std::runtime_error("Error in boost::numeric::ublas::copy: Pointers shall not be null pointers.");
 
 
-	std::function<void(SizeType r, PointerOut c, PointerIn  a)> lambda;
+	std::function<void(SizeType r, PointerOut c, PointerIn a)> lambda;
 
 	lambda = [&lambda, n, wc, wa](SizeType r, PointerOut c, PointerIn a)
 	{

@@ -21,7 +21,7 @@
 
 using double_extended = boost::multiprecision::cpp_bin_float_double_extended;
 
-using test_types = zip<int,long,float,double,double_extended>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,double_extended>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 struct fixture {
 	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;

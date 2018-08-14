@@ -25,9 +25,9 @@
 BOOST_AUTO_TEST_SUITE (test_tensor_contraction) ;
 
 
-using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::first_order, boost::numeric::ublas::last_order>;
+using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
-//using test_types = zip<int>::with_t<boost::numeric::ublas::first_order>;
+//using test_types = zip<int>::with_t<boost::numeric::ublas::tag::first_order>;
 
 
 struct fixture {

@@ -174,7 +174,6 @@ public:
 	}
 };
 
-
 using sliced_span = span<sliced_tag, std::size_t>;
 
 BOOST_UBLAS_INLINE

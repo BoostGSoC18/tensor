@@ -48,7 +48,9 @@ SOURCES += \
 	../../../test/tensor/test_multi_index.cpp \
 	../../../test/tensor/test_multi_index_utility.cpp \
 	../../../test/tensor/test_span.cpp \
-	../../../test/tensor/test_subtensor.cpp
+	../../../test/tensor/test_subtensor.cpp \
+	../../../test/tensor/test_algorithms_traits.cpp
+
 
 
 

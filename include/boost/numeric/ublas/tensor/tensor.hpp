@@ -48,13 +48,13 @@ class vector;
 		* @tparam F type of layout which can be either \c first_order or \c last_order.
 		* @tparam A The type of the storage array of the tensor which must be a sequence container type with random access. Default is \c std::vector<T>.
 		*/
-template<class T, class F = first_order, class A = std::vector<T,std::allocator<T>> >
+template<class T, class F = tag::first_order, class A = std::vector<T,std::allocator<T>> >
 class tensor:
 		public detail::tensor_expression<tensor<T, F, A>,tensor<T, F, A>>
 {
 
-	static_assert( std::is_same<F,first_order>::value ||
-								 std::is_same<F,last_order >::value, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
+	static_assert( std::is_same<F,tag::first_order>::value ||
+								 std::is_same<F,tag::last_order >::value, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
 
 	using self_type  = tensor<T, F, A>;
 public:

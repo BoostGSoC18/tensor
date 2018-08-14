@@ -20,15 +20,12 @@
 #include <stdexcept>
 #include <initializer_list>
 #include <algorithm>
-
 #include <cassert>
 
-#include <boost/numeric/ublas/functional.hpp>
+
+#include "tags.hpp"
 
 namespace boost { namespace numeric { namespace ublas {
-
-using first_order = column_major;
-using last_order = row_major;
 
 template<class T>
 class basic_extents;
@@ -50,7 +47,7 @@ public:
 								 "Static error in boost::numeric::ublas::basic_strides: type must be of type integer.");
 	static_assert(!std::numeric_limits<typename base_type::value_type>::is_signed,
 								"Static error in boost::numeric::ublas::basic_strides: type must be of type unsigned integer.");
-	static_assert(std::is_same<__layout,first_order>::value || std::is_same<__layout,last_order>::value,
+	static_assert(std::is_same<__layout,tag::first_order>::value || std::is_same<__layout,tag::last_order>::value,
 								"Static error in boost::numeric::ublas::basic_strides: layout type must either first or last order");
 
 
@@ -94,7 +91,7 @@ public:
 			throw std::runtime_error("Error in boost::numeric::ublas::basic_strides() : size of strides must be greater or equal 2.");
 
 
-		if constexpr (std::is_same<layout_type,first_order>::value){
+		if constexpr (std::is_same<layout_type,tag::first_order>::value){
 			size_type k = 1ul, kend = this->size();
 			for(; k < kend; ++k)
 				_base[k] = _base[k-1] * s[k-1];
