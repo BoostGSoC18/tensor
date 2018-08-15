@@ -39,10 +39,9 @@ struct increment_pointer_type__<unsigned_type,boost::numeric::ublas::tag::first_
 {
 	unsigned_type p;
 	template<class value_type, class size_type>
-	inline void operator()(value_type*      a, size_type const*const) { ++a;	}
-
-//	template<class value_type, class size_type>
-//	inline void operator()(value_type*const a, size_type const*const) { ++a;	}
+	inline void operator()(value_type *      a, size_type const*const) { ++a;	}
+	template<class value_type, class size_type>
+	inline void operator()(value_type const* a, size_type const*const) { ++a;	}
 };
 
 
@@ -51,9 +50,9 @@ struct increment_pointer_type__<unsigned_type,boost::numeric::ublas::tag::first_
 {
 	unsigned_type p;
 	template<class value_type, class size_type>
-	inline void operator()(value_type*      a, size_type const*const w) { a+=w[0]; }
-//	template<class value_type, class size_type>
-//	inline void operator()(value_type*const a, size_type const*const w) { a+=w[0]; }
+	inline void operator()(value_type *      a, size_type const*const w) { a+=w[0]; }
+	template<class value_type, class size_type>
+	inline void operator()(value_type const* a, size_type const*const w) { a+=w[0]; }
 };
 
 template<class unsigned_type>
@@ -61,9 +60,9 @@ struct increment_pointer_type__<unsigned_type,boost::numeric::ublas::tag::last_o
 {
 	unsigned_type p;
 	template<class value_type, class size_type>
-	inline void operator()(value_type*      a, size_type const*const) { ++a;	}
-//	template<class value_type, class size_type>
-//	inline void operator()(value_type*const a, size_type const*const) { ++a;	}
+	inline void operator()(value_type *      a, size_type const*const) { ++a;	}
+	template<class value_type, class size_type>
+	inline void operator()(value_type const* a, size_type const*const) { ++a;	}
 };
 
 
@@ -72,9 +71,9 @@ struct increment_pointer_type__<unsigned_type,boost::numeric::ublas::tag::last_o
 {
 	unsigned_type p;
 	template<class value_type, class size_type>
-	inline void operator()(value_type*      a, size_type const*const w) { a+=w[p]; }
-//	template<class value_type, class size_type>
-//	inline void operator()(value_type*const a, size_type const*const w) { a+=w[p]; }
+	inline void operator()(value_type *      a, size_type const*const w) { a+=w[p]; }
+	template<class value_type, class size_type>
+	inline void operator()(value_type const* a, size_type const*const w) { a+=w[p]; }
 };
 
 

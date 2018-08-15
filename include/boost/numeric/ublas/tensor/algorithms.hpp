@@ -19,6 +19,9 @@
 #include <functional>
 #include <tuple>
 
+#include "algorithms_traits.hpp"
+
+
 namespace boost {
 namespace numeric {
 namespace ublas {
@@ -35,7 +38,7 @@ namespace ublas {
  * @param[in]  a pointer to the input tensor
  * @param[in] wa pointer to the strides of input tensor a
 */
-template <class	PointerOut, class PointerIn, class SizeType>
+template <class	PointerOut, class PointerIn, class SizeType, class AccessType = detail::tag::unit_access>
 void copy(const SizeType p,
 					SizeType const*const n,
 					PointerOut c, SizeType const*const wc,
@@ -54,6 +57,8 @@ void copy(const SizeType p,
 
 	if(n == nullptr)
 		throw std::runtime_error("Error in boost::numeric::ublas::copy: Pointers shall not be null pointers.");
+
+
 
 
 	std::function<void(SizeType r, PointerOut c, PointerIn a)> lambda;

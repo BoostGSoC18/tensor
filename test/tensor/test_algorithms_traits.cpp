@@ -14,10 +14,13 @@
 #include <algorithm>
 #include <vector>
 #include <memory>
-#include <boost/numeric/ublas/tensor/algorithms_traits.hpp>
-#include "utility.hpp"
-
 #include <boost/test/unit_test.hpp>
+
+
+#include "utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
+#include "../../include/boost/numeric/ublas/tensor/algorithms_traits.hpp"
+
 
 
 BOOST_AUTO_TEST_SUITE ( test_algorithms_traits ) ;

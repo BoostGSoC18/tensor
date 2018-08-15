@@ -9,18 +9,16 @@
 //  which started as a Google Summer of Code project.
 //
 
-
-
-#include <random>
-#include <boost/numeric/ublas/tensor/tensor.hpp> 
-
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TestTensor
 
+#include <random>
 #include <boost/test/unit_test.hpp>
-#include "utility.hpp"
 
-//BOOST_AUTO_TEST_SUITE ( test_tensor, * boost::unit_test::depends_on("test_extents") ) ;
+#include "utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
+
+
 BOOST_AUTO_TEST_SUITE ( test_tensor ) ;
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;

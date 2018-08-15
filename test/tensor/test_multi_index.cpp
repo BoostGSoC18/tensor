@@ -11,13 +11,15 @@
 
 #include <iostream>
 #include <algorithm>
-#include <boost/numeric/ublas/tensor.hpp>
-#include <boost/numeric/ublas/tensor/multi_index.hpp>
-
-
 #include <boost/test/unit_test.hpp>
 
+
 #include "utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
+#include "../../include/boost/numeric/ublas/tensor/multi_index.hpp"
+
+
+
 
 
 BOOST_AUTO_TEST_SUITE ( test_multi_index ) ;

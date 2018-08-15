@@ -13,13 +13,15 @@
 
 #include <iostream>
 #include <algorithm>
-#include <boost/numeric/ublas/tensor.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-
 #include <boost/test/unit_test.hpp>
 
+
 #include "utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor.hpp"
+#include "../../include/boost/numeric/ublas/matrix.hpp"
+#include "../../include/boost/numeric/ublas/vector.hpp"
+
+
 
 BOOST_AUTO_TEST_SUITE ( test_tensor_functions, * boost::unit_test::depends_on("test_tensor_contraction") ) ;
 

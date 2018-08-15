@@ -9,10 +9,11 @@
 //  which started as a Google Summer of Code project.
 //
 
-
-#include <boost/numeric/ublas/tensor.hpp>
-
 #include <boost/test/unit_test.hpp>
+
+#include "../../include/boost/numeric/ublas/tensor/multi_index_utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/index.hpp"
+
 
 BOOST_AUTO_TEST_SUITE ( test_multi_index_utility ) ;
 

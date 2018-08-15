@@ -10,13 +10,14 @@
 //
 
 
-
-#include <boost/numeric/ublas/tensor/operators_comparison.hpp>
-#include <boost/numeric/ublas/tensor/operators_arithmetic.hpp>
-#include <boost/numeric/ublas/tensor/tensor.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
+
 #include "utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/operators_comparison.hpp"
+#include "../../include/boost/numeric/ublas/tensor/operators_arithmetic.hpp"
+#include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
+
 
 
 using double_extended = boost::multiprecision::cpp_bin_float_double_extended;

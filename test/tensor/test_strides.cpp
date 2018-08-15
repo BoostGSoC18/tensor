@@ -11,10 +11,10 @@
 
 
 
-
 #include <boost/test/unit_test.hpp>
-#include <boost/numeric/ublas/tensor/strides.hpp>
-#include <boost/numeric/ublas/tensor/extents.hpp>
+
+#include "../../include/boost/numeric/ublas/tensor/strides.hpp"
+#include "../../include/boost/numeric/ublas/tensor/extents.hpp"
 
 //BOOST_AUTO_TEST_SUITE(test_strides, * boost::unit_test::depends_on("test_extents"));
 

@@ -13,12 +13,15 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <boost/numeric/ublas/tensor/algorithms.hpp>
-#include <boost/numeric/ublas/tensor/extents.hpp>
-#include <boost/numeric/ublas/tensor/strides.hpp>
+#include <boost/test/unit_test.hpp>
+
+
+#include "../../include/boost/numeric/ublas/tensor/algorithms.hpp"
+#include "../../include/boost/numeric/ublas/tensor/extents.hpp"
+#include "../../include/boost/numeric/ublas/tensor/strides.hpp"
 #include "utility.hpp"
 
-#include <boost/test/unit_test.hpp>
+
 
 
 BOOST_AUTO_TEST_SUITE ( test_tensor_algorithms,

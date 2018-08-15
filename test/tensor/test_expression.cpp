@@ -11,14 +11,15 @@
 
 
 
-
-#include <boost/numeric/ublas/tensor/expression.hpp>
-#include <boost/numeric/ublas/tensor/tensor.hpp>
-#include <boost/test/unit_test.hpp>
-#include "utility.hpp"
-
 #include <functional>
 #include <complex>
+#include <boost/test/unit_test.hpp>
+
+
+#include "../../include/boost/numeric/ublas/tensor/expression.hpp"
+#include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
+#include "utility.hpp"
+
 
 
 

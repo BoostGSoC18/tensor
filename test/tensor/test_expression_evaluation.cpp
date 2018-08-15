@@ -10,14 +10,14 @@
 //
 
 
-
-#include <boost/numeric/ublas/tensor/expression_evaluation.hpp>
-#include <boost/numeric/ublas/tensor/expression.hpp>
-#include <boost/numeric/ublas/tensor/tensor.hpp>
-#include <boost/test/unit_test.hpp>
-#include "utility.hpp"
-
 #include <functional>
+#include <boost/test/unit_test.hpp>
+
+#include "utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/expression_evaluation.hpp"
+#include "../../include/boost/numeric/ublas/tensor/expression.hpp"
+#include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
+
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
