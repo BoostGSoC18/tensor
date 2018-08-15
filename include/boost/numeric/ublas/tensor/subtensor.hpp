@@ -7,7 +7,7 @@
 //
 //  The authors gratefully acknowledge the support of
 //  Fraunhofer and Google in producing this work
-//  which started as a Google Summer of Code project.
+//  which firsted as a Google Summer of Code project.
 //
 
 
@@ -69,10 +69,10 @@ class subtensor;
 		* @tparam A The type of the storage array of the tensor. Default is \c unbounded_array<T>. \c <bounded_array<T> and \c std::vector<T> can also be used
 		*/
 template<class T, class F, class A>
-class subtensor <sliced_tag, tensor<T,F,A>>
+class subtensor <tag::sliced, tensor<T,F,A>>
 		: public detail::tensor_expression<
-				subtensor<sliced_tag,tensor<T,F,A>> ,
-				subtensor<sliced_tag,tensor<T,F,A>>
+				subtensor<tag::sliced,tensor<T,F,A>> ,
+				subtensor<tag::sliced,tensor<T,F,A>>
 				>
 {
 
@@ -80,10 +80,10 @@ class subtensor <sliced_tag, tensor<T,F,A>>
 								 std::is_same<F,tag::last_order >::value, "boost::numeric::tensor template class only supports first- or last-order storage formats.");
 
 	using tensor_type = tensor<T,F,A>;
-	using self_type  = subtensor<sliced_tag, tensor_type>;
+	using self_type  = subtensor<tag::sliced, tensor_type>;
 public:
 
-	using domain_tag = sliced_tag;
+	using domain_tag = tag::sliced;
 
 	using span_type = span<domain_tag,std::size_t>;
 
@@ -138,11 +138,12 @@ public:
 	 * @note can be regarded as a pointer to a tensor
 	 */
 	explicit BOOST_UBLAS_INLINE
-	subtensor (tensor_type const& t)
+	subtensor (tensor_type& t)
 		: super_type()
-		, tensor_  (t)
-		, extents_ (t.extents())
-		, strides_ (t.strides())
+		, data_         (t.data())
+		, extents_      (t.extents())
+		, strides_      (t.strides())
+		, span_strides_ (t.strides())
 	{
 	}
 
@@ -454,13 +455,13 @@ public:
 	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	const_pointer data () const {
-		return this->data_.data();
+		return this->data_;
 	}
 
 	/** @brief Returns a \c const reference to the container. */
 	BOOST_UBLAS_INLINE
 	pointer data () {
-		return this->data_.data();
+		return this->data_;
 	}
 
 
@@ -604,9 +605,6 @@ public:
 	}
 
 
-
-
-
 	friend void swap(tensor& lhs, tensor& rhs) {
 		std::swap(lhs.data_   , rhs.data_   );
 		std::swap(lhs.extents_, rhs.extents_);
@@ -703,222 +701,134 @@ public:
 
 #endif
 
-
-
-
-
 private:
 
 
 
-
-
-	tensor_type  tensor_;
+	pointer data_;
 	std::vector<span_type> spans_;
 	extents_type extents_;
 	strides_type strides_;
+	strides_type span_strides_;
 };
 
 
 
 
 
-
-/*! @ \brief Computes a new strides for
+/*! @brief Computes span strides for a subtensor
  *
- * \note the new stride v is computed v[i] = w[i]*s[i]
+ * @note span stride v is computed according to: v[i] = w[i]*s[i], where
+ * w[i] is the i-th stride of the tensor
+ * s[i] is the step size of the i-th span
  *
+ * @param strides strides of the tensor this subtensor refers to
+ * @param spans vector of spans of the subtensor
 */
-template <class layout_type, class span_type>
-auto compute_strides(strides<layout_type> const& tensor_strides, std::vector<span_type> const& span_vector)
+template<class strides_type, class span_type>
+auto span_strides(strides_type const& strides, std::vector<span_type> const& spans)
 {
-	assert(span_vector.size()>1);
-	assert(tensor_strides.size()==span_vector.size());
+	if(strides.size() != spans.size())
+		throw std::runtime_error("Error in boost::numeric::ublas::subtensor::span_strides(): tensor strides.size() != spans.size()");
 
-	using strides_type = strides<layout_type>;
 	using base_type = typename strides_type::base_type;
+	auto span_strides = base_type(spans.size());
 
-	auto range_strides = base_type(span_vector.size());
+	std::transform(strides.begin(), strides.end(), spans.begin(), span_strides.begin(),
+								 [](auto w, auto const& s) { return w * s.step(); } );
 
-	std::transform(tensor_strides.begin(), tensor_strides.end(), span_vector.begin(),  range_strides.begin(),
-								 [](auto bs, auto const& vr) { return bs * vr.step(); } );
-
-	return strides_type( range_strides );
+	return strides_type( span_strides );
 }
 
-#if 0
-/*! \brief modifies base strides for iterating in Y*.
+/*! @brief Computes the data pointer offset for a subtensor
  *
- * \note _view_strides is required for the subiterator of the multi_array_view, when calling
- * begin(), end() and ind2sub() (Y* -> X*) .
+ * @note offset is computed according to: sum ( f[i]*w[i] ), where
+ * f[i] is the first element of the i-th span
+ * w[i] is the i-th stride of the tensor
  *
+ * @param strides strides of the tensor this subtensor refers to
+ * @param spans vector of spans of the subtensor
 */
-template<class T>
-fhg::strides compute_view_strides(fhg::shape const& e, fhg::layout const& l)
+template<class strides_type, class span_type>
+auto offset(strides_type const& strides, std::vector<span_type> const& spans)
 {
-	assert(e.size()>1);
-	assert(e.size()==l.size());
-	assert(e.valid());
-	assert(l.valid());
-	return fhg::strides{ e, l };
+	if(strides.size() != spans.size())
+		throw std::runtime_error("Error in boost::numeric::ublas::subtensor::offset(): tensor strides.size() != spans.size()");
+
+	using value_type = typename strides_type::value_type;
+
+	return std::inner_product(spans.begin(), spans.end(), strides.begin(), value_type(0),
+														std::plus<value_type>(), [](span_type const& s, value_type w) {return s.first() * w; } );
 }
 
 
-
-/*! \brief computes the offsets for iterating directly in Y.
+/*! @brief Computes the extents of the subtensor.
  *
- * \note _strides is required for the multi_iterator and iterator of the multi_array_type, when calling
- * dbegin(), dend().
+ * @note i-th extent is given by span[i].size()
  *
-*/
-template <class T>
-typename multi_array_view<T>::size_type
-multi_array_view<T>::compute_offset(fhg::strides const& tensor_strides, std::vector<view_range> const& ranges)
+ * @param spans vector of spans of the subtensor
+ */
+template<class span_type>
+auto extents(std::vector<span_type> const& spans)
 {
-	assert(ranges.size()>1);
-	assert(tensor_strides.size()==ranges.size());
-
-	return std::inner_product(ranges.begin(), ranges.end(), tensor_strides.begin(), 0ul,
-														std::plus<size_type>(), [](const view_range& vr, size_type bs) {return vr.first * bs; } );
-}
-
-/*! @brief Computes the extents of multi_array_view from the selecting entities. */
-
-template <class T>
-shape
-multi_array_view<T>::compute_extents(std::vector<view_range> const& ranges)
-{
-	assert(ranges.size() > 1);
-
-	std::vector<size_type> extents (ranges.size());
-	std::transform(ranges.begin(), ranges.end(), extents.begin(), [](const view_range& vr) { return vr.size; } );
-
+	using base_type  = typename shape::base_type;
+	auto extents = base_type(spans.size());
+	std::transform(spans.begin(), spans.end(), extents.begin(), [](span_type const& s) { return s.size(); } );
 	return shape( extents );
 }
 
 
-template<class T>
-void multi_array_view<T>::extract_ranges(std::vector<range> const& ranges)
+
+template<class size_type, class span_tag>
+auto transform_span(span<span_tag, size_type> const& s, size_type const extent)
 {
-//	if(ranges.size() != this->rank() )
-//		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): length of ranges tuple is not equal to this multi_array_view rank.");
+	using span_type = span<span_tag, size_type>;
 
-//	if(ranges.size() != this->ranges().size() )
-//		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): length of this and other ranges tuple unequal.");
+	size_type first = s.first();
+	size_type last  = s.last ();
+	size_type size  = s.size ();
 
-//	if(this->base() == nullptr)
-//		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): multi_array pointer equals nullptr.");
-
-	for(auto i = 0u; i < ranges.size(); ++i){
-		auto const& range = ranges.at(i);
-
-		try { this->extract_range(range.first, range.step, range.last, i, this->base()->extents().at(i)-1); }
-		catch (...) { throw; }
-	}
-}
+	auto const extent0 = extent-1;
 
 
-template<class T>
-void
-multi_array_view<T>::extract_ranges(difference_type arg_offset)
-{
-	const difference_type diff = arg_offset - this->base()->offsets().back();
-
-	if(diff < 0)
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): argument is not well defined.");
-
-	const size_type arg = static_cast<size_type>(diff);
-	const size_type extent = this->base()->extents().back()-1ul;
-
-	if(arg_offset != fhg::end && arg > extent )
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): index argument for multi_array_type exceeds dimension.");
-
-	_ranges.back() = (arg_offset == fhg::end ? view_range(extent,extent) : view_range(arg,arg));
-}
-
-template<class T>
-template<class ... Selectors>
-void
-multi_array_view<T>::extract_ranges ( difference_type arg_offset, Selectors&& ... selectors )
-{
-	const size_type pos = this->ranges().size() - sizeof...(selectors) - 1ul;
-	const difference_type diff = arg_offset - this->base()->offsets().at(pos);
-
-	if(diff < 0)
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): index argument is less than the index offset.");
-
-	const size_type arg = static_cast<size_type>(diff);
-	const size_type extent = this->base()->extents().at(pos)-1ul;
-
-	if(arg_offset != fhg::end && arg > extent )
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): index argument for multi_array_type exceeds dimension.");
-
-	_ranges.at(pos) = (arg_offset == fhg::end ? view_range(extent,extent) : view_range(arg,arg));
-
-	extract_ranges(std::forward<Selectors>(selectors) ...);
-}
-
-template<class T>
-void
-multi_array_view<T>::extract_range(difference_type start, difference_type step, difference_type finish, size_type pos, size_type extent)
-{
-	difference_type offset = this->base()->offsets().at(pos);
-
-	if(start  == fhg::end)
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range not correctly defined. start should not be end.");
-	if(finish == fhg::all)
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range (finish == all) not correctly defined. finish should not be all.");
-	if(start == fhg::all && finish != fhg::end)
-		throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range (finish == end) not correctly defined. if start is all, finish souhld be end.");
-
-
-	if(start == fhg::all && finish == fhg::end) {
-		_ranges.at(pos) = view_range(0ul, extent);
-	}
-	else if(start != fhg::all && finish == fhg::end) {
-		if( start < offset)
-			throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range not correctly defined: start should not be less than the index offset.");
-
-		_ranges.at(pos) = view_range(start-offset, step, extent);
+	if constexpr (std::is_same<span_tag,tag::sliced>::value ){
+		if(size == 0)        return span_type(0       , extent0);
+		else if(first== end) return span_type(extent0 , extent0);
+		else if(last == end) return span_type(first   , extent0);
+		else                 return span_type(first   , last  );
 	}
 	else {
-		if( start < offset)
-			throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range not correctly defined: start should not be less than the index offset.");
-		if( start > finish)
-			throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range not correctly defined: start should not be less than finish.");
-		if( finish > static_cast<difference_type>(extent)+offset)
-			throw std::runtime_error("Error in multi_array_view::extract_ranges(...): range not correctly defined: finish should be less than extent.");
-
-
-		_ranges.at(pos) = view_range(start-offset, step, finish-offset);
+		size_type step  = s.step ();
+		if(size == 0)        return span_type(0       , size_type(1), extent0);
+		else if(first== end) return span_type(extent0 , step, extent0);
+		else if(last == end) return span_type(first   , step, extent0);
+		else                 return span_type(first   , step, last  );
 	}
 }
 
 
-template<class T>
-void
-multi_array_view<T>::extract_ranges(range&& arg)
+template<std::size_t r,class extents_type, class span_type, class ... span_types>
+void generate_spans(extents_type const& extents, std::vector<span_type>& span_vector, span_type const& span, span_types&& ... spans)
 {
-	const size_type extent = _multi_array->extents().back()-1ul;
-	const size_type pos    = _multi_array->extents().size()-1ul;
-	try { this->extract_range(arg.first, arg.step, arg.last, pos, extent); }
-	catch(...) { throw; }
+	span_vector.at(r) = transform_span(span,extents.at(r));
+	if constexpr (sizeof...(spans)>0)
+		generate_spans<r+1>(extents, span_vector, std::forward<span_types>(spans)...);
 }
 
-template<class T>
-template<class ... Selectors>
-void
-multi_array_view<T>::extract_ranges (range&& arg, Selectors&& ... selectors)
+template<std::size_t r, class extents_type, class size_type, class span_type, class ... span_types>
+void generate_spans (extents_type const& extents, std::vector<span_type>& span_vector, size_type arg, span_types&& ... spans )
 {
-	const size_type pos    = _ranges.size() - sizeof...(selectors) - 1ul;
-	const size_type extent = _multi_array->extents().at(pos)-1;
-	try { this->extract_range(arg.first, arg.step, arg.last, pos, extent); }
-	catch(...) { throw; }
-	extract_ranges(std::forward<Selectors>(selectors)...);
+	span_vector.at(r) = transform_span(span_type(arg),extents.at(r));
+	if constexpr (sizeof...(spans)>0)
+		generate_spans(extents, span_vector, std::forward<span_types>(spans) ... );
 }
-#endif
 
-}}} // namespaces
+
+
+
+}
+}
+} // namespaces
 
 
 

@@ -22,62 +22,124 @@ BOOST_AUTO_TEST_SUITE ( test_subtensor,
 												*boost::unit_test::depends_on("test_tensor")
 												*boost::unit_test::depends_on("test_span") ) ;
 
+
+struct fixture_sliced_span {
+	using span_type = boost::numeric::ublas::sliced_span;
+
+	fixture_sliced_span()
+		: spans{
+				span_type(),    // 0, a(:)
+				span_type(0,0), // 1, a(0:0)
+				span_type(0,2), // 2, a(0:2)
+				span_type(1,1), // 3, a(1:1)
+				span_type(1,3),  // 4, a(1:3)
+				span_type(1,boost::numeric::ublas::end), // 5, a(1:end)
+				span_type(boost::numeric::ublas::end) // 6, a(end)
+				}
+	{}
+	std::vector<span_type> spans;
+};
+
+
+BOOST_FIXTURE_TEST_CASE( test_subtensor_transform_sliced_span, fixture_sliced_span )
+{
+
+	using namespace boost::numeric;
+
+//	template<class size_type, class span_tag>
+	BOOST_CHECK( ublas::transform_span(spans.at(0), std::size_t(2) ) == ublas::sliced_span(0,1) );
+	BOOST_CHECK( ublas::transform_span(spans.at(0), std::size_t(3) ) == ublas::sliced_span(0,2) );
+	BOOST_CHECK( ublas::transform_span(spans.at(0), std::size_t(4) ) == ublas::sliced_span(0,3) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(1), std::size_t(2) ) == ublas::sliced_span(0,0) );
+	BOOST_CHECK( ublas::transform_span(spans.at(1), std::size_t(3) ) == ublas::sliced_span(0,0) );
+	BOOST_CHECK( ublas::transform_span(spans.at(1), std::size_t(4) ) == ublas::sliced_span(0,0) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(2), std::size_t(3) ) == ublas::sliced_span(0,2) );
+	BOOST_CHECK( ublas::transform_span(spans.at(2), std::size_t(4) ) == ublas::sliced_span(0,2) );
+	BOOST_CHECK( ublas::transform_span(spans.at(2), std::size_t(5) ) == ublas::sliced_span(0,2) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(3), std::size_t(2) ) == ublas::sliced_span(1,1) );
+	BOOST_CHECK( ublas::transform_span(spans.at(3), std::size_t(3) ) == ublas::sliced_span(1,1) );
+	BOOST_CHECK( ublas::transform_span(spans.at(3), std::size_t(4) ) == ublas::sliced_span(1,1) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(4), std::size_t(4) ) == ublas::sliced_span(1,3) );
+	BOOST_CHECK( ublas::transform_span(spans.at(4), std::size_t(5) ) == ublas::sliced_span(1,3) );
+	BOOST_CHECK( ublas::transform_span(spans.at(4), std::size_t(6) ) == ublas::sliced_span(1,3) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(5), std::size_t(4) ) == ublas::sliced_span(1,3) );
+	BOOST_CHECK( ublas::transform_span(spans.at(5), std::size_t(5) ) == ublas::sliced_span(1,4) );
+	BOOST_CHECK( ublas::transform_span(spans.at(5), std::size_t(6) ) == ublas::sliced_span(1,5) );
+
+
+	BOOST_CHECK( ublas::transform_span(spans.at(6), std::size_t(4) ) == ublas::sliced_span(3,3) );
+	BOOST_CHECK( ublas::transform_span(spans.at(6), std::size_t(5) ) == ublas::sliced_span(4,4) );
+	BOOST_CHECK( ublas::transform_span(spans.at(6), std::size_t(6) ) == ublas::sliced_span(5,5) );
+}
+
+
+struct fixture_strided_span {
+	using span_type = boost::numeric::ublas::strided_span;
+
+	fixture_strided_span()
+		: spans{
+				span_type(),       // 0, a(:)
+				span_type(0,1,0),  // 1, a(0:1:0)
+				span_type(0,2,2),  // 2, a(0:2:2)
+				span_type(1,1,1),  // 3, a(1:1)
+				span_type(1,1,3),  // 4, a(1:3)
+				span_type(1,2,boost::numeric::ublas::end), // 5, a(1:2:end)
+				span_type(boost::numeric::ublas::end) // 6, a(end)
+				}
+	{}
+	std::vector<span_type> spans;
+};
+
+BOOST_FIXTURE_TEST_CASE( test_subtensor_transform_strided_span, fixture_strided_span )
+{
+
+	using namespace boost::numeric;
+
+//	template<class size_type, class span_tag>
+	BOOST_CHECK( ublas::transform_span(spans.at(0), std::size_t(2) ) == ublas::strided_span(0,1,1) );
+	BOOST_CHECK( ublas::transform_span(spans.at(0), std::size_t(3) ) == ublas::strided_span(0,1,2) );
+	BOOST_CHECK( ublas::transform_span(spans.at(0), std::size_t(4) ) == ublas::strided_span(0,1,3) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(1), std::size_t(2) ) == ublas::strided_span(0,1,0) );
+	BOOST_CHECK( ublas::transform_span(spans.at(1), std::size_t(3) ) == ublas::strided_span(0,1,0) );
+	BOOST_CHECK( ublas::transform_span(spans.at(1), std::size_t(4) ) == ublas::strided_span(0,1,0) );
+
+	BOOST_CHECK( ublas::transform_span(spans.at(2), std::size_t(3) ) == ublas::strided_span(0,2,2) );
+	BOOST_CHECK( ublas::transform_span(spans.at(2), std::size_t(4) ) == ublas::strided_span(0,2,2) );
+	BOOST_CHECK( ublas::transform_span(spans.at(2), std::size_t(5) ) == ublas::strided_span(0,2,2) );
+
+//	BOOST_CHECK( ublas::transform_span(spans.at(3), std::size_t(2) ) == ublas::strided_span(1,1) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(3), std::size_t(3) ) == ublas::strided_span(1,1) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(3), std::size_t(4) ) == ublas::strided_span(1,1) );
+
+//	BOOST_CHECK( ublas::transform_span(spans.at(4), std::size_t(4) ) == ublas::strided_span(1,3) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(4), std::size_t(5) ) == ublas::strided_span(1,3) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(4), std::size_t(6) ) == ublas::strided_span(1,3) );
+
+//	BOOST_CHECK( ublas::transform_span(spans.at(5), std::size_t(4) ) == ublas::strided_span(1,4) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(5), std::size_t(5) ) == ublas::strided_span(1,5) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(5), std::size_t(6) ) == ublas::strided_span(1,6) );
+
+
+//	BOOST_CHECK( ublas::transform_span(spans.at(6), std::size_t(4) ) == ublas::strided_span(4,4) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(6), std::size_t(5) ) == ublas::strided_span(5,5) );
+//	BOOST_CHECK( ublas::transform_span(spans.at(6), std::size_t(6) ) == ublas::strided_span(6,6) );
+}
+
+
+
+
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 
-
-
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_subtensor_ctor, value,  test_types)
-{
-	using namespace boost::numeric;
-	using value_type  = typename value::first_type;
-	using layout_type = typename value::second_type;
-	using tensor_type = ublas::tensor<value_type, layout_type>;
-
-
-	using subtensor_type = ublas::subtensor<ublas::sliced_tag, tensor_type>;
-
-	auto a1 = tensor_type{};
-	auto s1 = subtensor_type( a1 );
-//	BOOST_CHECK_EQUAL( s1.size() , 0ul );
-//	BOOST_CHECK( s1.empty() );
-//	BOOST_CHECK_EQUAL( s1.data() , nullptr);
-
-//	auto a2 = tensor_type{1,1};
-//	BOOST_CHECK_EQUAL(  a2.size() , 1 );
-//	BOOST_CHECK( !a2.empty() );
-//	BOOST_CHECK_NE(  a2.data() , nullptr);
-
-//	auto a3 = tensor_type{2,1};
-//	BOOST_CHECK_EQUAL(  a3.size() , 2 );
-//	BOOST_CHECK( !a3.empty() );
-//	BOOST_CHECK_NE(  a3.data() , nullptr);
-
-//	auto a4 = tensor_type{1,2};
-//	BOOST_CHECK_EQUAL(  a4.size() , 2 );
-//	BOOST_CHECK( !a4.empty() );
-//	BOOST_CHECK_NE(  a4.data() , nullptr);
-
-//	auto a5 = tensor_type{2,1};
-//	BOOST_CHECK_EQUAL(  a5.size() , 2 );
-//	BOOST_CHECK( !a5.empty() );
-//	BOOST_CHECK_NE(  a5.data() , nullptr);
-
-//	auto a6 = tensor_type{4,3,2};
-//	BOOST_CHECK_EQUAL(  a6.size() , 4*3*2 );
-//	BOOST_CHECK( !a6.empty() );
-//	BOOST_CHECK_NE(  a6.data() , nullptr);
-
-//	auto a7 = tensor_type{4,1,2};
-//	BOOST_CHECK_EQUAL(  a7.size() , 4*1*2 );
-//	BOOST_CHECK( !a7.empty() );
-//	BOOST_CHECK_NE(  a7.data() , nullptr);
-}
-
-#if 0
-struct fixture {
+struct fixture_extents {
 	using extents_type = boost::numeric::ublas::basic_extents<std::size_t>;
-	fixture() : extents{
+	fixture_extents() : extents{
 				extents_type{},    // 0
 				extents_type{1,1}, // 1
 				extents_type{1,2}, // 2
@@ -94,24 +156,26 @@ struct fixture {
 };
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types, fixture_extents )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
 	using layout_type = typename value::second_type;
 	using tensor_type = ublas::tensor<value_type, layout_type>;
+	using subtensor_type = ublas::subtensor<ublas::tag::sliced, tensor_type>;
 
 	auto check = [](auto const& e) {
 		auto t = tensor_type{e};
-		BOOST_CHECK_EQUAL (  t.size() , e.product() );
-		BOOST_CHECK_EQUAL (  t.rank() , e.size() );
+		auto s = subtensor_type(t);
+		BOOST_CHECK_EQUAL (  s.size() , t.size() );
+		BOOST_CHECK_EQUAL (  s.rank() , t.rank() );
 		if(e.empty()) {
-			BOOST_CHECK       ( t.empty()    );
-			BOOST_CHECK_EQUAL ( t.data() , nullptr);
+			BOOST_CHECK_EQUAL ( s.empty(), t.empty() );
+			BOOST_CHECK_EQUAL ( s. data(), t. data() );
 		}
 		else{
-			BOOST_CHECK       ( !t.empty()    );
-			BOOST_CHECK_NE    (  t.data() , nullptr);
+			BOOST_CHECK_EQUAL ( !s.empty(), !t.empty() );
+			BOOST_CHECK_EQUAL (  s. data(),  t. data() );
 		}
 	};
 
@@ -119,6 +183,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types, 
 		check(e);
 }
 
+
+
+#if 0
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor, value,  test_types, fixture )
 {

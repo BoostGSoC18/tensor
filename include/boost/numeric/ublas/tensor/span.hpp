@@ -18,6 +18,7 @@
 #include <limits>
 
 #include "../detail/config.hpp"
+#include "tags.hpp"
 
 
 namespace boost { namespace numeric { namespace ublas {
@@ -34,11 +35,6 @@ namespace boost { namespace numeric { namespace ublas {
 	*/
 
 
-struct sliced_tag {};
-struct strided_tag {};
-
-static constexpr inline std::size_t end = std::numeric_limits<std::size_t>::max()-std::size_t(1);
-static constexpr inline std::size_t all = std::numeric_limits<std::size_t>::max();
 
 //using offsets = std::vector<std::ptrdiff_t>;
 
@@ -46,14 +42,27 @@ template<class span_tag, class unsigned_type>
 class span;
 
 
+static constexpr inline std::size_t end = std::numeric_limits<std::size_t>::max();
+
 template<>
-class span<strided_tag, std::size_t>
+class span<tag::strided, std::size_t>
 {
 public:
-	using span_tag = strided_tag;
+	using span_tag = tag::strided;
 	using value_type = std::size_t;
-	constexpr explicit span() : first_{}, last_{}, step_{}, size_{} {}
 
+	// covers the complete range of one dimension
+	// e.g. a(:)
+	constexpr explicit span()
+		: first_{}
+		, last_ {}
+		, step_ {}
+		, size_ {}
+	{}
+
+
+	// covers a linear range of one dimension
+	// e.g. a(1:3:n)
 	span(value_type f, value_type s, value_type l)
 		: first_(f)
 		, last_ (l)
@@ -73,6 +82,13 @@ public:
 			last_ = l - ((l-f)%s);
 			size_ = (last_-first_)/s+value_type(1);
 		}
+	}
+
+	// covers only one index of one dimension
+	// e.g. a(1) or a(end)
+	span(value_type n)
+		: span(n,1,n)
+	{
 	}
 
 	span(span const& other)
@@ -120,24 +136,32 @@ protected:
 	value_type first_, last_ , step_, size_;
 };
 
-using strided_span = span<strided_tag, std::size_t>;
+using strided_span = span<tag::strided, std::size_t>;
 
 
 /////////////
 
 
 template<>
-class span<sliced_tag, std::size_t> :
-		private span<strided_tag, std::size_t>
+class span<tag::sliced, std::size_t> :
+		private span<tag::strided, std::size_t>
 {
-	using super_type = span<strided_tag,std::size_t>;
+	using super_type = span<tag::strided,std::size_t>;
 public:
-	using span_tag = sliced_tag;
+	using span_tag = tag::sliced;
 	using value_type = typename super_type::value_type;
-	constexpr explicit span() = default;
+	constexpr explicit span()
+		: super_type()
+	{
+	}
 
 	span(value_type f, value_type l)
 		: super_type(f, value_type(1), l )
+	{
+	}
+
+	span(value_type n)
+		: super_type(n)
 	{
 	}
 
@@ -174,7 +198,7 @@ public:
 	}
 };
 
-using sliced_span = span<sliced_tag, std::size_t>;
+using sliced_span = span<tag::sliced, std::size_t>;
 
 BOOST_UBLAS_INLINE
 template<class unsigned_type>

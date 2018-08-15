@@ -67,9 +67,9 @@ public:
 	template<class derived_type>
 	using vector_expression_type = vector_expression<derived_type>;
 
-	using super_type = tensor_expression_type<self_type>;
+	using super_type = detail::tensor_expression<self_type,self_type>;
 
-//	static_assert(std::is_same_v<tensor_expression_type<self_type>, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "tensor_expression_type<self_type>");
+//	static_assert(std::is_same_v<super_type, detail::tensor_expression<tensor<T,F,A>,tensor<T,F,A>>>, "super_type");
 
 	using array_type  = A;
 	using layout_type = F;
@@ -109,7 +109,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	constexpr tensor ()
-		: tensor_expression_type<self_type>() // container_type
+		: super_type() // container_type
 		, extents_()
 		, strides_()
 		, data_()
@@ -127,7 +127,7 @@ public:
 	 */
 	explicit BOOST_UBLAS_INLINE
 	tensor (std::initializer_list<size_type> l)
-		: tensor_expression_type<self_type>()
+		: super_type()
 		, extents_ (std::move(l))
 		, strides_ (extents_)
 		, data_    (extents_.product())
@@ -145,7 +145,7 @@ public:
 	 */
 	explicit BOOST_UBLAS_INLINE
 	tensor (extents_type const& s)
-		: tensor_expression_type<self_type>() //tensor_container<self_type>()
+		: super_type() //tensor_container<self_type>()
 		, extents_ (s)
 		, strides_ (extents_)
 		, data_    (extents_.product())
@@ -162,7 +162,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (extents_type const& s, const array_type &a)
-		: tensor_expression_type<self_type>() //tensor_container<self_type>()
+		: super_type() //tensor_container<self_type>()
 		, extents_ (s)
 		, strides_ (extents_)
 		, data_    (a)
@@ -182,7 +182,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (extents_type const& e, const value_type &i)
-		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
+		: super_type() //tensor_container<self_type> ()
 		, extents_ (e)
 		, strides_ (extents_)
 		, data_    (extents_.product(), i)
@@ -196,7 +196,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (const tensor &v)
-		: tensor_expression_type<self_type>()
+		: super_type()
 		, extents_ (v.extents_)
 		, strides_ (v.strides_)
 		, data_    (v.data_   )
@@ -210,7 +210,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (tensor &&v)
-		: tensor_expression_type<self_type>() //tensor_container<self_type> ()
+		: super_type() //tensor_container<self_type> ()
 		, extents_ (std::move(v.extents_))
 		, strides_ (std::move(v.strides_))
 		, data_    (std::move(v.data_   ))
@@ -225,7 +225,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (const matrix_type &v)
-		: tensor_expression_type<self_type>()
+		: super_type()
 		, extents_ ()
 		, strides_ ()
 		, data_    (v.data())
@@ -244,7 +244,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (matrix_type &&v)
-		: tensor_expression_type<self_type>()
+		: super_type()
 		, extents_ {}
 		, strides_ {}
 		, data_    {}
@@ -265,7 +265,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (const vector_type &v)
-		: tensor_expression_type<self_type>()
+		: super_type()
 		, extents_ ()
 		, strides_ ()
 		, data_    (v.data())
@@ -282,7 +282,7 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	tensor (vector_type &&v)
-		: tensor_expression_type<self_type>()
+		: super_type()
 		, extents_ {}
 		, strides_ {}
 		, data_    {}
@@ -302,7 +302,7 @@ public:
 	BOOST_UBLAS_INLINE
 	template<class other_layout>
 	tensor (const tensor<value_type, other_layout> &other)
-		: tensor_expression_type<self_type> ()
+		: super_type ()
 		, extents_ (other.extents())
 		, strides_ (other.extents())
 		, data_    (other.extents().product())
@@ -324,7 +324,7 @@ public:
 	BOOST_UBLAS_INLINE
 	template<class derived_type>
 	tensor (const tensor_expression_type<derived_type> &expr)
-		: tensor_expression_type<self_type> ()
+		: super_type ()
 		, extents_ ( detail::retrieve_extents(expr) )
 		, strides_ ( extents_ )
 		, data_    ( extents_.product() )
