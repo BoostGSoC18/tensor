@@ -218,12 +218,22 @@ auto ran(unsigned_type f, unsigned_type s, unsigned_type l)
 }
 
 
+
 template<class span_tag_lhs, class span_tag_rhs, class unsigned_type>
 bool operator==(
 		boost::numeric::ublas::span<span_tag_lhs,unsigned_type> const& lhs,
 		boost::numeric::ublas::span<span_tag_rhs,unsigned_type> const& rhs)
 {
 	return lhs.first() == rhs.first() && lhs.last() == rhs.last() && lhs.step() == rhs.step();
+}
+
+
+template<class span_tag_lhs, class span_tag_rhs, class unsigned_type>
+bool operator!=(
+		boost::numeric::ublas::span<span_tag_lhs,unsigned_type> const& lhs,
+		boost::numeric::ublas::span<span_tag_rhs,unsigned_type> const& rhs)
+{
+	return lhs.first() != rhs.first() || lhs.last() != rhs.last() || lhs.step() != rhs.step();
 }
 
 #endif // FHG_range_H

@@ -135,17 +135,17 @@ public:
 
 	/** @brief Constructs a tensor view from a tensor without any range.
 	 *
-	 * @note can be regarded as a pointer to a tensor
 	 */
-	explicit BOOST_UBLAS_INLINE
+	BOOST_UBLAS_INLINE
 	subtensor (tensor_type& t)
 		: super_type()
-		, data_         (t.data())
 		, extents_      (t.extents())
 		, strides_      (t.strides())
 		, span_strides_ (t.strides())
+		, data_         (t.data())
 	{
 	}
+
 
 #if 0
 
@@ -705,11 +705,11 @@ private:
 
 
 
-	pointer data_;
 	std::vector<span_type> spans_;
 	extents_type extents_;
 	strides_type strides_;
 	strides_type span_strides_;
+	pointer data_;
 };
 
 
@@ -718,12 +718,12 @@ private:
 
 /*! @brief Computes span strides for a subtensor
  *
- * @note span stride v is computed according to: v[i] = w[i]*s[i], where
+ * span stride v is computed according to: v[i] = w[i]*s[i], where
  * w[i] is the i-th stride of the tensor
  * s[i] is the step size of the i-th span
  *
- * @param strides strides of the tensor this subtensor refers to
- * @param spans vector of spans of the subtensor
+ * @param[in] strides strides of the tensor this subtensor refers to
+ * @param[in] spans vector of spans of the subtensor
 */
 template<class strides_type, class span_type>
 auto span_strides(strides_type const& strides, std::vector<span_type> const& spans)
@@ -742,12 +742,12 @@ auto span_strides(strides_type const& strides, std::vector<span_type> const& spa
 
 /*! @brief Computes the data pointer offset for a subtensor
  *
- * @note offset is computed according to: sum ( f[i]*w[i] ), where
+ * offset is computed according to: sum ( f[i]*w[i] ), where
  * f[i] is the first element of the i-th span
  * w[i] is the i-th stride of the tensor
  *
- * @param strides strides of the tensor this subtensor refers to
- * @param spans vector of spans of the subtensor
+ * @param[in] strides strides of the tensor this subtensor refers to
+ * @param[in] spans vector of spans of the subtensor
 */
 template<class strides_type, class span_type>
 auto offset(strides_type const& strides, std::vector<span_type> const& spans)
@@ -764,9 +764,9 @@ auto offset(strides_type const& strides, std::vector<span_type> const& spans)
 
 /*! @brief Computes the extents of the subtensor.
  *
- * @note i-th extent is given by span[i].size()
+ * i-th extent is given by span[i].size()
  *
- * @param spans vector of spans of the subtensor
+ * @param[in] spans vector of spans of the subtensor
  */
 template<class span_type>
 auto extents(std::vector<span_type> const& spans)
@@ -778,7 +778,19 @@ auto extents(std::vector<span_type> const& spans)
 }
 
 
-
+/*! @brief Auxiliary function for subtensor which possibly transforms a span instance
+ *
+ * transform_span(span()     ,4) -> span(0,3)
+ * transform_span(span(1,1)  ,4) -> span(1,1)
+ * transform_span(span(1,3)  ,4) -> span(1,3)
+ * transform_span(span(2,end),4) -> span(2,3)
+ * transform_span(span(end)  ,4) -> span(3,3)
+ *
+ * @note span is zero-based indexed.
+ *
+ * @param[in] s      span that is going to be transformed
+ * @param[in] extent extent that is maybe used for the tranformation
+ */
 template<class size_type, class span_tag>
 auto transform_span(span<span_tag, size_type> const& s, size_type const extent)
 {
@@ -807,22 +819,49 @@ auto transform_span(span<span_tag, size_type> const& s, size_type const extent)
 }
 
 
-template<std::size_t r,class extents_type, class span_type, class ... span_types>
-void generate_spans(extents_type const& extents, std::vector<span_type>& span_vector, span_type const& span, span_types&& ... spans)
+
+template<std::size_t r,class extents_type, class span_tag, class size_type, class ... span_types>
+void transform_spans_impl(extents_type const& extents,
+													std::vector<span<span_tag, size_type>>& span_vector,
+													span<span_tag, size_type> const& s,
+													span_types&& ... spans)
 {
-	span_vector.at(r) = transform_span(span,extents.at(r));
+	span_vector.at(r) = transform_span(s,extents.at(r));
 	if constexpr (sizeof...(spans)>0)
-		generate_spans<r+1>(extents, span_vector, std::forward<span_types>(spans)...);
+		transform_spans_impl<r+1>(extents, span_vector, std::forward<span_types>(spans)...);
 }
 
 template<std::size_t r, class extents_type, class size_type, class span_type, class ... span_types>
-void generate_spans (extents_type const& extents, std::vector<span_type>& span_vector, size_type arg, span_types&& ... spans )
+void transform_spans_impl (extents_type const& extents,
+													 std::vector<span_type>& span_vector,
+													 size_type arg,
+													 span_types&& ... spans )
 {
 	span_vector.at(r) = transform_span(span_type(arg),extents.at(r));
 	if constexpr (sizeof...(spans)>0)
-		generate_spans(extents, span_vector, std::forward<span_types>(spans) ... );
+		transform_spans_impl(extents, span_vector, std::forward<span_types>(spans) ... );
 }
 
+
+/*! @brief Auxiliary function for subtensor that generates vector of spans
+ *
+ * generate_span_vector<span>(shape(4,3,5,2), span(), 1, span(2,end), end  )
+ * -> vector (span(0,3), span(1,1), span(2,4),span(1,1))
+ *
+ * @note span is zero-based indexed.
+ *
+ * @param[in] extents of the tensor
+ * @param[in] spans spans with which the subtensor is created
+ */
+template<class span_type, class extents_type, class ... span_types>
+auto generate_span_vector(extents_type const& extents, span_types&& ... spans)
+{
+	if(extents.size() != sizeof...(spans) )
+		throw std::runtime_error("Error in boost::numeric::ublas::generate_span_vector() when creating subtensor: the number of spans does not match with the tensor rank.");
+	std::vector<span_type> span_vector(sizeof...(spans)+1);
+	transform_spans_impl<std::size_t{0}>(  extents, span_vector, std::forward<span_types>(spans)... );
+	return span_vector;
+}
 
 
 
