@@ -24,9 +24,9 @@
 
 
 
-BOOST_AUTO_TEST_SUITE ( test_tensor_algorithms,
-												* boost::unit_test::depends_on("test_extents")
-												* boost::unit_test::depends_on("test_strides")) ;
+BOOST_AUTO_TEST_SUITE ( algorithms_testsuite,
+												* boost::unit_test::depends_on("extents_testsuite")
+												* boost::unit_test::depends_on("strides_testsuite")) ;
 
 
 using test_types  = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
@@ -52,7 +52,7 @@ struct fixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_copy, value,  test_types2, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( copy_test, value,  test_types2, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = value;
@@ -120,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_copy, value,  test_type
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_transform, value,  test_types2, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( transform_test, value,  test_types2, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = value;
@@ -153,7 +153,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_transform, value,  test
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_accumulate, value,  test_types2, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( accumulate_test, value,  test_types2, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = value;
@@ -214,7 +214,7 @@ void init(std::vector<std::complex<V>>& a)
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_trans, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( trans_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;

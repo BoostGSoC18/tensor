@@ -19,12 +19,14 @@
 #include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
 
 
-BOOST_AUTO_TEST_SUITE ( test_tensor ) ;
+BOOST_AUTO_TEST_SUITE ( tensor_testsuite,
+												*boost::unit_test::depends_on("extents_testsuite")
+												*boost::unit_test::depends_on("strides_testsuite"));
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_ctor, value,  test_types)
+BOOST_AUTO_TEST_CASE_TEMPLATE( ctor_test, value,  test_types)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -87,7 +89,7 @@ struct fixture {
 };
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ctor_extents_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -113,7 +115,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents, value,  test_types, 
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( copy_ctor_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -147,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor, value,  test_types, fix
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor_layout, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( copy_ctor_layout_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -178,7 +180,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_ctor_layout, value,  test_typ
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_move_ctor, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( copy_move_ctor_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -208,7 +210,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_copy_move_ctor, value,  test_types
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_init, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ctor_extents_init_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -231,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_init, value,  test_ty
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ctor_extents_array_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -257,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ctor_extents_array, value,  test_t
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_single_index_access, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( read_write_single_index_access_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -279,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_single_index_access, va
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( read_write_multi_index_access_at_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -367,7 +369,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_read_write_multi_index_access_at, 
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( reshape_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -403,7 +405,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_reshape, value,  test_types, fixtu
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( swap_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -441,7 +443,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_swap, value,  test_types, fixture)
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_standard_iterator, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( standard_iterator_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;

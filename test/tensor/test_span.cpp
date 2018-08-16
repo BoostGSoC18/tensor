@@ -17,9 +17,7 @@
 #include "../../include/boost/numeric/ublas/tensor/span.hpp"
 
 
-//BOOST_AUTO_TEST_SUITE(test_strides, * boost::unit_test::depends_on("test_extents"));
-
-BOOST_AUTO_TEST_SUITE( test_span );
+BOOST_AUTO_TEST_SUITE( span_testsuite );
 
 struct fixture {
 	using span_type  = boost::numeric::ublas::strided_span;
@@ -41,7 +39,7 @@ struct fixture {
 };
 
 
-BOOST_FIXTURE_TEST_CASE( test_strided_span_ctor, fixture )
+BOOST_FIXTURE_TEST_CASE( ctor_test, fixture )
 {
 	using span_type = boost::numeric::ublas::strided_span;
 
@@ -96,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE( test_strided_span_ctor, fixture )
 
 }
 
-BOOST_FIXTURE_TEST_CASE( test_strided_span_copy_ctor, fixture )
+BOOST_FIXTURE_TEST_CASE( copy_ctor_test, fixture )
 {
 	using span_type = boost::numeric::ublas::strided_span;
 
@@ -151,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE( test_strided_span_copy_ctor, fixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE( test_strided_span_assignment_operator, fixture )
+BOOST_FIXTURE_TEST_CASE( assignment_operator_test, fixture )
 {
 	auto c0 = spans[1];
 	BOOST_CHECK_EQUAL ((c0=spans[0]).first(),0);
@@ -203,7 +201,7 @@ BOOST_FIXTURE_TEST_CASE( test_strided_span_assignment_operator, fixture )
 
 }
 
-BOOST_FIXTURE_TEST_CASE( test_span_access_operator, fixture )
+BOOST_FIXTURE_TEST_CASE( access_operator_test, fixture )
 {
 
 	BOOST_CHECK_EQUAL(spans[0][0], 0);
@@ -235,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE( test_span_access_operator, fixture )
 
 }
 
-BOOST_FIXTURE_TEST_CASE( test_span_ran, fixture )
+BOOST_FIXTURE_TEST_CASE( ran_test, fixture )
 {
 	using namespace boost::numeric::ublas;
 

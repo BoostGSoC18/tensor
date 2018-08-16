@@ -21,6 +21,9 @@
 #include "utility.hpp"
 
 
+BOOST_AUTO_TEST_SUITE ( expression_testsuite,
+												*boost::unit_test::depends_on("tensor_testsuite") ) ;
+
 
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
@@ -51,7 +54,7 @@ struct fixture {
 };
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( access_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -76,7 +79,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_access, value,  test_ty
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_unary_expression, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( unary_expression_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -114,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_unary_expression, value,  test_typ
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_binary_expression, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( binary_expression_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -167,3 +170,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_binary_expression, value,  test_ty
 
 
 }
+
+
+BOOST_AUTO_TEST_SUITE_END();
+

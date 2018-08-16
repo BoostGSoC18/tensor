@@ -9,13 +9,13 @@
 
 #include "../../include/boost/numeric/ublas/tensor/extents.hpp"
 
-BOOST_AUTO_TEST_SUITE ( test_extents );
+BOOST_AUTO_TEST_SUITE ( extents_testsuite );
 
 
 //*boost::unit_test::label("extents")
 //*boost::unit_test::label("constructor")
 
-BOOST_AUTO_TEST_CASE(test_extents_ctor)
+BOOST_AUTO_TEST_CASE( ctor )
 {
 	using namespace boost::numeric;
 	using extents = ublas::basic_extents<unsigned>;
@@ -86,7 +86,7 @@ struct fixture {
 	std::vector<extents_type> extents;
 };
 
-BOOST_FIXTURE_TEST_CASE(test_extents_access, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("access"))
+BOOST_FIXTURE_TEST_CASE( access_test, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("access"))
 {
 	using namespace boost::numeric;
 
@@ -163,7 +163,7 @@ BOOST_FIXTURE_TEST_CASE(test_extents_access, fixture, *boost::unit_test::label("
 	BOOST_CHECK_EQUAL(extents[12][5],1);
 }
 
-BOOST_FIXTURE_TEST_CASE(test_extents_copy_ctor, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("copy_ctor"))
+BOOST_FIXTURE_TEST_CASE( copy_ctor_test, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("copy_ctor"))
 {
 	BOOST_REQUIRE_EQUAL(extents.size(),13);
 
@@ -253,7 +253,7 @@ BOOST_FIXTURE_TEST_CASE(test_extents_copy_ctor, fixture, *boost::unit_test::labe
 
 }
 
-BOOST_FIXTURE_TEST_CASE(test_extents_is, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("query"))
+BOOST_FIXTURE_TEST_CASE( is_test, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("query"))
 {
 	BOOST_REQUIRE_EQUAL(extents.size(),13);
 
@@ -351,7 +351,7 @@ BOOST_FIXTURE_TEST_CASE(test_extents_is, fixture, *boost::unit_test::label("exte
 }
 
 
-BOOST_FIXTURE_TEST_CASE(test_extents_squeeze, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("squeeze"))
+BOOST_FIXTURE_TEST_CASE( squeeze_test, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("squeeze"))
 {
 	BOOST_REQUIRE_EQUAL(extents.size(),13);
 
@@ -390,7 +390,7 @@ BOOST_FIXTURE_TEST_CASE(test_extents_squeeze, fixture, *boost::unit_test::label(
 }
 
 
-BOOST_FIXTURE_TEST_CASE(test_extents_valid, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("valid"))
+BOOST_FIXTURE_TEST_CASE( valid_test, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("valid"))
 {
 
 	using namespace boost::numeric;
@@ -412,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE(test_extents_valid, fixture, *boost::unit_test::label("e
 }
 
 
-BOOST_FIXTURE_TEST_CASE(test_extents_product, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("product"))
+BOOST_FIXTURE_TEST_CASE( product_test, fixture, *boost::unit_test::label("extents") *boost::unit_test::label("product"))
 {
 
 	auto e0  = extents[ 0].product(); // {}

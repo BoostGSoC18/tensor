@@ -23,13 +23,13 @@
 
 
 
-BOOST_AUTO_TEST_SUITE ( test_algorithms_traits ) ;
+BOOST_AUTO_TEST_SUITE ( algorithms_traits_testsuite ) ;
 
 
 using test_types  = zip<int,long>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_algorithms_traits_comparison, value, test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( comparison_test, value, test_types )
 {
 	using namespace boost::numeric;
 	using value_type = typename value::first_type;
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_algorithms_traits_comparison, value, test_ty
 
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_algorithms_traits_level_increment, value, test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( level_increment_test, value, test_types )
 {
 	using namespace boost::numeric;
 	using value_type = typename value::first_type;
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_algorithms_traits_level_increment, value, te
 
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_algorithms_traits_pointer_incr, value, test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( pointer_incr_test, value, test_types )
 {
 	using namespace boost::numeric;
 	using value_type = typename value::first_type;

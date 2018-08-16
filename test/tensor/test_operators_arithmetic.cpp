@@ -18,6 +18,11 @@
 #include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
 
 
+
+BOOST_AUTO_TEST_SUITE ( operators_arithmetic_testsuite,
+											 * boost::unit_test::depends_on("tensor_testsuite")) ;
+
+
 using double_extended = boost::multiprecision::cpp_bin_float_double_extended;
 
 using test_types = zip<int,long,float,double,double_extended>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
@@ -40,11 +45,8 @@ struct fixture {
 	std::vector<extents_type> extents;
 };
 
-BOOST_AUTO_TEST_SUITE(test_tensor_arithmetic_operations, * boost::unit_test::depends_on("test_tensor"));
 
-
-
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_binary_arithmetic_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( binary_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -113,7 +115,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_binary_arithmetic_operations, valu
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_unary_arithmetic_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( unary_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -176,7 +178,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_unary_arithmetic_operations, value
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_assign_arithmetic_operations, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( assign_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;

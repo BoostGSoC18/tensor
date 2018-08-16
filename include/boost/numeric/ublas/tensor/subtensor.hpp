@@ -26,6 +26,7 @@
 #include "algorithms.hpp"
 #include "expression.hpp"
 #include "expression_evaluation.hpp"
+#include "subtensor_utility.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
 #include "index.hpp"
@@ -138,12 +139,27 @@ public:
 	 */
 	BOOST_UBLAS_INLINE
 	subtensor (tensor_type& t)
-		: super_type()
+		: super_type    ()
+		, spans_        ()
 		, extents_      (t.extents())
 		, strides_      (t.strides())
 		, span_strides_ (t.strides())
 		, data_         (t.data())
 	{
+	}
+
+	template<typename ... span_types>
+	subtensor(tensor_type& t, span_types&& ... spans)
+			: super_type     ()
+			, spans_         (generate_span_vector(t.extents(),std::forward<span_types>(spans)...))
+			, extents_       (spans_)
+			, strides_       (extents_)
+			, span_strides_  (strides_,spans_)
+	{
+//		if( m == nullptr)
+//			throw std::length_error("Error in tensor_view<T>::tensor_view : multi_array_type is nullptr.");
+//		if( t == nullptr)
+//			throw std::length_error("Error in tensor_view<T>::tensor_view : tensor_type is nullptr.");
 	}
 
 
@@ -703,8 +719,6 @@ public:
 
 private:
 
-
-
 	std::vector<span_type> spans_;
 	extents_type extents_;
 	strides_type strides_;
@@ -839,7 +853,7 @@ void transform_spans_impl (extents_type const& extents,
 {
 	span_vector.at(r) = transform_span(span_type(arg),extents.at(r));
 	if constexpr (sizeof...(spans)>0)
-		transform_spans_impl(extents, span_vector, std::forward<span_types>(spans) ... );
+		transform_spans_impl<r+1>(extents, span_vector, std::forward<span_types>(spans) ... );
 }
 
 
@@ -856,10 +870,12 @@ void transform_spans_impl (extents_type const& extents,
 template<class span_type, class extents_type, class ... span_types>
 auto generate_span_vector(extents_type const& extents, span_types&& ... spans)
 {
-	if(extents.size() != sizeof...(spans) )
+	constexpr auto n = sizeof...(spans);
+	if(extents.size() != n)
 		throw std::runtime_error("Error in boost::numeric::ublas::generate_span_vector() when creating subtensor: the number of spans does not match with the tensor rank.");
-	std::vector<span_type> span_vector(sizeof...(spans)+1);
-	transform_spans_impl<std::size_t{0}>(  extents, span_vector, std::forward<span_types>(spans)... );
+	std::vector<span_type> span_vector(n);
+	if constexpr (n>0)
+		transform_spans_impl<n-n>(  extents, span_vector, std::forward<span_types>(spans)... );
 	return span_vector;
 }
 

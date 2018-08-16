@@ -24,7 +24,9 @@
 
 
 
-BOOST_AUTO_TEST_SUITE (test_tensor_contraction) ;
+BOOST_AUTO_TEST_SUITE ( tensor_contraction_testsuite,
+											 * boost::unit_test::depends_on("extents_testsuite")
+											 * boost::unit_test::depends_on("strides_testsuite")) ;
 
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
@@ -52,7 +54,7 @@ struct fixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(test_tensor_mtv, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(mtv_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -101,7 +103,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(test_tensor_mtv, value,  test_types, fixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_mtm, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( mtm_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -143,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_mtm, value,  test_types, fixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ttv_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -188,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttv, value,  test_types, fixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ttm_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -227,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttm, value,  test_types, fixture )
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt_permutation, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ttt_permutation_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -335,7 +337,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt_permutation, value,  test_type
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( ttt_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -418,7 +420,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_ttt, value,  test_types, fixture )
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( inner_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -444,7 +446,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner, value,  test_types, fixture
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( outer_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;

@@ -16,4 +16,5 @@ HEADERS += \
 	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/subtensor.hpp \
 	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/span.hpp \
 	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/algorithms_traits.hpp \
-	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/tags.hpp
+	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/tags.hpp \
+	$${INCLUDE_DIR}/boost/numeric/ublas/tensor/subtensor_utility.hpp

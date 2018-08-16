@@ -15,10 +15,11 @@
 #include "../../include/boost/numeric/ublas/tensor/index.hpp"
 
 
-BOOST_AUTO_TEST_SUITE ( test_multi_index_utility ) ;
+BOOST_AUTO_TEST_SUITE ( multi_index_utility_testsuite,
+												*boost::unit_test::depends_on("multi_index_testsuite")) ;
 
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_has_index )
+BOOST_AUTO_TEST_CASE ( has_index_test )
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
@@ -59,7 +60,7 @@ BOOST_AUTO_TEST_CASE ( test_multi_index_has_index )
 
 
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_valid )
+BOOST_AUTO_TEST_CASE ( valid_test )
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
@@ -118,7 +119,7 @@ BOOST_AUTO_TEST_CASE ( test_multi_index_valid )
 
 
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_number_equal_indices )
+BOOST_AUTO_TEST_CASE ( number_equal_indices_test )
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
@@ -260,7 +261,7 @@ BOOST_AUTO_TEST_CASE ( test_multi_index_number_equal_indices )
 
 
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_index_position )
+BOOST_AUTO_TEST_CASE ( index_position_test )
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
@@ -337,7 +338,7 @@ BOOST_AUTO_TEST_CASE ( test_multi_index_index_position )
 
 
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_index_position_pairs )
+BOOST_AUTO_TEST_CASE ( index_position_pairs_test)
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
@@ -525,7 +526,7 @@ BOOST_AUTO_TEST_CASE ( test_multi_index_index_position_pairs )
 
 
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_array_to_vector )
+BOOST_AUTO_TEST_CASE ( array_to_vector_test )
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;

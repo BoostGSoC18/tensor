@@ -19,6 +19,9 @@
 #include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
 
 
+BOOST_AUTO_TEST_SUITE(tensor_comparison_testsuite,
+											* boost::unit_test::depends_on("tensor_testsuite"));
+
 
 using double_extended = boost::multiprecision::cpp_bin_float_double_extended;
 
@@ -42,10 +45,9 @@ struct fixture {
 	std::vector<extents_type> extents;
 };
 
-BOOST_AUTO_TEST_SUITE(test_tensor_comparison, * boost::unit_test::depends_on("test_tensor"));
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( comparison_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -102,7 +104,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison, value,  test_types, fi
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison_with_tensor_expressions, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( comparison_with_tensor_expressions_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -173,7 +175,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison_with_tensor_expressions
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_comparison_with_scalar, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( comparison_with_scalar_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;

@@ -18,6 +18,9 @@
 #include "../../include/boost/numeric/ublas/tensor/expression.hpp"
 #include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
 
+BOOST_AUTO_TEST_SUITE ( einstein_notation_evaluation_testsuite,
+												* boost::unit_test::depends_on("einstein_notation_testsuite") ) ;
+
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
@@ -48,7 +51,7 @@ struct fixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_retrieve_extents, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( retrieve_extents_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -139,7 +142,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_retrieve_extents, value
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_all_extents_equal, value,  test_types, fixture)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( all_extents_equal_test, value,  test_types, fixture)
 {
 	using namespace boost::numeric;
 	using value_type  = typename value::first_type;
@@ -236,3 +239,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_expression_all_extents_equal, valu
 
 	}
 }
+
+BOOST_AUTO_TEST_SUITE_END();
+

@@ -22,13 +22,13 @@
 
 
 
-BOOST_AUTO_TEST_SUITE ( test_multi_index ) ;
+BOOST_AUTO_TEST_SUITE ( multi_index_testsuite ) ;
 
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
 
-BOOST_AUTO_TEST_CASE ( test_index_classes )
+BOOST_AUTO_TEST_CASE ( ctor_index_test )
 {
 	using namespace boost::numeric::ublas::index;
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE ( test_index_classes )
 
 }
 
-BOOST_AUTO_TEST_CASE ( test_multi_index_class_construction )
+BOOST_AUTO_TEST_CASE ( ctor_test)
 {
 	using namespace boost::numeric::ublas;
 	using namespace boost::numeric::ublas::index;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE ( test_multi_index_class_construction )
 }
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_tensor_multi_index_class_generation, value,  test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( tensor_test , value,  test_types )
 {
 	using namespace boost::numeric::ublas;
 	using value_type   = typename value::first_type;

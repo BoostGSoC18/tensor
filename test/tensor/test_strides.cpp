@@ -18,11 +18,12 @@
 
 //BOOST_AUTO_TEST_SUITE(test_strides, * boost::unit_test::depends_on("test_extents"));
 
-BOOST_AUTO_TEST_SUITE(test_strides);
+BOOST_AUTO_TEST_SUITE(strides_testsuite,
+											* boost::unit_test::depends_on("extents_testsuite"));
 
 using test_types = std::tuple<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( test_strides_ctor, value, test_types)
+BOOST_AUTO_TEST_CASE_TEMPLATE( ctor_test, value, test_types)
 {
 	using namespace boost::numeric;
 
@@ -64,7 +65,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( test_strides_ctor, value, test_types)
 
 
 
-BOOST_AUTO_TEST_CASE( test_strides_ctor_access_first_order)
+BOOST_AUTO_TEST_CASE( ctor_access_first_order_test)
 {
 	using namespace boost::numeric;
 
@@ -116,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_strides_ctor_access_first_order)
 	BOOST_CHECK_EQUAL   ( s8[2], 8);
 }
 
-BOOST_AUTO_TEST_CASE( test_strides_ctor_access_last_order)
+BOOST_AUTO_TEST_CASE( ctor_access_last_order_test)
 {
 	using namespace boost::numeric;
 

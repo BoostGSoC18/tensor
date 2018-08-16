@@ -23,7 +23,9 @@
 
 
 
-BOOST_AUTO_TEST_SUITE ( test_tensor_functions, * boost::unit_test::depends_on("test_tensor_contraction") ) ;
+BOOST_AUTO_TEST_SUITE ( functions_testsuite,
+												* boost::unit_test::depends_on("tensor_testsuite")
+												* boost::unit_test::depends_on("tensor_contraction_testsuite") ) ;
 
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
@@ -51,7 +53,7 @@ struct fixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_vector, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( prod_vector_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -80,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_vector, value,  test_types, f
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_matrix, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( prod_matrix_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -108,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_matrix, value,  test_types, f
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor_1, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( prod_tensor_1_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -146,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor_1, value,  test_types,
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor_2, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( prod_tensor_2_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -218,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_prod_tensor_2, value,  test_types,
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner_prod, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( inner_prod_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -240,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_inner_prod, value,  test_types, fi
 }
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_norm, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( norm_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -270,7 +272,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_norm, value,  test_types, fixture 
 }
 
 
-BOOST_FIXTURE_TEST_CASE( test_tensor_real_imag_conj, fixture )
+BOOST_FIXTURE_TEST_CASE( real_imag_conj_test, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = float;
@@ -350,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE( test_tensor_real_imag_conj, fixture )
 
 
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_outer_prod, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( outer_prod_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
@@ -392,7 +394,7 @@ void init(std::vector<std::complex<V>>& a)
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_trans, value,  test_types, fixture )
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( trans_test, value,  test_types, fixture )
 {
 	using namespace boost::numeric;
 	using value_type   = typename value::first_type;
