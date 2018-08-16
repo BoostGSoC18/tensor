@@ -30,7 +30,7 @@ namespace boost { namespace numeric { namespace ublas { namespace detail {
  * w[i] is the i-th stride of the tensor
  * s[i] is the step size of the i-th span
  *
- * @param[in] strides strides of the tensor this subtensor refers to
+ * @param[in] strides strides of the tensor, the subtensor refers to
  * @param[in] spans vector of spans of the subtensor
 */
 template<class strides_type, class span_type>
@@ -54,7 +54,7 @@ auto span_strides(strides_type const& strides, std::vector<span_type> const& spa
  * f[i] is the first element of the i-th span
  * w[i] is the i-th stride of the tensor
  *
- * @param[in] strides strides of the tensor this subtensor refers to
+ * @param[in] strides strides of the tensor, the subtensor refers to
  * @param[in] spans vector of spans of the subtensor
 */
 template<class strides_type, class span_type>

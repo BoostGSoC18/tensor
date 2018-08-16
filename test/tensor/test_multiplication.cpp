@@ -25,7 +25,6 @@
 
 
 BOOST_AUTO_TEST_SUITE ( tensor_contraction_testsuite,
-											 * boost::unit_test::depends_on("extents_testsuite")
 											 * boost::unit_test::depends_on("strides_testsuite")) ;
 
 

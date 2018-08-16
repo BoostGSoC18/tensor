@@ -25,7 +25,6 @@
 
 
 BOOST_AUTO_TEST_SUITE ( algorithms_testsuite,
-												* boost::unit_test::depends_on("extents_testsuite")
 												* boost::unit_test::depends_on("strides_testsuite")) ;
 
 
