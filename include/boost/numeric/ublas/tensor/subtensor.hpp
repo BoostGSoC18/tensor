@@ -21,15 +21,9 @@
 
 #include <boost/config.hpp>
 
-#include <initializer_list>
-
-#include "algorithms.hpp"
-#include "expression.hpp"
-#include "expression_evaluation.hpp"
 #include "subtensor_utility.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
-#include "index.hpp"
 #include "span.hpp"
 
 
@@ -151,10 +145,11 @@ public:
 	template<typename ... span_types>
 	subtensor(tensor_type& t, span_types&& ... spans)
 			: super_type     ()
-			, spans_         (generate_span_vector(t.extents(),std::forward<span_types>(spans)...))
-			, extents_       (spans_)
+			, spans_         (detail::generate_span_vector(t.extents(),std::forward<span_types>(spans)...))
+			, extents_       (detail::extents(spans_))
 			, strides_       (extents_)
-			, span_strides_  (strides_,spans_)
+			, span_strides_  (detail::span_strides(strides_,spans_))
+			, data_          (t.data() + detail::offset(strides_, spans_))
 	{
 //		if( m == nullptr)
 //			throw std::length_error("Error in tensor_view<T>::tensor_view : multi_array_type is nullptr.");

@@ -80,6 +80,8 @@ template<class span_type>
 auto extents(std::vector<span_type> const& spans)
 {
 	using base_type  = typename shape::base_type;
+	if(spans.empty())
+		return shape{};
 	auto extents = base_type(spans.size());
 	std::transform(spans.begin(), spans.end(), extents.begin(), [](span_type const& s) { return s.size(); } );
 	return shape( extents );
@@ -128,7 +130,11 @@ auto transform_span(span<span_tag, size_type> const& s, size_type const extent)
 	}
 }
 
-
+template<std::size_t r, class extents_type, class size_type, class span_type, class ... span_types>
+void transform_spans_impl (extents_type const& extents,
+													 std::vector<span_type>& span_vector,
+													 size_type arg,
+													 span_types&& ... spans );
 
 template<std::size_t r,class extents_type, class span_type, class ... span_types>
 void transform_spans_impl(extents_type const& extents,

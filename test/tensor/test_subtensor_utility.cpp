@@ -15,6 +15,8 @@
 
 #include "utility.hpp"
 #include "../../include/boost/numeric/ublas/tensor/subtensor_utility.hpp"
+#include "../../include/boost/numeric/ublas/tensor/extents.hpp"
+#include "../../include/boost/numeric/ublas/tensor/strides.hpp"
 #include "../../include/boost/numeric/ublas/tensor/span.hpp"
 
 
@@ -206,7 +208,168 @@ BOOST_FIXTURE_TEST_CASE( generate_span_vector_test, fixture_shape )
 	BOOST_CHECK ( std::equal( v.begin(), v.end(), r.begin(), [](span const& l, span const& r){ return l == r; } )  );
 	}
 
+	// shape{2,3}
+	{
+	auto v = detail::generate_span_vector<span>(extents[4],span(),span());
+	auto r = std::vector<span>{span(0,1),span(0,2)};
+	BOOST_CHECK ( std::equal( v.begin(), v.end(), r.begin(), [](span const& l, span const& r){ return l == r; } )  );
+	}
+
+	{
+	auto v = detail::generate_span_vector<span>(extents[4],1,span(1,end));
+	auto r = std::vector<span>{span(1,1),span(1,2)};
+	BOOST_CHECK ( std::equal( v.begin(), v.end(), r.begin(), [](span const& l, span const& r){ return l == r; } )  );
+	}
+
+	// shape{2,3,1}
+	{
+	auto v = detail::generate_span_vector<span>(extents[5],span(),span(),0);
+	auto r = std::vector<span>{span(0,1),span(0,2),span(0,0)};
+	BOOST_CHECK ( std::equal( v.begin(), v.end(), r.begin(), [](span const& l, span const& r){ return l == r; } )  );
+	}
+
+	{
+	auto v = detail::generate_span_vector<span>(extents[5],1,span(),end);
+	auto r = std::vector<span>{span(1,1),span(0,2),span(0,0)};
+	BOOST_CHECK ( std::equal( v.begin(), v.end(), r.begin(), [](span const& l, span const& r){ return l == r; } )  );
+	}
+}
+
+
+
+struct fixture_span_vector_shape {
+	using shape = boost::numeric::ublas::shape;
+	using span  = boost::numeric::ublas::sliced_span;
+
+
+	fixture_span_vector_shape()
+		: extents_{
+				shape{},    // 0
+				shape{1,1}, // 1
+				shape{1,2}, // 2
+				shape{2,3}, // 3
+				shape{4,2,3}, // 4
+				shape{4,2,3,5} // 5
+		}
+		, span_vectors_{
+				/*A(:)*/             boost::numeric::ublas::detail::generate_span_vector<span>(extents_[0]),
+				/*A(0,0)*/           boost::numeric::ublas::detail::generate_span_vector<span>(extents_[1],0,0),
+				/*A(0,:)*/           boost::numeric::ublas::detail::generate_span_vector<span>(extents_[2],0,span()),
+				/*A(1,1:2)*/         boost::numeric::ublas::detail::generate_span_vector<span>(extents_[3],1,span(1,2)),
+				/*A(1:3,1,1:2)*/     boost::numeric::ublas::detail::generate_span_vector<span>(extents_[4],span(1,3),1,span(0,1)),
+				/*A(1:3,1,0:1,2:4)*/ boost::numeric::ublas::detail::generate_span_vector<span>(extents_[5],span(1,3),1,span(0,1),span(2,4)),
+		}
+		, reference_ {
+				shape{},
+				shape{1,1},
+				shape{1,2},
+				shape{1,2},
+				shape{3,1,2},
+				shape{3,1,2,3}
+		}
+	{
+		assert(extents_.size() == reference_.size());
+		assert(extents_.size() == span_vectors_.size());
+	}
+	std::vector<shape> extents_;
+	std::vector<std::vector<span>> span_vectors_;
+	std::vector<shape> reference_;
+};
+
+
+BOOST_FIXTURE_TEST_CASE( extents_test, fixture_span_vector_shape )
+{
+	using namespace boost::numeric;
+
+	for(auto i = decltype(reference_.size()){}; i < reference_.size(); ++i )
+		BOOST_CHECK (  reference_[i]==ublas::detail::extents( span_vectors_[i] ) );
+}
+
+
+using test_types = std::tuple<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( offset_test, layout, test_types, fixture_span_vector_shape )
+{
+	using namespace boost::numeric;
+	using strides = ublas::strides<layout>;
+
+	{
+		auto s = span_vectors_[0];
+		auto w = strides( extents_[0] );
+		auto o = ublas::detail::offset(w,s);
+		BOOST_CHECK_EQUAL( o, 0  );
+	}
+
+	{
+		auto s = span_vectors_[1];
+		auto w = strides( extents_[1] );
+		auto o = ublas::detail::offset(w,s);
+		BOOST_CHECK_EQUAL( o, 0  );
+	}
+
+	{
+		auto s = span_vectors_[2];
+		auto w = strides( extents_[2] );
+		auto o = ublas::detail::offset(w,s);
+		BOOST_CHECK_EQUAL( o, 0  );
+	}
+
+	{
+		auto s = span_vectors_[3];
+		auto w = strides( extents_[3] );
+		auto o = ublas::detail::offset(w,s);
+		BOOST_CHECK_EQUAL( o, s[0].first()*w[0] + s[1].first()*w[1]  );
+	}
+
+	{
+		auto s = span_vectors_[4];
+		auto w = strides( extents_[4] );
+		auto o = ublas::detail::offset(w,s);
+		BOOST_CHECK_EQUAL( o, s[0].first()*w[0] + s[1].first()*w[1] + s[2].first()*w[2]   );
+	}
+
+
+	{
+		auto s = span_vectors_[5];
+		auto w = ( extents_[5] );
+		auto o = ublas::detail::offset(w,s);
+		BOOST_CHECK_EQUAL( o, s[0].first()*w[0] + s[1].first()*w[1] + s[2].first()*w[2] +  s[3].first()*w[3] );
+	}
 
 }
+
+
+
+
+
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE( span_strides_test, layout, test_types, fixture_span_vector_shape )
+{
+
+	/*A(:)*/
+	/*A(0,0)*/
+	/*A(0,:)*/
+	/*A(1,1:2)*/
+	/*A(1:3,1,1:2)*/
+	/*A(1:3,1,0:1,2:4)*/
+
+
+	// auto span_strides(strides_type const& strides, std::vector<span_type> const& spans)
+
+	using namespace boost::numeric;
+	using strides = ublas::strides<layout>;
+
+	for(unsigned k = 0; k < span_vectors_.size(); ++k)
+	{
+		auto s = span_vectors_[k];
+		auto w = strides( extents_[k] );
+		auto ss = ublas::detail::span_strides(  w, s  );
+		for(unsigned i = 0; i < w.size(); ++i)
+			BOOST_CHECK_EQUAL( ss[i], w[i]*s[i].step() );
+	}
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END();

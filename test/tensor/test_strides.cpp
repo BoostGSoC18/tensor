@@ -9,17 +9,13 @@
 //  which started as a Google Summer of Code project.
 //
 
-
-
 #include <boost/test/unit_test.hpp>
 
 #include "../../include/boost/numeric/ublas/tensor/strides.hpp"
 #include "../../include/boost/numeric/ublas/tensor/extents.hpp"
 
-//BOOST_AUTO_TEST_SUITE(test_strides, * boost::unit_test::depends_on("test_extents"));
 
-BOOST_AUTO_TEST_SUITE(strides_testsuite,
-											* boost::unit_test::depends_on("extents_testsuite"));
+BOOST_AUTO_TEST_SUITE(strides_testsuite);
 
 using test_types = std::tuple<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
