@@ -50,8 +50,8 @@ SOURCES += \
 	../../../test/tensor/test_span.cpp \
 	../../../test/tensor/test_subtensor.cpp \
 	../../../test/tensor/test_algorithms_traits.cpp \
-	../../../test/tensor/test_subtensor_utility.cpp
-
+	../../../test/tensor/test_subtensor_utility.cpp \
+	../../../test/tensor/test_access.cpp
 
 
 

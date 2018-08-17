@@ -23,9 +23,8 @@
 
 
 
-
-BOOST_AUTO_TEST_SUITE ( algorithms_testsuite,
-												* boost::unit_test::depends_on("strides_testsuite")) ;
+//, * boost::unit_test::depends_on("strides_testsuite")
+BOOST_AUTO_TEST_SUITE ( algorithms_testsuite ) ;
 
 
 using test_types  = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;

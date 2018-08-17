@@ -25,6 +25,7 @@
 #include "expression_evaluation.hpp"
 #include "extents.hpp"
 #include "strides.hpp"
+#include "access.hpp"
 #include "index.hpp"
 
 namespace boost { namespace numeric { namespace ublas {
