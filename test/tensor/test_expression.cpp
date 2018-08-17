@@ -21,8 +21,8 @@
 #include "utility.hpp"
 
 
-BOOST_AUTO_TEST_SUITE ( expression_testsuite,
-												*boost::unit_test::depends_on("tensor_testsuite") ) ;
+BOOST_AUTO_TEST_SUITE ( expression_testsuite/*,
+												*boost::unit_test::depends_on("tensor_testsuite")*/ ) ;
 
 
 

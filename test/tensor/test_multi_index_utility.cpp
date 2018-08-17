@@ -15,8 +15,8 @@
 #include "../../include/boost/numeric/ublas/tensor/index.hpp"
 
 
-BOOST_AUTO_TEST_SUITE ( multi_index_utility_testsuite,
-												*boost::unit_test::depends_on("multi_index_testsuite")) ;
+BOOST_AUTO_TEST_SUITE ( multi_index_utility_testsuite/*,
+												*boost::unit_test::depends_on("multi_index_testsuite")*/) ;
 
 
 BOOST_AUTO_TEST_CASE ( has_index_test )

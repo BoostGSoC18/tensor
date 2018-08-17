@@ -19,7 +19,7 @@
 #include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
 #include "../../include/boost/numeric/ublas/tensor/operators_arithmetic.hpp"
 
-BOOST_AUTO_TEST_SUITE ( einstein_notation_testsuite, * boost::unit_test::depends_on("multi_index_testsuite") ) ;
+BOOST_AUTO_TEST_SUITE ( einstein_notation_testsuite/*, * boost::unit_test::depends_on("multi_index_testsuite")*/ ) ;
 
 
 using test_types = zip<int,long,float,double,std::complex<float>>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;

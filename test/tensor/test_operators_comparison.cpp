@@ -19,8 +19,8 @@
 #include "../../include/boost/numeric/ublas/tensor/tensor.hpp"
 
 
-BOOST_AUTO_TEST_SUITE(tensor_comparison_testsuite,
-											* boost::unit_test::depends_on("tensor_testsuite"));
+BOOST_AUTO_TEST_SUITE(tensor_comparison_testsuite/*,
+											* boost::unit_test::depends_on("tensor_testsuite")*/);
 
 
 using double_extended = boost::multiprecision::cpp_bin_float_double_extended;

@@ -22,8 +22,8 @@
 
 // BOOST_AUTO_TEST_SUITE ( test_tensor_matrix_interoperability, * boost::unit_test::depends_on("test_tensor") ) ;
 
-BOOST_AUTO_TEST_SUITE ( tensor_matrix_interoperability_testsuite,
-												* boost::unit_test::depends_on("tensor_testsuite")) ;
+BOOST_AUTO_TEST_SUITE ( tensor_matrix_interoperability_testsuite/*,
+												* boost::unit_test::depends_on("tensor_testsuite")*/) ;
 
 using test_types = zip<int,long,float,double>::with_t<boost::numeric::ublas::tag::first_order, boost::numeric::ublas::tag::last_order>;
 
