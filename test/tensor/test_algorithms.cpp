@@ -162,12 +162,12 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE( test_tensor_algorithms_accumulate, value,  tes
 		auto const s = n.product();
 
 		auto a  = vector_type(n.product());
-		auto b  = vector_type(n.product());
-		auto c  = vector_type(n.product());
+//		auto b  = vector_type(n.product());
+//		auto c  = vector_type(n.product());
 
 		auto wa = ublas::strides<ublas::first_order>(n);
-		auto wb = ublas::strides<ublas::last_order> (n);
-		auto wc = ublas::strides<ublas::first_order>(n);
+//		auto wb = ublas::strides<ublas::last_order> (n);
+//		auto wc = ublas::strides<ublas::first_order>(n);
 
 		auto v = value_type{};
 		for(auto i = 0ul; i < a.size(); ++i, v+=value_type(1)){
