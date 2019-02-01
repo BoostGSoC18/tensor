@@ -12,9 +12,10 @@
 
 /// \file tensor.hpp Definition for the class vector and its derivative
 
-#ifndef _BOOST_UBLAS_TENSOR_
-#define _BOOST_UBLAS_TENSOR_
+#ifndef BOOST_NUMERIC_UBLAS_TENSOR
+#define BOOST_NUMERIC_UBLAS_TENSOR
 
+#if __cplusplus >= 201703L
 
 #include "tensor/functions.hpp"
 #include "tensor/operators_arithmetic.hpp"
@@ -24,5 +25,6 @@
 #include "tensor/ostream.hpp"
 #include "tensor/tensor.hpp"
 
+#endif
 
 #endif
