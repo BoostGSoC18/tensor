@@ -286,7 +286,16 @@ public:
 
 		auto new_extent = basic_extents{};
 		auto insert_iter = std::back_insert_iterator<typename basic_extents::base_type>(new_extent._base);
-		std::remove_copy(this->_base.begin(), this->_base.end(), insert_iter ,value_type{1});
+		auto c = std::count_if(this->begin(),this->end(),[](auto& n){return n == value_type{1};});
+    auto num = this->size() - c;
+    if((*this)[0]==value_type{1} && (*this)[1] != value_type{1} && num == 1){
+        new_extent._base.push_back(value_type{1});
+        new_extent._base.push_back((*this)[1]);
+    }else{
+				std::remove_copy(this->_base.begin(), this->_base.end(), insert_iter ,value_type{1});
+    }
+
+		while(new_extent.size()<2) new_extent._base.push_back(1);
 		return new_extent;
 
 	}
